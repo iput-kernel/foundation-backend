@@ -18,8 +18,10 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_KEY }}
 
+    - name: Add known_hosts
+      run: |
+        echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+
     - name: Deploy to server
       run: |
-        echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts"
-        ssh bitcat@www.iput-kernel.com "cd /opt/iput-kernel/foundation-backend && git pull origin main"
-        ssh bitcat@www.iput-kernel.com /opt/iput-kernel/foundation-backend && yarn && yarn start"
+        ssh bitcat@www.iput-kernel.com "cd /opt/iput-kernel/foundation-backend && git pull origin main && yarn && yarn start"
