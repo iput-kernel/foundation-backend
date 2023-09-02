@@ -20,5 +20,6 @@ jobs:
 
     - name: Deploy to server
       run: |
+        echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
         ssh bitcat@www.iput-kernel.com "cd /opt/iput-kernel/foundation-backend && git pull origin main"
         ssh bitcat@www.iput-kernel.com /opt/iput-kernel/foundation-backend && yarn && yarn start"
