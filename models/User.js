@@ -32,6 +32,15 @@ const UserSchema = new mongoose.Schema({
         min: 6,
         max: 50
     },
+    confirmationToken: {
+        type: String,
+        unique: true,       
+        sparse: true        
+    },
+    isVerified: {       
+        type: Boolean,
+        default: false
+    },
     profilePicture: {
         type: String,
         default: "",
