@@ -2,13 +2,16 @@ const router = require('express').Router();
 const User = require('../models/User');
 
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+
+const nodemailer = require("nodemailer");
+
 const saltRounds = 10;
 
 router.post('/register', async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
 
-        // 新しいユーザーを作成する前に、一時的なトークンを生成
         const token = crypto.randomBytes(16).toString("hex");
 
         const newUser = new User({
@@ -19,12 +22,12 @@ router.post('/register', async (req, res) => {
             isVerified: false
         });
 
-        // メールを送信
         await sendConfirmationEmail(req.body.email, token);
 
         const user = await newUser.save();
         return res.status(200).json({ message: "Confirmation email sent", user: user._id });
     } catch (err) {
+        console.error(err);
         res.status(500).json(err);
     }
 });
@@ -70,7 +73,7 @@ async function sendConfirmationEmail(email, token) {
         }
     });
 
-    const link = `/api/auth/confirm-email/${token}`;
+    const link = `https://www.iput-kernel.com/api/auth/confirm-email/${token}`;
 
     const mailOptions = {
         from: "iput-kernel@gmail.com",

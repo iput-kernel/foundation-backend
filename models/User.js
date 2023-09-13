@@ -30,7 +30,7 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
         min: 1,
-        max: 100000
+        max: 70
     },
     confirmationToken: {
         type: String,

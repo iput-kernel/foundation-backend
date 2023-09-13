@@ -24,7 +24,6 @@ mongoose
         console.log(err);
     });
 
-
 //ミドルウェア
 app.use(express.json());
 app.use(cors());
