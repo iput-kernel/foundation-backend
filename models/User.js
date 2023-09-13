@@ -29,8 +29,8 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        min: 6,
-        max: 50
+        min: 1,
+        max: 100000
     },
     confirmationToken: {
         type: String,

@@ -66,7 +66,7 @@ async function sendConfirmationEmail(email, token) {
         service: "Gmail",  // ここを使用しているメールサービスに変更してください
         auth: {
             user: "iput.kernel@gmail.com",
-            pass: "$K6nmsYSNK&_AD%"
+            pass: process.env.MAILPASS
         }
     });
 
