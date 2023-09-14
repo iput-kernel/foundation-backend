@@ -32,6 +32,11 @@ const UserSchema = new mongoose.Schema({
         min: 1,
         max: 70
     },
+    secretKey: {
+        type: String,
+        required: true,
+        unique: true
+    },
     confirmationToken: {
         type: String,
         unique: true,       

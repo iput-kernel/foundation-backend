@@ -91,14 +91,15 @@ router.get('/confirm-email/:token', async (req, res) => {
 
 async function sendConfirmationEmail(email, token) {
     const transporter = nodemailer.createTransport({
-        service: "Gmail",  // ここを使用しているメールサービスに変更してください
+        service: "Gmail", 
         auth: {
             user: "iput.kernel@gmail.com",
             pass: process.env.MAILPASS
         }
     });
 
-    const link = `https://www.iput-kernel.com/api/auth/confirm-email/${token}`;
+    // リンクをクエリパラメータ形式に変更
+    const link = `https://www.iput-kernel.com/api/auth/confirm-email?token=${token}`;
 
     const mailOptions = {
         from: "iput-kernel@gmail.com",
@@ -109,6 +110,7 @@ async function sendConfirmationEmail(email, token) {
 
     await transporter.sendMail(mailOptions);
 }
+
 
 async function signJWT(payload) {
     const latestKeyDoc = await SecretKey.findOne().sort({createdAt: -1});
