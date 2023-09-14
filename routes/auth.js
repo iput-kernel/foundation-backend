@@ -1,5 +1,7 @@
 const router = require('express').Router();
+
 const User = require('../models/User');
+const SecretKey = require('../models/SecretKey');  
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -37,20 +39,21 @@ router.post('/register', async (req, res) => {
 router.post("/login", async (req, res) => {
     try {
         const user = await User.findOne({ email: req.body.email });
-        
-        const token = jwt.sign(
-            { userId: user._id },   // ペイロードにはユーザーIDなどの情報を持たせることができます
-            'YOUR_SECRET_KEY',     // 秘密鍵（任意の文字列）です
-            { expiresIn: '1h' }    // トークンの有効期限を設定します（例：1時間）
-        );
-
         if (!user) return res.status(400).send("ユーザーが見つかりません");
 
-        // bcrypt.compare を使ってハッシュ値を比較
         const validPassword = await bcrypt.compare(req.body.password, user.password);
         if (!validPassword) return res.status(400).json("パスワードが違います");
 
-        return res.status(200).json(user);
+        // データベースから最新の秘密鍵を取得
+        const latestKeyDoc = await SecretKey.findOne().sort({ createdAt: -1 });
+        if (!latestKeyDoc) return res.status(500).send("サーバー内部エラー: 秘密鍵が見つかりません");
+
+        const secret = latestKeyDoc.secretKey;
+
+        // JWTの署名
+        const token = signJWT(user._id)
+
+        return res.status(200).json({ user, token });  // トークンも応答として返します
     } catch (err) {
         res.status(500).json(err);
     }
@@ -67,12 +70,24 @@ router.get('/confirm-email/:token', async (req, res) => {
         user.confirmationToken = undefined;
         await user.save();
 
-        res.status(200).json({ message: "Email認証済み" });
+        // ユーザーが認証された後、秘密鍵を生成
+        const newSecretKey = crypto.randomBytes(32).toString('hex');
+
+        // 既に秘密鍵が存在するか確認
+        let secret = await SecretKey.findOne();
+        if (secret) {
+            return res.status(400).json({ message: "秘密鍵は既に存在します" });
+        }
+
+        // 秘密鍵をMongoDBに格納
+        const secretData = new SecretKey({ key: newSecretKey });
+        await secretData.save();
+
+        res.status(200).json({ message: "メールアドレスが確認され、秘密鍵が生成されました" });
     } catch (err) {
         res.status(500).json(err);
     }
 });
-
 
 async function sendConfirmationEmail(email, token) {
     const transporter = nodemailer.createTransport({
@@ -93,6 +108,20 @@ async function sendConfirmationEmail(email, token) {
     };
 
     await transporter.sendMail(mailOptions);
+}
+
+async function signJWT(payload) {
+    const latestKeyDoc = await SecretKey.findOne().sort({createdAt: -1});
+    const secret = latestKeyDoc.secretKey;
+
+    return jwt.sign(payload, secret);
+}
+
+async function verifyJWT(token) {
+    const latestKeyDoc = await SecretKey.findOne().sort({createdAt: -1});
+    const secret = latestKeyDoc.secretKey;
+
+    return jwt.verify(token, secret);
 }
 
 module.exports = router;
