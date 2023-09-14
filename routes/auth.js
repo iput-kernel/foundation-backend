@@ -35,6 +35,26 @@ router.post('/register', async (req, res) => {
     }
 });
 
+router.get("/confirm-email", async (req, res) => {
+    try {
+        const { token } = req.query; // クエリパラメータからtokenを取得
+
+        const user = await User.findOne({ confirmationToken: token });
+        if (!user) return res.status(400).send("無効なトークンです。");
+
+        // 秘密鍵を生成
+        const newSecretKey = crypto.randomBytes(32).toString('hex');
+
+        user.isVerified = true; // アカウントを認証済みに設定
+        user.secretKey = newSecretKey; // 生成した秘密鍵をユーザーに保存
+        await user.save();
+
+        return res.status(200).send("アカウントが認証されました。");
+    } catch (err) {
+        res.status(500).json(err);
+    }
+});
+
 
 router.post("/login", async (req, res) => {
     try {
@@ -59,35 +79,6 @@ router.post("/login", async (req, res) => {
     }
 });
 
-router.get('/confirm-email/:token', async (req, res) => {
-    try {
-        const user = await User.findOne({ confirmationToken: req.params.token });
-        if (!user) {
-            return res.status(400).json({ message: "Invalid token" });
-        }
-
-        user.isVerified = true;
-        user.confirmationToken = undefined;
-        await user.save();
-
-        // ユーザーが認証された後、秘密鍵を生成
-        const newSecretKey = crypto.randomBytes(32).toString('hex');
-
-        // 既に秘密鍵が存在するか確認
-        let secret = await SecretKey.findOne();
-        if (secret) {
-            return res.status(400).json({ message: "秘密鍵は既に存在します" });
-        }
-
-        // 秘密鍵をMongoDBに格納
-        const secretData = new SecretKey({ key: newSecretKey });
-        await secretData.save();
-
-        res.status(200).json({ message: "メールアドレスが確認され、秘密鍵が生成されました" });
-    } catch (err) {
-        res.status(500).json(err);
-    }
-});
 
 async function sendConfirmationEmail(email, token) {
     const transporter = nodemailer.createTransport({
