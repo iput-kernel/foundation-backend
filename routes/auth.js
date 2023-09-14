@@ -71,12 +71,14 @@ router.post("/login", async (req, res) => {
         // JWTの署名
         const token = await signJWT(user, { userId: user._id });
 
-        return res.status(200).json({ user, token });  // トークンも応答として返します
+        // ユーザー情報からpasswordと他の不要なフィールドを除外
+        const { password, secretKey, confirmationToken, createdAt , updatedAt, ...userResponse } = user.toObject();
+
+        return res.status(200).json({ user: userResponse, token });  // トークンも応答として返します
     } catch (err) {
         res.status(500).json(err);
     }
 });
-
 
 
 async function sendConfirmationEmail(email, token) {
