@@ -34,7 +34,8 @@ const UserSchema = new mongoose.Schema({
     },
     secretKey: {
         type: String,
-        unique: true
+        unique: true,
+        default:""
     },
     confirmationToken: {
         type: String,
