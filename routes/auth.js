@@ -64,20 +64,19 @@ router.post("/login", async (req, res) => {
         const validPassword = await bcrypt.compare(req.body.password, user.password);
         if (!validPassword) return res.status(400).json("パスワードが違います");
 
-        // データベースから最新の秘密鍵を取得
-        const latestKeyDoc = await SecretKey.findOne().sort({ createdAt: -1 });
-        if (!latestKeyDoc) return res.status(500).send("サーバー内部エラー: 秘密鍵が見つかりません");
-
-        const secret = latestKeyDoc.secretKey;
+        if (!user.secretKey) {
+            return res.status(500).send("サーバー内部エラー: ユーザーの秘密鍵が見つかりません");
+        }
 
         // JWTの署名
-        const token = signJWT(user._id)
+        const token = await signJWT(user, { userId: user._id });
 
         return res.status(200).json({ user, token });  // トークンも応答として返します
     } catch (err) {
         res.status(500).json(err);
     }
 });
+
 
 
 async function sendConfirmationEmail(email, token) {
@@ -103,18 +102,21 @@ async function sendConfirmationEmail(email, token) {
 }
 
 
-async function signJWT(payload) {
-    const latestKeyDoc = await SecretKey.findOne().sort({createdAt: -1});
-    const secret = latestKeyDoc.secretKey;
-
+async function signJWT(user, payload) {
+    const secret = user.secretKey;
+    if (!secret) {
+        throw new Error("No secret key found for the given user.");
+    }
     return jwt.sign(payload, secret);
 }
 
-async function verifyJWT(token) {
-    const latestKeyDoc = await SecretKey.findOne().sort({createdAt: -1});
-    const secret = latestKeyDoc.secretKey;
-
+async function verifyJWT(user, token) {
+    const secret = user.secretKey;
+    if (!secret) {
+        throw new Error("No secret key found for the given user.");
+    }
     return jwt.verify(token, secret);
 }
+
 
 module.exports = router;
