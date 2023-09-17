@@ -11,6 +11,7 @@ const teacherRoute = require("./routes/teachers");
 const classRoute = require("./routes/classes");
 const timelineRoute = require("./routes/timetable");
 const weekRoute = require("./routes/week");
+
 const PORT = 4000;
 const mongoose = require("mongoose");
 require("dotenv").config();
