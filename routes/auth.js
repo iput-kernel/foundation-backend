@@ -1,7 +1,6 @@
 const router = require('express').Router();
 
 const User = require('../models/User');
-const SecretKey = require('../models/SecretKey');  
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -119,6 +118,5 @@ async function verifyJWT(user, token) {
     }
     return jwt.verify(token, secret);
 }
-
 
 module.exports = router;

@@ -14,13 +14,13 @@ const ClassSchema = new mongoose.Schema({
         type: String,
         max:2
     },
-    studentsId: {
-        type: Array,
-        default: [],
-    },
+    studentsId: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
     timetableId: {
-        type: String,
-        default: "",
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Week'
     },
 });
 

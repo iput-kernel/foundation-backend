@@ -96,8 +96,5 @@ router.get('/class/:classId', async (req, res) => {
     }
 });
 
-
-
-
 module.exports = router;
 
