@@ -2,10 +2,11 @@ const router = require('express').Router();
 const Timetable = require('../models/Timetable');
 const Subject = require('../models/Subject');
 const Class = require('../models/Class');
+const Room = require('../models/Room');
 
 // Create a Timetable
 router.post('/', async (req, res) => {
-    const { usedClass, weekSubjects } = req.body;
+    const { usedClass, weekSubjects, weekRooms } = req.body;
 
     try {
         const timetableSubjects = await Promise.all(weekSubjects.map(async (daySubjects) => {
@@ -18,7 +19,18 @@ router.post('/', async (req, res) => {
             }));
         }));
 
-        const timetable = new Timetable({ usedClass, weekSubjects: timetableSubjects });
+        // Convert each day's room numbers to Room IDs
+        const timetableRooms = await Promise.all(weekRooms.map(async (dayRooms) => {
+            return await Promise.all(dayRooms.map(async (roomNumber) => {
+                const room = await Room.findOne({ roomNumber: roomNumber });
+                if (!room) {
+                    throw new Error(`${roomNumber} という教室番号は存在しません`);
+                }
+                return room._id;
+            }));
+        }));
+
+        const timetable = new Timetable({ usedClass, weekSubjects: timetableSubjects, weekRooms: timetableRooms });
         await timetable.save();
         res.status(201).json(timetable);
     } catch (err) {
@@ -33,6 +45,10 @@ router.get('/:id', async (req, res) => {
             .populate({
                 path: 'weekSubjects',
                 model: 'Subject'
+            })
+            .populate({
+                path: 'weekRooms',
+                model: 'Room'
             })
             .populate({
                 path: 'usedClass',
@@ -54,6 +70,10 @@ router.get('/', async (req, res) => {
             .populate({
                 path: 'weekSubjects',
                 model: 'Subject'
+            })
+            .populate({
+                path: 'weekRooms',
+                model: 'Room'
             })
             .populate({
                 path: 'usedClass',

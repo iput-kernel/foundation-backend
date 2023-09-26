@@ -5,6 +5,10 @@ const TimetableSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Class'
     },
+    weekRooms: [[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Room'
+    }]],
     weekSubjects: [[{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Subject'
