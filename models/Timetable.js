@@ -1,11 +1,14 @@
 const mongoose = require("mongoose");
 
 const TimetableSchema = new mongoose.Schema({
-    subjectIds: [{
+    usedClass: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Subject',
-    }],
-
+        ref: 'Class'
+    },
+    weekSubjects: [[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Subject'
+    }]]
 });
 
 module.exports = mongoose.model("Timetable",TimetableSchema);
