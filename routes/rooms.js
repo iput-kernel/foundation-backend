@@ -2,7 +2,9 @@ const router = require('express').Router();
 const Room = require('../models/Room');
 const User = require('../models/User');
 
-router.post("/", async (req,res) => {
+const { authenticateJWT } = require('../jwtAuth');
+
+router.post("/", authenticateJWT , async (req,res) => {
     try{
         const newRoom = new Room(req.body);
         const user = await User.findById(req.body.userId);
@@ -38,7 +40,7 @@ router.get("/:id", async (req,res) => {
 });
 
 //特定のroomを更新
-router.put("/number/:number", async (req,res) => {
+router.put("/number/:number", authenticateJWT , async (req,res) => {
     try {
         const room = await Room.findOne({roomNumber: req.params.number});
         if (!room) {
@@ -55,7 +57,7 @@ router.put("/number/:number", async (req,res) => {
         
 
 // userが管理者、もしくは信用レベルが4以上の場合にroomを削除
-router.delete("/:id", async (req,res) => {
+router.delete("/:id", authenticateJWT, async (req,res) => {
     try{
         const room = await Room.findById(req.params.id);
         const user = await User.findById(req.body.userId);
@@ -70,7 +72,7 @@ router.delete("/:id", async (req,res) => {
     }
 });
 
-router.delete("/number/:number", async (req,res) => {
+router.delete("/number/:number", authenticateJWT, async (req,res) => {
     try{
         const room = await Room.findOne({roomNumber: req.params.number});
         const user = await User.findById(req.body.userId);
@@ -84,6 +86,5 @@ router.delete("/number/:number", async (req,res) => {
         return res.status(500).json(err);
     }
 });
-
 
 module.exports = router;

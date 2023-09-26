@@ -7,7 +7,6 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 
 const nodemailer = require("nodemailer");
-
 const saltRounds = 10;
 
 router.post('/register', async (req, res) => {
