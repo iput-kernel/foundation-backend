@@ -72,8 +72,8 @@ const UserSchema = new mongoose.Schema({
         default: "",
     },
     classId:{
-        type: String,
-        max: 10,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Class',
     },
     class:{
         type: String,

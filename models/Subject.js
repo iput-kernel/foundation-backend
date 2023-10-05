@@ -6,14 +6,14 @@ const SubjectSchema = new mongoose.Schema({
         default: "",
         required: true,
     },
-    teachersId: {
-        type: Array,
-        default: [],
-    },
-    reviewsId:{
-        type: Array,
-        default: [],
-    },
+    teachersId: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Teacher',
+    }],
+    reviewsId: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Review',
+    }],
     grade: {
         type: Number,
     },

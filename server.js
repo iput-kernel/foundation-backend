@@ -16,6 +16,7 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 
 //データベース接続
+console.log(process.env)
 mongoose
     .connect(process.env.MONGOURL)
     .then(() =>{
