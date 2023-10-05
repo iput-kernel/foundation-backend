@@ -1,3 +1,5 @@
+[![](https://img.shields.io/github/license/IPUT-Kernel/foundation-backend?color=yellow&style=plastic)](LICENSE)
+
 ## 概要
 このプロジェクトは、学生が管理することを主体においた、大学生活をより豊かで効率的にするソーシャルプラットフォームである。
 
