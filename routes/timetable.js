@@ -30,10 +30,10 @@ router.post('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const timetable = await Timetable.findById(req.params.id)
-            .populate({
+            .populate([[{
                 path: 'weekSubjects',
                 model: 'Subject'
-            })
+            }]])
             .populate({
                 path: 'usedClass',
                 model: 'Class'

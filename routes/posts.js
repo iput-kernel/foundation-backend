@@ -47,7 +47,11 @@ router.delete("/:id", async (req,res) => {
 //特定の投稿の取得
 router.get("/:id", async (req,res) => {
     try{
-        const post = await Post.findById(req.params.id);
+        const post = await Post.findById(req.params.id)
+            .populate({
+                path: 'userId',
+                model: 'User',
+            })
         return res.status(200).json(post);
     }catch(err){
         return res.status(403).json(err);
@@ -81,8 +85,24 @@ router.put("/:id/like", async (req,res) => {
 //タイムラインの投稿を取得する。自分の投稿とフォローしている人の投稿を取得する
 router.get("/timeline/all", async (req,res) => {
     try{
-        const currentUser = await User.findById(req.body.userId);
-        const userPosts = await Post.find({userId: currentUser._id});
+        const currentUser = await User.findById(req.body.userId)
+            .populate([{
+                path: 'followings',
+                model: 'User',
+            }])
+            .populate([{
+                path: 'followers',
+                model: 'User',
+            }])
+            .populate({
+                path: 'classId',
+                model: 'Class',
+            });
+        const userPosts = await Post.find({userId: currentUser._id})
+            .populate({
+                path: 'userId',
+                ref: 'User',
+            })
         //自分がフォローしている人の投稿を取得する
         const friendPosts = await Promise.all(
             currentUser.followings.map((friendId) => {

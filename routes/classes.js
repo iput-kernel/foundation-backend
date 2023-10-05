@@ -48,7 +48,15 @@ router.delete("/:id", async (req,res) => {
 //特定のクラスの取得
 router.get("/:id", async (req,res) => {
     try{
-        const classes = await Class.findById(req.params.id);
+        const classes = await Class.findById(req.params.id)
+        .populate([{
+            path: 'studentsId',
+            model: 'User',
+        }])
+        .populate([{
+            path: 'timetableId',
+            model: 'Timetable',
+        }])
         return res.status(200).json(classes);
     }catch(err){
         return res.status(403).json(err);

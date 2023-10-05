@@ -54,14 +54,14 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: "",
     },
-    followers: {
-        type: Array,
-        default: [],
-    },
-    followings: {
-        type: Array,
-        default: [],
-    },
+    followers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    followings: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
     grade:{
         type: Number,
         max: 10,

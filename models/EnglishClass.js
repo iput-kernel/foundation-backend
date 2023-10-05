@@ -18,8 +18,8 @@ const EnglishClassSchema = new mongoose.Schema({
   }],
   TimetableId: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Week',
+    ref: 'Timetable',
   }],
 });
 
-module.exports = mongoose.model("Class", EnglishClassSchema);
+module.exports = mongoose.model("EnglishClass", EnglishClassSchema);
