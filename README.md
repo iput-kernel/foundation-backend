@@ -1,5 +1,9 @@
 ## Quick start
-docker-compose up -d
+
+**サーバー起動**<br>
+`make run`<br>
+**サーバー停止**<br>
+`make down`
 
 ## 要件一覧
 １．すべてのユーザーは基本的に匿名及び実名を意図的に選択できる
