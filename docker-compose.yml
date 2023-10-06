@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb-container
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo-volumes:/data/db
+
+  application:
+    build: .
+    container_name: app-container
+    ports:
+      - "4000:4000"
+    depends_on:
+      - mongodb
+    environment: 
+      - MONGO_URI=mongodb://mongodb:27017/iputkernel
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules

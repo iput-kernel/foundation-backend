@@ -13,11 +13,10 @@ const timetableRoute = require("./routes/timetable");
 
 const PORT = 4000;
 const mongoose = require("mongoose");
-require("dotenv").config();
 
 //データベース接続
 mongoose
-    .connect(process.env.MONGOURL)
+    .connect(process.env.MONGO_URI)
     .then(() =>{
     console.log("DB接続中");
     }).catch((err) => {
