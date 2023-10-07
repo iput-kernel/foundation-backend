@@ -20,7 +20,7 @@ const ClassSchema = new mongoose.Schema({
     }],
     timetableId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Week'
+        ref: 'Timetable'
     },
 });
 

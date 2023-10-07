@@ -5,7 +5,20 @@ const User = require("../models/User");
 
 router.get("/:id", async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.params.id)
+            .populate([{
+                path: 'followings',
+                model: 'User',
+            }])
+            .populate([{
+                path: 'followers',
+                model: 'User',
+            }])
+            .populate({
+                path: 'classId',
+                model: 'Class',
+            });
+
     const { password, updatedAt, ...other } = user._doc;
     res.status(httpStatus.OK).json(other);
   } catch (err) {

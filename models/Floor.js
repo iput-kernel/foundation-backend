@@ -5,11 +5,8 @@ const FloorSchema = new mongoose.Schema({
         type: Number,
         required: true,        
     },
-    roomsId: {
-        type: Array,
-        default: [],
-    },
+    roomsId: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Room',
+    }],
 });
-
-
-        

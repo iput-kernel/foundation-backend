@@ -54,7 +54,15 @@ router.delete("/name/:subjectName", async (req, res) => {
 //全てのSubject取得
 router.get("/", async (req, res) => {
   try {
-    const subjects = await Subject.find();
+    const subjects = await Subject.find()
+            .populate([{
+                path: 'teacherId',
+                model: 'Teacher',
+            }])
+            .populate([{
+                path: 'reviewId',
+                model: 'Review',
+            }])
     return res.status(httpStatus.OK).json(subjects);
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
@@ -64,7 +72,15 @@ router.get("/", async (req, res) => {
 //任意のgradeのSubject取得
 router.get("/grade/:grade", async (req, res) => {
   try {
-    const subjects = await Subject.find({ grade: req.params.grade });
+    const subjects = await Subject.find({ grade: req.params.grade })
+            .populate([{
+                path: 'teacherId',
+                model: 'Teacher',
+            }])
+            .populate([{
+                path: 'reviewId',
+                model: 'Review',
+            }])
     return res.status(httpStatus.OK).json(subjects);
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
