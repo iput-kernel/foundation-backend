@@ -18,6 +18,7 @@ services:
       - mongodb
     environment: 
       - MONGO_URI=mongodb://mongodb:27017/iputkernel
+      - MAILPASS=${MAILPASS}
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
