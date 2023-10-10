@@ -11,16 +11,16 @@ const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const saltRounds = 10;
 
-router.post("/register", (req, res) => {
+router.post("/register", async (req, res) => {
   try {
     // すでに登録されているメールアドレスかどうかを確認
-    const findUser = User.findOne({ email: req.body.email });
+    const findUser = await User.findOne({ email: req.body.email });
     if (findUser && findUser.isVerified)
       return res
         .status(httpStatus.BAD_REQUEST)
         .send("このメールアドレスはすでに登録されています。");
 
-    const hashedPassword = bcrypt.hash(req.body.password, saltRounds);
+    const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
 
     const token = crypto.randomBytes(16).toString("hex");
 
