@@ -32,9 +32,9 @@ router.post("/register", async (req, res) => {
       isVerified: false,
     });
 
-    const user = newUser.save();
-    sendConfirmationEmail(req.body.email, token);
+    await sendConfirmationEmail(req.body.email, token);
 
+    const user = await newUser.save();
     return res
       .status(httpStatus.OK)
       .json({ message: "Confirmation email sent", user: user._id });
