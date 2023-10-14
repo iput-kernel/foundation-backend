@@ -1,0 +1,10 @@
+type: object
+properties:
+  roomName:
+    type: string
+    default: "教室"
+  roomNumber:
+    type: number
+  status:
+    type: string
+    default: ""

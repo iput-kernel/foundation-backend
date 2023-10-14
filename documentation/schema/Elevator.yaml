@@ -1,0 +1,10 @@
+type: object
+properties:
+  color:
+    type: string
+    default: ""
+  stops:
+    type: array
+    items:
+      type: string
+    default: []

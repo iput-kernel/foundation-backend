@@ -1,0 +1,14 @@
+type: object
+properties:
+  userId:
+    type: string
+  score:
+    type: number
+    maximum: 5
+    minimum: 1
+    default: 3
+  desc:
+    type: string
+    maxLength: 200
+required:
+  - userId

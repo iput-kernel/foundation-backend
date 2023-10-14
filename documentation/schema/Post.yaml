@@ -1,0 +1,16 @@
+type: object
+properties:
+  userId:
+    type: string
+  desc:
+    type: string
+    maxLength: 200
+  img:
+    type: string
+  likes:
+    type: array
+    items:
+      type: string
+    uniqueItems: true
+required:
+  - userId

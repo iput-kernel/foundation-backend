@@ -1,0 +1,24 @@
+type: object
+properties:
+  department:
+    type: string
+  course:
+    type: string
+  classGrade:
+    type: number
+  classChar:
+    type: string
+    maxLength: 2
+  studentsId:
+    type: array
+    items:
+      type: string
+    uniqueItems: true
+  timetableId:
+    type: string
+    format: uuid
+required:
+  - department
+  - course
+  - classGrade
+  - classChar

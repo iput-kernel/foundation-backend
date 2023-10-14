@@ -1,0 +1,22 @@
+type: object
+properties:
+  classGrade:
+    type: number
+    required: true
+  classChar:
+    type: string
+  studentsId:
+    type: array
+    items:
+      type: string
+    uniqueItems: true
+  teachersId:
+    type: array
+    items:
+      type: string
+    uniqueItems: true
+  TimetableId:
+    type: array
+    items:
+      type: string
+    uniqueItems: true

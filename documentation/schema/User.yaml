@@ -1,0 +1,104 @@
+type: object
+properties:
+  username:
+    type: string
+    minLength: 6
+    maxLength: 16
+  realnameFirst:
+    type: string
+    default: ""
+    maxLength: 32
+  realnameLast:
+    type: string
+    default: ""
+    maxLength: 32
+  email:
+    type: string
+    format: email
+    maxLength: 319
+  password:
+    type: string
+    minLength: 1
+    maxLength: 70
+  secretKey:
+    type: string
+    default: ""
+  confirmationToken:
+    type: string
+    uniqueItems: true
+  isVerified:
+    type: boolean
+    default: false
+  profilePicture:
+    type: string
+    default: ""
+  coverPicture:
+    type: string
+    default: ""
+  followers:
+    type: array
+    items:
+      type: string
+    uniqueItems: true
+  followings:
+    type: array
+    items:
+      type: string
+    uniqueItems: true
+  grade:
+    type: number
+    maximum: 10
+  course:
+    type: string
+    maxLength: 30
+    default: ""
+  classId:
+    type: string
+    format: uuid
+  class:
+    type: string
+    maxLength: 4
+  englishClass:
+    type: string
+    maxLength: 4
+  phone:
+    type: string
+    maxLength: 20
+    default: ""
+  sex:
+    type: string
+    maxLength: 8
+    default: ""
+  birthday:
+    type: string
+    format: date
+  major:
+    type: string
+    maxLength: 30
+    default: ""
+  motherTongue:
+    type: string
+    maxLength: 30
+    default: "日本語"
+  isAdmin:
+    type: boolean
+    default: false
+  isAnonymous:
+    type: boolean
+    default: true
+  isFirstTime:
+    type: boolean
+    default: true
+  credLevel:
+    type: number
+    default: 2
+  credToken:
+    type: number
+    default: 3
+  desc:
+    type: string
+    maxLength: 128
+    default: ""
+  city:
+    type: string
+    maxLength: 50
