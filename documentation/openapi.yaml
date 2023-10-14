@@ -43,9 +43,9 @@ externalDocs:
 # A list of tags used by the definition with additional metadata.
 # The order of the tags can be used to reflect on their order by the parsing tools.
 servers:
-  - url: "localhost:8003"
+  - url: "http://localhost:8003"
     description: Local development mock server
-  - url: "localhost:4000"
+  - url: "http://localhost:4000"
     description: Local development server
   - url: "https://www.iput-kernel.com"
     description: Production server
