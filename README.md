@@ -3,7 +3,14 @@
 **サーバー起動**<br>
 `make run`<br>
 **サーバー停止**<br>
-`make down`
+`make down`<br>
+**APIドキュメント**<br>
+| 名称               | URL                     |
+|-------------------|-------------------------|
+| Swagger Editor     | http://localhost:8001/  |
+| Swagger UI         | http://localhost:8002/  |
+| Swagger API mock   | http://localhost:8003/~~ |
+
 
 ## 要件一覧
 １．すべてのユーザーは基本的に匿名及び実名を意図的に選択できる
