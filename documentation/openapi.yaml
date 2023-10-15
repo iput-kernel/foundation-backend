@@ -45,7 +45,7 @@ externalDocs:
 servers:
   - url: "http://localhost:8003"
     description: Local development mock server
-  - url: "http://localhost:4000"
+  - url: "http://localhost:3000"
     description: Local development server
   - url: "https://www.iput-kernel.com"
     description: Production server
