@@ -23,7 +23,7 @@ router.get("/:id", async (req, res) => {
                 model: 'Class',
             });
 
-    const { password, updatedAt, ...other } = user._doc;
+    const { password, ...other } = user._doc;
     res.status(httpStatus.OK).json(other);
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);

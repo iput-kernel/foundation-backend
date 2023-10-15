@@ -91,8 +91,6 @@ router.post("/login", async (req, res) => {
       password,
       secretKey,
       confirmationToken,
-      createdAt,
-      updatedAt,
       ...userResponse
     } = user.toObject();
 
