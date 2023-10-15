@@ -1,0 +1,44 @@
+import mongoose from "mongoose";
+export type ClassType = {
+  userId: mongoose.Schema.Types.ObjectId;
+  department: string;
+  course: string;
+  classGrade: number;
+  classChar: string;
+  studentsId: mongoose.Schema.Types.ObjectId[];
+  timetableId: mongoose.Schema.Types.ObjectId;
+};
+
+const ClassSchema = new mongoose.Schema<ClassType>({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  department: {
+    type: String,
+  },
+  course: {
+    type: String,
+  },
+  classGrade: {
+    type: Number,
+  },
+  classChar: {
+    type: String,
+    max: 2,
+  },
+  studentsId: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  timetableId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Timetable",
+  },
+});
+
+const Class = mongoose.model<ClassType>("Class", ClassSchema);
+
+export default Class;

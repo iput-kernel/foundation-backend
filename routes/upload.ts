@@ -1,7 +1,8 @@
-const httpStatus = require("http-status");
+import { Router } from "express";
+import httpStatus from "http-status";
+import multer from "multer";
 
-const router = express.Router();
-const multer = require("multer");
+const router = Router();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {

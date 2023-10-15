@@ -1,11 +1,11 @@
-const httpStatus = require("http-status");
+import { Router } from "express";
+import httpStatus from "http-status";
+import mongoose from "mongoose";
+import { authenticateJWT } from "../jwtAuth";
+import Class from "../models/Class";
+import User, { UserType } from "../models/User";
 
-const router = require("express").Router();
-
-const User = require("../models/User");
-const Class = require('../models/Class');
-
-const { authenticateJWT } = require("../jwtAuth");
+const router = Router();
 
 router.get("/:id", async (req, res) => {
   try {
@@ -23,7 +23,8 @@ router.get("/:id", async (req, res) => {
                 model: 'Class',
             });
 
-    const { password, updatedAt, ...other } = user._doc;
+    const userObject = user!.toObject();
+    const { password, ...other } = userObject;
     res.status(httpStatus.OK).json(other);
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
@@ -65,11 +66,11 @@ router.put("/:id/follow", async (req, res) => {
     try {
       const user = await User.findById(req.params.id);
       const currentUser = await User.findById(req.body.userId);
-      if (!user.followers.includes(req.body.userId)) {
-        await user.updateOne({
+      if (!user!.followers.includes(req.body.userId)) {
+        await user!.updateOne({
           $push: { followers: req.body.userId },
         });
-        await currentUser.updateOne({
+        await currentUser!.updateOne({
           $push: { followings: req.params.id },
         });
         res.status(httpStatus.OK).json("フォローしました");
@@ -92,11 +93,11 @@ router.put("/:id/unfollow", async (req, res) => {
       const user = await User.findById(req.params.id);
       const currentUser = await User.findById(req.body.userId);
       //フォロワーに存在したらフォローを解除できる
-      if (user.followers.includes(req.body.userId)) {
-        await user.updateOne({
+      if (user!.followers.includes(req.body.userId)) {
+        await user!.updateOne({
           $pull: { followers: req.body.userId },
         });
-        await currentUser.updateOne({
+        await currentUser!.updateOne({
           $pull: { followings: req.params.id },
         });
         res.status(httpStatus.OK).json("フォローを解除しました");

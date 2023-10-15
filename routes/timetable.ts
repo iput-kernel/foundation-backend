@@ -1,9 +1,9 @@
-const httpStatus = require("http-status");
+import { Router } from "express";
+import httpStatus from "http-status";
+import Subject from "../models/Subject";
+import Timetable from "../models/Timetable";
 
-const router = require("express").Router();
-const Timetable = require("../models/Timetable");
-const Subject = require("../models/Subject");
-const Class = require("../models/Class");
+const router = Router();
 
 // Create a Timetable
 router.post("/", async (req, res) => {
@@ -39,10 +39,10 @@ router.post("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const timetable = await Timetable.findById(req.params.id)
-      .populate([[{
+      .populate([{
         path: "weekSubjects",
         model: "Subject",
-      }]])
+      }])
       .populate({
         path: "usedClass",
         model: "Class",

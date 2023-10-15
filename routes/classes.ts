@@ -1,9 +1,9 @@
-const httpStatus = require("http-status");
+import { Request, Response, Router as expressRouter } from "express";
+import httpStatus from "http-status";
+import Class from "../models/Class";
+import User from "../models/User";
 
-const router = require("express").Router();
-
-const Class = require("../models/Class");
-const User = require("../models/User");
+const router = expressRouter();
 
 //クラス
 router.post("/", async (req, res) => {
@@ -19,8 +19,8 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const post = await Class.findById(req.params.id);
-    if (post.userId === req.body.userId) {
-      await post.updateOne({
+    if (post!.userId! === req.body.userId) {
+      await post!.updateOne({
         $set: req.body,
       });
       return res.status(httpStatus.OK).json("クラスが更新されました");
@@ -36,8 +36,8 @@ router.delete("/:id", async (req, res) => {
   try {
     const post = await Class.findById(req.params.id);
     const user = await User.findById(req.body.userId);
-    if (user.isAdmin || user.credLevel > 5) {
-      await post.deleteOne();
+    if (user!.isAdmin || user!.credLevel > 5) {
+      await post!.deleteOne();
       return res.status(httpStatus.OK).json("クラスが削除されました");
     } else {
       return res.status(httpStatus.FORBIDDEN).json("クラスを削除できません");
@@ -66,7 +66,8 @@ router.get("/:id", async (req, res) => {
 });
 
 //クラスをすべて取得
-router.get("/", async (req, res) => {
+
+router.get("/", async (req: Request, res: Response) => {
   try {
     const classes = await Class.find();
     return res.status(httpStatus.OK).json(classes);

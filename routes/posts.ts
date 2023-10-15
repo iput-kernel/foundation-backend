@@ -1,9 +1,9 @@
-const httpStatus = require("http-status");
+import { Router } from "express";
+import httpStatus from "http-status";
+import Post from "../models/Post";
+import User from "../models/User";
 
-const router = require("express").Router();
-
-const Post = require("../models/Post");
-const User = require("../models/User");
+const router = Router();
 
 //投稿
 router.post("/", async (req, res) => {
@@ -19,8 +19,8 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
-    if (post.userId === req.body.userId) {
-      await post.updateOne({
+    if (post!.userId === req.body.userId) {
+      await post!.updateOne({
         $set: req.body,
       });
       return res.status(httpStatus.OK).json("投稿が更新されました");
@@ -35,8 +35,8 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
-    if (post.userId === req.body.userId) {
-      await post.deleteOne();
+    if (post!.userId === req.body.userId) {
+      await post!.deleteOne();
       return res.status(httpStatus.OK).json("投稿が削除されました");
     } else {
       return res.status(httpStatus.FORBIDDEN).json("投稿を削除できません");
@@ -64,15 +64,15 @@ router.get("/:id", async (req, res) => {
 router.put("/:id/like", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
-    if (!post.likes.includes(req.body.userId)) {
-      await post.updateOne({
+    if (!post!.likes.includes(req.body.userId)) {
+      await post!.updateOne({
         $push: {
           likes: req.body.userId,
         },
       });
       return res.status(httpStatus.OK).json("投稿にいいねしました");
     } else {
-      await post.updateOne({
+      await post!.updateOne({
         $pull: {
           likes: req.body.userId,
         },
@@ -100,10 +100,17 @@ router.get("/timeline/all", async (req, res) => {
                 path: 'classId',
                 model: 'Class',
             });
-    const userPosts = await Post.find({ userId: currentUser._id })
+    
+    if (!currentUser){ 
+      return res
+        .status(httpStatus.FORBIDDEN)
+        .json("ユーザーが存在しません")
+    }
+
+    const userPosts = await Post.find({ userId: currentUser!._id })
             .populate({
                 path: 'userId',
-                ref: 'User',
+                model: 'User',
             })
     //自分がフォローしている人の投稿を取得する
     const friendPosts = await Promise.all(
