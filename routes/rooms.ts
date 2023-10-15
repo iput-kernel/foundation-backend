@@ -1,16 +1,16 @@
-const httpStatus = require("http-status");
+import { Router } from "express";
+import httpStatus from "http-status";
+import { authenticateJWT } from "../jwtAuth";
+import Room from "../models/Room";
+import User from "../models/User";
 
-const router = require("express").Router();
-const Room = require("../models/Room");
-const User = require("../models/User");
-
-const { authenticateJWT } = require("../jwtAuth");
+const router = Router();
 
 router.post("/", authenticateJWT, async (req, res) => {
   try {
     const newRoom = new Room(req.body);
     const user = await User.findById(req.body.userId);
-    if (user.isAdmin || user.credLevel >= 4) {
+    if (user!.isAdmin || user!.credLevel >= 4) {
       const savedRoom = await newRoom.save();
       res.status(httpStatus.OK).json(savedRoom);
     } else {
@@ -64,8 +64,8 @@ router.delete("/:id", authenticateJWT, async (req, res) => {
   try {
     const room = await Room.findById(req.params.id);
     const user = await User.findById(req.body.userId);
-    if (user.isAdmin || user.credLevel >= 4) {
-      await room.deleteOne();
+    if (user!.isAdmin || user!.credLevel >= 4) {
+      await room!.deleteOne();
       return res.status(httpStatus.OK).json("roomが削除されました");
     } else {
       return res.status(httpStatus.FORBIDDEN).json("権限がありません。");
@@ -79,8 +79,8 @@ router.delete("/number/:number", authenticateJWT, async (req, res) => {
   try {
     const room = await Room.findOne({ roomNumber: req.params.number });
     const user = await User.findById(req.body.userId);
-    if (user.isAdmin || user.credLevel >= 4) {
-      await room.deleteOne();
+    if (user!.isAdmin || user!.credLevel >= 4) {
+      await room!.deleteOne();
       return res.status(httpStatus.OK).json("roomが削除されました");
     } else {
       return res.status(httpStatus.FORBIDDEN).json("権限がありません。");
