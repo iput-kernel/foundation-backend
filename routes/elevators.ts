@@ -1,8 +1,8 @@
-const httpStatus = require("http-status");
+import { Router as expressRouter } from "express";
+import httpStatus from "http-status";
+import Elevator from "../models/Elevator";
 
-const router = require("express").Router();
-const Elevator = require("../models/Elevator");
-const User = require("../models/User");
+const router = expressRouter();
 
 // Create Elevator
 router.post("/", async (req, res) => {
@@ -19,8 +19,8 @@ router.post("/", async (req, res) => {
 router.put("/:color", async (req, res) => {
   try {
     const elevator = await Elevator.findOne({ color: req.params.color });
-    if (elevator.color === req.body.color) {
-      await elevator.updateOne({
+    if (elevator!.color === req.body.color) {
+      await elevator!.updateOne({
         $set: req.body,
       });
       return res.status(httpStatus.OK).json("エレベーターが更新されました");
@@ -38,7 +38,7 @@ router.put("/:color", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   try {
     const elevator = await Elevator.findById(req.params.id);
-    await elevator.deleteOne();
+    await elevator!.deleteOne();
     return res.status(httpStatus.OK).json("エレベーターが削除されました");
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);

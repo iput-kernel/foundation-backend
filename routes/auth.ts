@@ -1,14 +1,14 @@
-const httpStatus = require("http-status");
+import bcrypt from "bcrypt";
+import crypto from "crypto";
+import httpStatus from "http-status";
+import jwt from "jsonwebtoken";
+import User, { UserType } from "../models/User";
 
-const router = require("express").Router();
+import { Router as expressRouter } from "express";
+const router = expressRouter();
 
-const User = require("../models/User");
-
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
-const crypto = require("crypto");
-
-const nodemailer = require("nodemailer");
+import nodemailer from "nodemailer";
+import mongoose from "mongoose";
 const saltRounds = 10;
 
 router.post("/register", async (req, res) => {

@@ -1,7 +1,9 @@
-const httpStatus = require("http-status");
+import { Router } from "express";
+import httpStatus from "http-status";
+import Post from "../models/Post";
+import Subject from "../models/Subject";
 
-const router = require("express").Router();
-const Subject = require("../models/Subject");
+const router = Router();
 
 //Subject作成
 router.post("/", async (req, res) => {
@@ -18,7 +20,7 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
-    await post.updateOne({
+    await post!.updateOne({
       $set: req.body,
     });
     return res.status(httpStatus.OK).json("Subjectを編集しました。");
@@ -31,7 +33,7 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
-    await post.deleteOne();
+    await post!.deleteOne();
     return res.status(httpStatus.OK).json("Subjectを削除しました。");
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
@@ -44,7 +46,7 @@ router.delete("/name/:subjectName", async (req, res) => {
     const subject = await Subject.findOne({
       subjectName: req.params.subjectName,
     });
-    await subject.deleteOne();
+    await subject!.deleteOne();
     return res.status(httpStatus.OK).json("Subjectを削除しました。");
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
