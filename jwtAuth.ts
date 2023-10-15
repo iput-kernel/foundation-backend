@@ -9,7 +9,7 @@ async function verifyJWT(user, token) {
     return jwt.verify(token, secret);
 }
 
-const authenticateJWT = async (req, res, next) => {
+export const authenticateJWT = async (req, res, next) => {
     const token = req.headers.authorization;
 
     if (!token) {
@@ -28,8 +28,4 @@ const authenticateJWT = async (req, res, next) => {
     } catch (err) {
         return res.status(403).json({ message: "無効なトークン" });
     }
-};
-
-module.exports = {
-    authenticateJWT
 };
