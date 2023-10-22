@@ -1,0 +1,24 @@
+type: object
+properties:
+  subjectName:
+    type: string
+    default: ""
+    required: true
+  teachersId:
+    type: array
+    items:
+      type: string
+    uniqueItems: true
+  reviewsId:
+    type: array
+    items:
+      type: string
+    uniqueItems: true
+  grade:
+    type: number
+  count:
+    type: number
+    default: 0
+  isRequire:
+    type: boolean
+    default: false

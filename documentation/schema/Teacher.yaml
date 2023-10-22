@@ -1,0 +1,10 @@
+type: object
+properties:
+  firstName:
+    type: string
+    required: true
+  lastName:
+    type: string
+  course:
+    type: string
+    default: ""

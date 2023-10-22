@@ -1,0 +1,10 @@
+type: object
+properties:
+  floor:
+    type: number
+    required: true
+  roomsId:
+    type: array
+    items:
+      type: string
+    uniqueItems: true

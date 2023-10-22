@@ -1,0 +1,11 @@
+type: object
+properties:
+  usedClass:
+    type: string
+  weekSubjects:
+    type: array
+    items:
+      type: array
+      items:
+        type: string
+    uniqueItems: true
