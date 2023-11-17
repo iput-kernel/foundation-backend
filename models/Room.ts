@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 export type RoomType = {
   roomName: string;
   roomNumber?: number;
+  airId?: mongoose.Schema.Types.ObjectId;
   status?: string;
 };
 
@@ -13,6 +14,10 @@ const RoomSchema = new mongoose.Schema<RoomType>({
   },
   roomNumber: {
     type: Number,
+  },
+  airId:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Air",
   },
   status: {
     type: String,

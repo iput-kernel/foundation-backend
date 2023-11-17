@@ -4,5 +4,3 @@ run:
 down:
 	docker-compose down
 	@echo "server down"
-
-
