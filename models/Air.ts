@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 export type AirType = {
-  roomName: string;
   temp:number;
   humi:number;
   co2Level:number;
@@ -8,9 +7,6 @@ export type AirType = {
 };
 
 const AirSchema = new mongoose.Schema<AirType>({
-  roomName: {
-    type: String,
-  },
   temp: {
     type: Number,
   },

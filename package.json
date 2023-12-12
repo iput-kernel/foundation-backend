@@ -11,6 +11,7 @@
   "author": "bitcat",
   "license": "ISC",
   "dependencies": {
+    "@types/express": "^4.17.21",
     "@types/node": "^20.9.1",
     "axios": "^1.4.0",
     "bcrypt": "^5.1.1",
