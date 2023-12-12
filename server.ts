@@ -23,7 +23,7 @@ const mongoose = require("mongoose");
 mongoose
     .connect(process.env.MONGO_URI)
     .then(() => {
-        console.log("DB接続中");
+        console.log(process.env.MONGO_URI+"に接続");
     }).catch((err: Error) => {
         console.log(err);
     });
