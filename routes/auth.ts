@@ -8,12 +8,11 @@ import { Router as expressRouter } from "express";
 const router = expressRouter();
 
 import nodemailer from "nodemailer";
-import mongoose from "mongoose";
+
 const saltRounds = 10;
 
 router.post("/register", async (req, res) => {
   try {
-    // すでに登録されているメールアドレスかどうかを確認
     const findUser = await User.findOne({ email: req.body.email });
     if (findUser && findUser.isVerified)
       return res
@@ -27,7 +26,7 @@ router.post("/register", async (req, res) => {
     const newUser = new User({
       username: req.body.username,
       email: req.body.email,
-      password: hashedPassword, // ハッシュ化されたパスワードを保存
+      password: hashedPassword,
       confirmationToken: token,
       isVerified: false,
     });
@@ -68,7 +67,7 @@ router.get("/confirm-email", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
-    if (!user) return res.status().send("ユーザーが見つかりません");
+    if (!user) return res.status(404).send("ユーザーが見つかりません");
 
     const validPassword = await bcrypt.compare(
       req.body.password,
@@ -100,7 +99,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-async function sendConfirmationEmail(email, token) {
+async function sendConfirmationEmail(email: string, token: string) {
   const transporter = nodemailer.createTransport({
     service: "Gmail",
     auth: {
@@ -122,7 +121,7 @@ async function sendConfirmationEmail(email, token) {
   await transporter.sendMail(mailOptions);
 }
 
-async function signJWT(user, payload) {
+async function signJWT(user: UserType, payload: Record<string, unknown>) {
   const secret = user.secretKey;
   if (!secret) {
     throw new Error("No secret key found for the given user.");
@@ -130,7 +129,7 @@ async function signJWT(user, payload) {
   return jwt.sign(payload, secret);
 }
 
-async function verifyJWT(user, token) {
+async function verifyJWT(user: UserType, token: string) {
   const secret = user.secretKey;
   if (!secret) {
     throw new Error("No secret key found for the given user.");

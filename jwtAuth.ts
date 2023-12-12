@@ -1,7 +1,8 @@
-const User = require('./models/User');
+import { Request, Response, NextFunction } from 'express';
+import User, { UserType } from "./models/User";
 const jwt = require('jsonwebtoken');
 
-async function verifyJWT(user, token) {
+async function verifyJWT(user: UserType, token: string) {
     const secret = user.secretKey;
     if (!secret) {
         throw new Error("No secret key found for the given user.");
@@ -9,7 +10,7 @@ async function verifyJWT(user, token) {
     return jwt.verify(token, secret);
 }
 
-export const authenticateJWT = async (req, res, next) => {
+export const authenticateJWT = async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization;
 
     if (!token) {

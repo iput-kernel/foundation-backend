@@ -52,7 +52,7 @@ router.put("/number/:number", authenticateJWT, async (req, res) => {
       $set: req.body,
     });
     return res.status(httpStatus.OK).json("roomが更新されました");
-  } catch (err) {
+  } catch (err: any) {
     return res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .json(err.message || "Something went wrong");
