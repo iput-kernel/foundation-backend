@@ -1,11 +1,17 @@
 import { Router } from "express";
 import httpStatus from "http-status";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { authenticateJWT } from "../jwtAuth";
-import Class from "../models/Class";
+import Class , { ClassType } from "../models/Class";
 import User, { UserType } from "../models/User";
 
 const router = Router();
+
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: UserType; // UserTypeを使用してuserプロパティの型を定義
+  }
+}
 
 router.get("/:id", async (req, res) => {
   try {
@@ -119,10 +125,16 @@ router.put('/joinClass', authenticateJWT, async (req, res) => {
     session.startTransaction();
 
     try {
-        const currentUserId = req.user.id; // トークンから取得したユーザーID
+
+        if (!req.user) {
+          return res.status(httpStatus.UNAUTHORIZED).json({ message: "ユーザーが認証されていません" });
+        }
+
         const { classId } = req.body; // リクエストボディからclassIdを取得
 
+        const currentUserId = new Types.ObjectId(req.user?.id);
         const currentUser = await User.findById(currentUserId).session(session);
+
         if (!currentUser) {
             throw new Error('User not found');
         }
@@ -133,9 +145,9 @@ router.put('/joinClass', authenticateJWT, async (req, res) => {
         }
 
         // ユーザーをクラスのstudentsIdに追加
-        if (!targetClass.studentsId.includes(currentUserId)) {
-            targetClass.studentsId.push(currentUserId);
-            await targetClass.save({ session });
+        if (!targetClass.studentsId.map(id => id.toString()).includes(currentUserId.toString())) {
+          targetClass.studentsId.push(currentUserId);
+          await targetClass.save({ session });
         }
 
         // ユーザーのclassフィールドにクラスIDを設定
@@ -146,7 +158,7 @@ router.put('/joinClass', authenticateJWT, async (req, res) => {
         session.endSession();
 
         res.status(200).json({ message: 'Classmate added successfully' });
-    } catch (error) {
+    } catch (error: any) {
         await session.abortTransaction();
         session.endSession();
         res.status(500).json({ message: error.message });

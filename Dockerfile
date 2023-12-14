@@ -4,8 +4,10 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 COPY yarn.lock ./
 
-RUN yarn install
+RUN npm install
+RUN npm install -g typescript
 
 COPY . .
 
-CMD [ "yarn", "dev" ]
+RUN npm run build
+CMD [ "npm", "run", "start" ]

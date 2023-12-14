@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 export type UserType = {
+  id: string;
   username: string;
   realnameFirst: string;
   realnameLast: string;

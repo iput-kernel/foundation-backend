@@ -11,7 +11,7 @@ router.post("/", async (req, res) => {
 
   try {
     const timetableSubjects = await Promise.all(
-      weekSubjects.map(async (daySubjects) => {
+      weekSubjects.map(async (daySubjects: string[]) => {
         return await Promise.all(
           daySubjects.map(async (name) => {
             const subject = await Subject.findOne({ subjectName: name });
@@ -30,7 +30,7 @@ router.post("/", async (req, res) => {
     });
     await timetable.save();
     res.status(201).json(timetable);
-  } catch (err) {
+  } catch (err: any) {
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: err.message });
   }
 });
@@ -53,7 +53,7 @@ router.get("/:id", async (req, res) => {
         .json({ message: "指定されたIDの時間割は存在しません" });
     }
     res.status(httpStatus.OK).json(timetable);
-  } catch (err) {
+  } catch (err: any) {
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: err.message });
   }
 });
@@ -71,7 +71,7 @@ router.get("/", async (req, res) => {
         model: "Class",
       });
     res.status(httpStatus.OK).json(timetables);
-  } catch (err) {
+  } catch (err: any) {
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: err.message });
   }
 });

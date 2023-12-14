@@ -5,7 +5,8 @@ export type ClassType = {
   course: string;
   classGrade: number;
   classChar: string;
-  studentsId: mongoose.Schema.Types.ObjectId[];
+  studentsCount: number;
+  studentsId: mongoose.Types.ObjectId[];
   timetableId: mongoose.Schema.Types.ObjectId;
 };
 
@@ -27,9 +28,12 @@ const ClassSchema = new mongoose.Schema<ClassType>({
     type: String,
     max: 2,
   },
+  studentsCount:{
+    type: Number,
+  },
   studentsId: [
     {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Types.ObjectId,
       ref: "User",
     },
   ],
