@@ -1,0 +1,581 @@
+# This is an **example** API to demonstrate features of OpenAPI specification.
+# It doesn't cover all OpenAPI features. For more full example check out: https://github.com/APIs-guru/petstore_extended
+
+openapi: 3.0.2
+info:
+  version: "1.0.0" # Your API version
+  # It can be any string but it is better to use semantic versioning: http://semver.org/
+  # Warning: OpenAPI requires the version to be a string, but without quotation marks YAML can recognize it as a number.
+
+  title: IPUT-Kernel API Documentation # Replace with your API title
+  # Keep it simple. Don't add "API" or version at the end of the string.
+
+  termsOfService: "https://example.com/terms/" # [Optional] Replace with an URL to your ToS
+  contact:
+    email: contact@example.com # [Optional] Replace with your contact email
+    url: "http://example.com/contact" # [Optional] Replace with link to your contact form
+  license:
+    name: Apache 2.0
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+  x-logo:
+    url: "https://redocly.github.io/openapi-template/logo.png"
+
+  # Describe your API here, you can use GFM (https://guides.github.com/features/mastering-markdown) here
+  description: |
+    This is an **example** API to demonstrate features of OpenAPI specification
+    # Introduction
+    This API definition is intended to to be a good starting point for describing your API in 
+    [OpenAPI/Swagger format](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md).
+    It also demonstrates features of [create-openapi-repo](https://github.com/Redocly/create-openapi-repo) tool and 
+    [Redoc](https://github.com/Redocly/Redoc) documentation engine. So beyond the standard OpenAPI syntax we use a few 
+    [vendor extensions](https://github.com/Redocly/Redoc/blob/master/docs/redoc-vendor-extensions.md).
+
+    # OpenAPI Specification
+    The goal of The OpenAPI Specification is to define a standard, language-agnostic interface to REST APIs which
+    allows both humans and computers to discover and understand the capabilities of the service without access to source
+    code, documentation, or through network traffic inspection. When properly defined via OpenAPI, a consumer can 
+    understand and interact with the remote service with a minimal amount of implementation logic. Similar to what
+    interfaces have done for lower-level programming, OpenAPI removes the guesswork in calling the service.
+externalDocs:
+  description: Find out how to create a GitHub repo for your OpenAPI definition.
+  url: "https://github.com/Rebilly/generator-openapi-repo"
+
+# A list of tags used by the definition with additional metadata.
+# The order of the tags can be used to reflect on their order by the parsing tools.
+servers:
+  - url: "http://localhost:8003"
+    description: Local development mock server
+  - url: "http://localhost:3000"
+    description: Local development server
+  - url: "https://www.iput-kernel.com"
+    description: Production server
+
+components:
+  schemas:
+    User:
+      $ref: "./schema/User.yaml"
+    GetUserResponse:
+      $ref: "./schema/GetUserResponse.yaml"
+    UserResponse:
+      $ref: "./schema/UserResponse.yaml"
+    Class:
+      $ref: "./schema/Class.yaml"
+    Elevator:
+      $ref: "./schema/Elevator.yaml"
+    EnglishClass:
+      $ref: "./schema/EnglishClass.yaml"
+    Floor:
+      $ref: "./schema/Floor.yaml"
+    Post:
+      $ref: "./schema/Post.yaml"
+    Review:
+      $ref: "./schema/Review.yaml"
+    Room:
+      $ref: "./schema/Room.yaml"
+    SecretKey:
+      $ref: "./schema/SecretKey.yaml"
+    Subject:
+      $ref: "./schema/Subject.yaml"
+    Teacher:
+      $ref: "./schema/Teacher.yaml"
+    Timetable:
+      $ref: "./schema/Timetable.yaml"
+
+paths:
+  /register:
+    post:
+      tags:
+        - "auth"
+      summary: "Signup"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - email
+                - password
+      responses:
+        "200":
+          description: "正常に仮登録を完了"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    default: "Confirmation email sent"
+                    description: "仮登録完了メッセージ"
+                  user:
+                    type: string
+                    format: uuid
+                    description: "仮登録したユーザのID"
+        "400":
+          description: "すでに登録されているユーザ"
+          content:
+            application/json:
+              schema:
+                type: string
+                default: "このメールアドレスはすでに登録されています。"
+        "500":
+          description: "Internal server error"
+
+  /confirm-email:
+    get:
+      tags:
+        - "auth"
+      summary: "Confirm Email"
+      description: "メールに送信されたLinkをクリックしてアカウントを認証する際に呼ばれるAPI"
+      responses:
+        200:
+          description: "アカウント認証成功"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    default: "アカウントが認証されました。"
+                    description: "アカウント認証成功メッセージ"
+        400:
+          description: "無効なトークン"
+          content:
+            application/json:
+              schema:
+                type: string
+                default: "無効なトークンです。"
+        500:
+          description: "Internal server error."
+      parameters:
+        - name: token
+          in: query
+          description: "resgister APIで送信されたメールに記載されたtoken"
+          required: true
+          schema:
+            type: string
+
+  /login:
+    post:
+      tags:
+        - "auth"
+      summary: "User login"
+      description: "ログインする際に呼ばれるAPI"
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                    description: "User's email"
+                  password:
+                    type: string
+                    description: "User's password"
+      responses:
+        200:
+          description: "ログイン成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+
+        400:
+          description: "mail or password が違う"
+        404:
+          description: "ユーザが存在しない"
+        500:
+          description: "Internal server error."
+  
+  /:
+    post:
+      tags:
+        - "class"
+      summary: "クラスを登録する"
+      description: "unknown"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Class"
+      responses:
+        200:
+          description: "正常にクラス登録を完了"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Class"
+        500:
+          description: "Internal server error"
+
+    get:
+      tags:
+        - "class"
+      summary: "クラス一覧を取得する"
+      description: "クラス一覧を取得する"
+      responses:
+        200:
+          description: "正常にクラス一覧を取得"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Class"
+        500:
+          description: "Internal server error"
+
+  /{id}:
+    put:
+      tags:
+        - "class"
+      summary: "パスパラメータで受け取ったUserIdのクラスを更新する"
+      description: "Classスキーマの内容をbodyで受け取り、変更がある箇所を一括更新する"
+      parameters:
+        - name: id
+          in: path
+          description: "Userに紐づいたClassId"
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: "正常にクラスを更新完了"
+          content:
+            application/json:
+              schema:
+                type: string
+                default: "クラスが更新されました"
+        403:
+          description: "権限がない"
+          content:
+            application/json:
+              schema:
+                type: string
+                default: "クラスを更新できません"
+        500:
+          description: "Internal server error"
+  
+    delete:
+      tags:
+        - "class"
+      summary: "パスパラメータで受け取ったUserIdのクラスを削除する"
+      description: "Classスキーマの内容をbodyで受け取り、対象のクラス情報を削除する"
+      deprecated: false
+      parameters:
+        - name: id
+          in: path
+          description: "Userに紐づいたClassId"
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: "正常にクラス情報を削除"
+          content:
+            application/json:
+              schema:
+                type: string
+                default: "クラスが削除されました"
+        403:
+          description: "権限がない"
+          content:
+            application/json:
+              schema:
+                type: string
+                default: "クラスを削除できません"
+        500:
+          description: "Internal server error"
+
+    get:
+      tags:
+        - "class"
+      summary: "特定のクラスの取得"
+      description: "パスパラメータで受け取ったUserIdのクラス情報を取得する"
+      parameters:
+        - name: id
+          in: path
+          description: "Userに紐づいたClassId"
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: "正常にクラス情報を取得"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Class"
+        403:
+          description: "権限がない"
+          content:
+            application/json:
+              schema:
+                type: string
+                default: "クラスを取得できません"
+        500:
+          description: "Internal server error"
+
+  /{userId}:
+    get:
+      tags:
+        - "user"
+      summary: "ユーザー情報を取得"
+      description: "パスパラメータで受け取ったUserIdのユーザー情報を取得する"
+      parameters:
+        - name: id
+          in: path
+          description: "UserId"
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: "正常にユーザー情報を取得"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetUserResponse"
+        500:
+          description: "Internal server error"
+
+    put:
+      tags:
+        - "user"
+      summary: "ユーザー情報を更新"
+      description: 
+        "パスパラメータで受け取ったUserIdのユーザー情報を更新する
+        ユーザー情報の更新は、ユーザー自身のみが行える"
+      parameters:
+        - name: id
+          in: path
+          description: "UserId"
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: "正常にユーザー情報を更新"
+          content:
+            application/json:
+              schema:
+                type: string
+                default: "アカウントが更新されました"
+        403:
+          description: "権限がない"
+          content:
+            application/json:
+              schema:
+                type: string
+                default: "アカウントを更新できません"
+        500:
+          description: "Internal server error"
+
+    delete:
+      deprecated: false
+      tags:
+        - "user"
+      summary: "アカウントを削除"
+      description: 
+        "パスパラメータで受け取ったUserIdのアカウントを削除する
+        アカウントの削除は、ユーザー自身のみが行える"
+      parameters:
+        - name: id
+          in: path
+          description: "UserId"
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: "正常にアカウントを削除"
+          content:
+            application/json:
+              schema:
+                type: string
+                default: "アカウントが削除されました"
+        403:
+          description: "権限がない"
+          content:
+            application/json:
+              schema:
+                type: string
+                default: "アカウントを削除できません"
+        500:
+          description: "Internal server error"
+
+  /{userId}/follow:
+    put:
+      tags:
+        - "user"
+      summary: "ユーザーをフォロー"
+      description: 
+        "パスパラメータで受け取ったUserIdのユーザーをフォローする
+        bodyのほうが自分 pramsのほうが相手"
+      parameters:
+        - name: id
+          in: path
+          description: "UserId"
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: "正常にユーザーをフォロー"
+          content:
+            application/json:
+              schema:
+                type: string
+                default: "フォローしました"
+        403:
+          description: "すでにフォローしている、もしくは自分をフォローしようとしている"
+          content:
+            application/json:
+              schema:
+                type: string
+                default: "フォロー済みです | 自分をフォローすることはできません"
+        500:
+          description: "Internal server error"
+  
+  /{userId}/unfollow:
+    put:
+      tags:
+        - "user"
+      summary: "ユーザーのフォローを解除"
+      description: 
+        "パスパラメータで受け取ったUserIdのユーザーのフォローを解除する
+        bodyのほうが自分 pramsのほうが相手"
+      parameters:
+        - name: id
+          in: path
+          description: "UserId"
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: "正常にユーザーのフォローを解除"
+          content:
+            application/json:
+              schema:
+                type: string
+                default: "フォローを解除しました"
+        403:
+          description: "すでにフォローしていない、もしくは自分をフォロー解除しようとしている"
+          content:
+            application/json:
+              schema:
+                type: string
+                default: "フォロー解除済みです。 | 自分をフォロー解除できません"
+        500:
+          description: "Internal server error"
+      
+  /joinClass:
+    put:
+      tags:
+        - "user"
+      summary: "クラスに参加する"
+      description: "クラステーブルにユーザーを追加する"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        200:
+          description: "正常にクラスに参加"
+          content:
+            application/json:
+              schema:
+                type: object
+                default: { message: 'Classmate added successfully' }
+        500:
+          description: "Internal server error"
+
+  /{subjectId}:
+    put:
+      tags:
+        - "subject"
+      summary: "科目を更新する"
+      description: "bodyで受け取ったSubjectスキーマの内容を更新する"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Subject"
+      responses:
+        200:
+          description: "正常に科目登録を完了"
+          content:
+            application/json:
+              schema:
+                type: string
+                default: "Subjectを編集しました。"
+        500:
+          description: "Internal server error"
+  
+    delete:
+      tags:
+        - "subject"
+      summary: "科目を削除する"
+      description: "bodyで受け取ったSubjectスキーマの内容を削除する"
+      deprecated: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Subject"
+      responses:
+        200:
+          description: "正常に科目を削除"
+          content:
+            application/json:
+              schema:
+                type: string
+                default: "Subjectを削除しました。"
+        500:
+          description: "Internal server error"      
+
+  /name/{:subjectName}:
+    delete:
+      deprecated: false
+      tags:
+        - "subject"
+      summary: "科目名を指定して削除する"
+      description: "パスパラメータで受け取ったsubjectNameの科目を削除する"
+      responses:
+        200:
+          description: "正常に科目を削除"
+          content:
+            application/json:
+              schema:
+                type: string
+                default: "Subjectを削除しました。"
+        500:
+          description: "Internal server error"
