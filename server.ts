@@ -31,13 +31,13 @@ mongoose
 //ミドルウェア
 app.use(express.json());
 app.use(cors());
-app.use("/api/users",userRoute);
-app.use("/api/auth",authRoute);
-app.use("/api/posts",postRoute);
-app.use("/api/subjects",subjectRoute);
-app.use("/api/rooms",roomRoute);
-app.use("/api/teachers",teacherRoute);
-app.use("/api/classes",classRoute);
-app.use("/api/timetable",timetableRoute);
+app.use("/v1/users",userRoute);
+app.use("/v1/auth",authRoute);
+app.use("/v1/posts",postRoute);
+app.use("/v1/subjects",subjectRoute);
+app.use("/v1/rooms",roomRoute);
+app.use("/v1/teachers",teacherRoute);
+app.use("/v1/classes",classRoute);
+app.use("/v1/timetable",timetableRoute);
 
 app.listen(PORT,() => console.log("サーバーが起動しました"));
