@@ -18,9 +18,9 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_KEY }}
 
-    - name: Clear known_hosts
+    - name: Setup known_hosts
       run: |
-        echo "" > ~/.ssh/known_hosts
+        echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
 
     - name: Deploy with Docker Compose
       run: |
