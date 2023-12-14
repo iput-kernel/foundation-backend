@@ -1,4 +1,4 @@
-name: Deploy to Ubuntu Server
+name: Deploy with Docker Compose
 
 on:
   push:
@@ -22,6 +22,6 @@ jobs:
       run: |
         echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
 
-    - name: Deploy to server
+    - name: Deploy with Docker Compose
       run: |
-        ssh bitcat@www.iput-kernel.com "cd /opt/iput-kernel/foundation-backend && git fetch origin main && git reset --hard origin/main && yarn && pm2 restart server"
+        ssh bitcat@www.iput-kernel.com "cd /opt/iput-kernel/foundation-backend && git fetch origin main && git reset --hard origin/main && docker-compose up -d --build"
