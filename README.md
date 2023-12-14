@@ -1,9 +1,10 @@
+[![](https://img.shields.io/github/license/IPUT-Kernel/foundation-backend?color=yellow&style=plastic)](LICENSE)
 ## Quick start
-
 **サーバー起動**<br>
 `make run`<br>
 **サーバー停止**<br>
 `make down`<br>
+
 **APIドキュメント**<br>
 | 名称               | URL                     |
 |-------------------|-------------------------|
@@ -11,6 +12,8 @@
 | Swagger UI         | http://localhost:8002/  |
 | Swagger API mock   | http://localhost:8003/~~ |
 
+## 概要
+このプロジェクトは、学生が管理することを主体においた、大学生活をより豊かで効率的にするソーシャルプラットフォームである。
 
 ## 要件一覧
 １．すべてのユーザーは基本的に匿名及び実名を意図的に選択できる
