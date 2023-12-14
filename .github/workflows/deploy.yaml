@@ -18,10 +18,10 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_KEY }}
 
-    - name: Clear known_hosts
+    - name: Add known_hosts
       run: |
-        echo "" > ~/.ssh/known_hosts
+        echo "www.iput-kernel.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMENB6h+xiF5abP6FtGEyLfb2uRj4JpWBpJcY8b4A3g" >> ~/.ssh/known_hosts
 
     - name: Deploy with Docker Compose
       run: |
-        ssh bitcat@www.iput-kernel.com "cd /opt/iput-kernel/foundation-backend && git fetch origin main && git reset --hard origin/main && docker-compose up -d --build"
+        ssh bitcat@www.iput-kernel.com "cd /opt/iput-kernel/foundation-backend && git fetch origin main && git reset --hard origin/main && docker compose up -d --build"
