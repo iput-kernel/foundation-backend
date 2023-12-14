@@ -20,7 +20,7 @@ jobs:
 
     - name: Setup known_hosts
       run: |
-        echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+        echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
 
     - name: Deploy with Docker Compose
       run: |
