@@ -18,9 +18,9 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_KEY }}
 
-    - name: Add known_hosts
+    - name: Clear known_hosts
       run: |
-        echo "www.iput-kernel.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMENB6h+xiF5abP6FtGEyLfb2uRj4JpWBpJcY8b4A3g" >> ~/.ssh/known_hosts
+        echo "" > ~/.ssh/known_hosts
 
     - name: Deploy with Docker Compose
       run: |
