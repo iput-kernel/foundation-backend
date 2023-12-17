@@ -2,23 +2,48 @@ import { Router } from "express";
 import httpStatus from "http-status";
 import Subject from "../models/Subject";
 import Timetable from "../models/Timetable";
+import Room from "../models/Room"
 
 const router = Router();
 
 // Create a Timetable
 router.post("/", async (req, res) => {
-  const { usedClass, weekSubjects } = req.body;
+  const { usedClass, weekSubjects , weekRooms} = req.body;
+
+  console.log('Received request body:', req.body); // リクエストボディをログに出力
 
   try {
     const timetableSubjects = await Promise.all(
       weekSubjects.map(async (daySubjects: string[]) => {
         return await Promise.all(
           daySubjects.map(async (name) => {
-            const subject = await Subject.findOne({ subjectName: name });
-            if (!subject) {
-              throw new Error(`${name} という科目は存在しません`);
+            if (name === "") {
+              return null;
+            } else {
+              const subject = await Subject.findOne({ subjectName: name });
+              if (!subject) {
+                throw new Error(`${name} という科目は存在しません`);
+              }
+              return subject._id;
             }
-            return subject._id;
+          })
+        );
+      })
+    );
+
+    const timetableRooms = await Promise.all(
+      weekRooms.map(async (dayRooms: number[]) => {
+        return await Promise.all(
+          dayRooms.map(async (number) => {
+            if (number === 0) {
+              return null;
+            } else {
+              const room = await Room.findOne({ roomNumber: number });
+              if (!room) {
+                throw new Error(`${number} という教室は存在しません`);
+              }
+              return room._id;
+            }
           })
         );
       })
@@ -27,6 +52,7 @@ router.post("/", async (req, res) => {
     const timetable = new Timetable({
       usedClass,
       weekSubjects: timetableSubjects,
+      weekRooms: timetableRooms,
     });
     await timetable.save();
     res.status(201).json(timetable);

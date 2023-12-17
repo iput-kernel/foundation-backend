@@ -1,7 +1,7 @@
 import { Router } from "express";
 import httpStatus from "http-status";
 import Post from "../models/Post";
-import Subject from "../models/Subject";
+import Subject , {SubjectType} from "../models/Subject";
 
 const router = Router();
 
@@ -56,15 +56,7 @@ router.delete("/name/:subjectName", async (req, res) => {
 //全てのSubject取得
 router.get("/", async (req, res) => {
   try {
-    const subjects = await Subject.find()
-            .populate([{
-                path: 'teacherId',
-                model: 'Teacher',
-            }])
-            .populate([{
-                path: 'reviewId',
-                model: 'Review',
-            }])
+    const subjects = await Subject.find();
     return res.status(httpStatus.OK).json(subjects);
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
@@ -75,14 +67,14 @@ router.get("/", async (req, res) => {
 router.get("/grade/:grade", async (req, res) => {
   try {
     const subjects = await Subject.find({ grade: req.params.grade })
-            .populate([{
-                path: 'teacherId',
-                model: 'Teacher',
-            }])
-            .populate([{
-                path: 'reviewId',
-                model: 'Review',
-            }])
+      .populate([{
+          path: 'teacherId',
+          model: 'Teacher',
+      }])
+      .populate([{
+          path: 'reviewId',
+          model: 'Review',
+      }])
     return res.status(httpStatus.OK).json(subjects);
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);

@@ -3,6 +3,7 @@ import Schedule from '../models/Schedule';
 import Event from '../models/Event';
 import TimeTable from '../models/Timetable';
 import Subject from '../models/Subject';
+import Class ,{ ClassType } from '../models/Class';
 
 const router = Router();
 
@@ -26,17 +27,21 @@ export const createScheduleFromTimetable = async (req: Request, res: Response) =
   // Timetableを取得
   const timetable = await TimeTable.findById(timetableId)
   .populate({
-    path: 'weekSubjects',
-    model: 'Subject'
+      path: 'weekSubjects',
+      model: 'Subject'
   });
+
   
   if (!timetable) {
     return res.status(404).send('Timetable not found');
   }
+
+  const usedClass = (await Class.findById(timetable.usedClass))
+  console.log(usedClass)
   
   // 新しいスケジュールを作成
   const schedule = new Schedule({
-    name: `${timetable.usedClass}のスケジュール`,
+    name: `${(usedClass?.classGrade?.toString()+ "年" + usedClass?.course + usedClass?.classChar)}のスケジュール`,
     events: [],
   });
   
