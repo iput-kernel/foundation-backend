@@ -1,0 +1,7 @@
+*.json
+.*
+*.md
+*.yml
+.github/
+documentation/
+build/
