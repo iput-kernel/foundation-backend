@@ -1,9 +1,10 @@
 name: Deploy with Docker Compose
 
 on:
+  workflow_dispatch:
   push:
     branches:
-      - main  # デプロイするブランチ
+      - main
 
 jobs:
   deploy:
@@ -18,10 +19,10 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_KEY }}
 
-    - name: Add known_hosts
+    - name: Setup known_hosts
       run: |
-        echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+        echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
 
     - name: Deploy with Docker Compose
       run: |
-        ssh bitcat@www.iput-kernel.com "cd /opt/iput-kernel/foundation-backend && git fetch origin main && git reset --hard origin/main && docker-compose up -d --build"
+        ssh bitcat@www.iput-kernel.com "cd /opt/iput-kernel/foundation-backend && git fetch origin main && git reset --hard origin/main && docker compose up -d --build"

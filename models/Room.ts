@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 export type RoomType = {
   roomName: string;
   roomNumber?: number;
+  seats?: number;
   airId?: mongoose.Schema.Types.ObjectId;
   status?: string;
 };
@@ -13,6 +14,9 @@ const RoomSchema = new mongoose.Schema<RoomType>({
     default: "教室",
   },
   roomNumber: {
+    type: Number,
+  },
+  seats: {
     type: Number,
   },
   airId:{
