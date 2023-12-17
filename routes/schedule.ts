@@ -7,6 +7,10 @@ import Subject from '../models/Subject';
 const router = Router();
 
 export const createScheduleFromTimetable = async (req: Request, res: Response) => {
+  
+  // 18週間以上のスケジュール生成はできない。
+  const WEEK_LIMIT = 18;
+
   const timetableId = req.params.id;
 
   const classStartTimes: Record<number, { hour: number, minute: number }> = {
@@ -30,9 +34,9 @@ export const createScheduleFromTimetable = async (req: Request, res: Response) =
     return res.status(404).send('Timetable not found');
   }
   
-// 新しいスケジュールを作成
-const schedule = new Schedule({
-    name: `Schedule for ${timetable.usedClass}`,
+  // 新しいスケジュールを作成
+  const schedule = new Schedule({
+    name: `${timetable.usedClass}のスケジュール`,
     events: [],
   });
   
@@ -40,6 +44,17 @@ const schedule = new Schedule({
   let startDate = new Date();
   const subjects: Record<string, { name: string, count: number }> = {};
 
+
+  let startDayOfWeek = startDate.getDay() - 1;
+  if (startDayOfWeek < 0) startDayOfWeek = 6; // 日曜日を最後に配置
+
+    // timetableに入りきらない範囲だった場合、次の週の月曜日からスタート
+    if (startDayOfWeek >= timetable.weekSubjects.length) {
+        startDate.setDate(startDate.getDate() + (7 - startDayOfWeek));
+        startDayOfWeek = 0; 
+    }
+  
+  // Timetableに含まれる科目
   for (let i = 0; i < timetable.weekSubjects.length; i++) {
     for (let j = 0; j < timetable.weekSubjects[i].length; j++) {
       const weekSubjectId = timetable.weekSubjects[i][j];
@@ -54,8 +69,9 @@ const schedule = new Schedule({
   }
 
   // 各曜日のSubjectをイベントとしてScheduleに追加
-  for (let week = 0; week < 18; week++) {
-    for (let i = 0; i < timetable.weekSubjects.length; i++) {
+  for (let week = 0; week < WEEK_LIMIT; week++) {
+    // 基本的に月曜日からスタート
+    for (let i = startDayOfWeek; i < timetable.weekSubjects.length; i++) {
       for (let j = 0; j < timetable.weekSubjects[i].length; j++) {
         const weekSubjectId = timetable.weekSubjects[i][j].toString();
         const subject = subjects[weekSubjectId];
@@ -74,7 +90,7 @@ const schedule = new Schedule({
           name: subject.name,
           startDate: eventStartDate, // 計算した日付を使用
           endDate: new Date(eventStartDate.getTime() + 90 * 60000), // durationを固定の90分とする
-          description: `This event occurs ${subject.count} times.`,
+          description: `この講義は ${subject.count} 回目です。.`,
         });
         await event.save();
         schedule.events.push(event._id);
@@ -88,6 +104,8 @@ const schedule = new Schedule({
   
     // 次の週に進む
     startDate.setDate(startDate.getDate() + 7);
+    // 月曜からstart
+    startDayOfWeek = 0;
   }
   
   await schedule.save();
