@@ -5,7 +5,7 @@ import Subject , {SubjectType} from "../models/Subject";
 
 const router = Router();
 
-//Subject作成
+// Subject作成
 router.post("/", async (req, res) => {
   const newSubject = new Subject(req.body);
   try {
@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-//Subject更新
+// Subject更新
 router.put("/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -29,7 +29,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-//Subject削除
+// Subject削除
 router.delete("/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -53,7 +53,7 @@ router.delete("/name/:subjectName", async (req, res) => {
   }
 });
 
-//全てのSubject取得
+// 全てのSubject取得
 router.get("/", async (req, res) => {
   try {
     const subjects = await Subject.find();
@@ -63,7 +63,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-//任意のgradeのSubject取得
+// 任意のgradeのSubject取得
 router.get("/grade/:grade", async (req, res) => {
   try {
     const subjects = await Subject.find({ grade: req.params.grade })

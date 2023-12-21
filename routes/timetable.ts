@@ -10,8 +10,6 @@ const router = Router();
 router.post("/", async (req, res) => {
   const { usedClass, weekSubjects , weekRooms} = req.body;
 
-  console.log('Received request body:', req.body); // リクエストボディをログに出力
-
   try {
     const timetableSubjects = await Promise.all(
       weekSubjects.map(async (daySubjects: string[]) => {

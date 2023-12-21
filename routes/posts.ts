@@ -108,10 +108,10 @@ router.get("/timeline/all", async (req, res) => {
     }
 
     const userPosts = await Post.find({ userId: currentUser!._id })
-            .populate({
-                path: 'userId',
-                model: 'User',
-            })
+      .populate({
+          path: 'userId',
+          model: 'User',
+      })
     //自分がフォローしている人の投稿を取得する
     const friendPosts = await Promise.all(
       currentUser.followings.map((friendId) => {
