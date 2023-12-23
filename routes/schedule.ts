@@ -2,9 +2,9 @@ import { Router, Request, Response } from "express";
 import httpStatus from "http-status";
 import Schedule from '../models/Schedule';
 import Event from '../models/Event';
-import TimeTable , {TimetableType} from '../models/Timetable';
+import TimeTable  from '../models/Timetable';
 import Subject from '../models/Subject';
-import Class ,{ ClassType } from '../models/Class';
+import Class  from '../models/Class';
 
 const router = Router();
 
