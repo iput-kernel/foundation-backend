@@ -1,9 +1,13 @@
 import mongoose from "mongoose";
 
+type TimetableEntryType = {
+  subject: mongoose.Schema.Types.ObjectId;
+  room: mongoose.Schema.Types.ObjectId;
+};
+
 export type TimetableType = {
   usedClass: mongoose.Schema.Types.ObjectId;
-  weekSubjects: mongoose.Schema.Types.ObjectId[][];
-  weekRooms: mongoose.Schema.Types.ObjectId[][];
+  weekEntries: TimetableEntryType[][];
 };
 
 const TimetableEntrySchema = new mongoose.Schema({
@@ -22,32 +26,14 @@ const TimetableSchema = new mongoose.Schema<TimetableType>({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Class",
   },
-  weekSubjects: {
-    type: [
-      [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Subject",
-        },
-      ],
-    ],
-    validate: [arrayLimit, '{PATH} exceeds the limit of array length']
-  },
-  weekRooms: {
-    type: [
-      [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Room",
-        },
-      ],
-    ],
+  weekEntries: {
+    type: [[TimetableEntrySchema]],
     validate: [arrayLimit, '{PATH} exceeds the limit of array length']
   },
 });
 
 function arrayLimit(val:[][]) {
-  return val.length <= 5 && val.every(innerArray => innerArray.length <= 7);
+  return val.length <= 7 && val.every(innerArray => innerArray.length <= 7);
 }
 
 const TimeTable = mongoose.model<TimetableType>("Timetable", TimetableSchema);

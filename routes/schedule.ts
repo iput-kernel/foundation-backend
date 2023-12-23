@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import Schedule from '../models/Schedule';
 import Event from '../models/Event';
-import TimeTable from '../models/Timetable';
+import TimeTable , {TimetableType} from '../models/Timetable';
 import Subject from '../models/Subject';
 import Class ,{ ClassType } from '../models/Class';
 
@@ -27,8 +27,12 @@ export const createScheduleFromTimetable = async (req: Request, res: Response) =
   // Timetableを取得
   const timetable = await TimeTable.findById(timetableId)
   .populate({
-      path: 'weekSubjects',
+      path: 'weekEntries.subject',
       model: 'Subject'
+  })
+  .populate({
+      path: 'weekEntries.room',
+      model: 'Room'
   });
 
   
@@ -54,15 +58,15 @@ export const createScheduleFromTimetable = async (req: Request, res: Response) =
   if (startDayOfWeek < 0) startDayOfWeek = 6; // 日曜日を最後に配置
 
     // timetableに入りきらない範囲だった場合、次の週の月曜日からスタート
-    if (startDayOfWeek >= timetable.weekSubjects.length) {
+    if (startDayOfWeek >= timetable.weekEntries.length) {
         startDate.setDate(startDate.getDate() + (7 - startDayOfWeek));
         startDayOfWeek = 0; 
     }
   
   // Timetableに含まれる科目
-  for (let i = 0; i < timetable.weekSubjects.length; i++) {
-    for (let j = 0; j < timetable.weekSubjects[i].length; j++) {
-      const weekSubjectId = timetable.weekSubjects[i][j];
+  for (let i = 0; i < timetable.weekEntries.length; i++) {
+    for (let j = 0; j < timetable.weekEntries[i].length; j++) {
+      const weekSubjectId = timetable.weekEntries[i][j].subject;
       const subject = await Subject.findById(weekSubjectId);
       if (subject) {
         subjects[weekSubjectId.toString()] = {
@@ -76,9 +80,9 @@ export const createScheduleFromTimetable = async (req: Request, res: Response) =
   // 各曜日のSubjectをイベントとしてScheduleに追加
   for (let week = 0; week < WEEK_LIMIT; week++) {
     // 基本的に月曜日からスタート
-    for (let i = startDayOfWeek; i < timetable.weekSubjects.length; i++) {
-      for (let j = 0; j < timetable.weekSubjects[i].length; j++) {
-        const weekSubjectId = timetable.weekSubjects[i][j].toString();
+    for (let i = startDayOfWeek; i < timetable.weekEntries.length; i++) {
+      for (let j = 0; j < timetable.weekEntries[i].length; j++) {
+        const weekSubjectId = timetable.weekEntries[i][j].subject.toString();
         const subject = subjects[weekSubjectId];
 
         if (!subject || subject.count === undefined || subject.count <= 0) {
