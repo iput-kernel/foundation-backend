@@ -131,7 +131,7 @@ export const createScheduleFromTimetable = async (req: Request, res: Response) =
   }
 };
 
-router.get('/schedule/:id', async (req: Request, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const schedule = await Schedule.findById(req.params.id)
       .populate('events')
