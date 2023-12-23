@@ -27,9 +27,6 @@ export const createScheduleFromTimetable = async (req: Request, res: Response) =
 
     // Timetableを取得
     const timetable = await TimeTable.findById(timetableId)
-
-    console.log(timetable)
-
     
     if (!timetable) {
       return res.status(404).send('Timetable not found');
