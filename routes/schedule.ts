@@ -41,9 +41,9 @@ export const createScheduleFromTimetable = async (req: Request, res: Response) =
       events: [],
     });
     
-    // 今日の日付を開始日として設定
-    let startDate = new Date();
-    const subjects: Record<string, { name: string, count: number }> = {};
+  // 今日の日付を開始日として設定
+  let startDate = req.body.startDate ? new Date(req.body.startDate) : new Date();
+    const subjects: Record<string, { name: string, remain: number ,count: number }> = {};
 
 
     let startDayOfWeek = startDate.getDay() - 1;
@@ -67,7 +67,8 @@ export const createScheduleFromTimetable = async (req: Request, res: Response) =
         if (subject) {
           subjects[weekSubjectId] = {
               name: subject.subjectName,
-              count: subject.count || 0,
+              remain: subject.count || 0,
+              count: 1,
           };
         }
       }
@@ -87,13 +88,13 @@ export const createScheduleFromTimetable = async (req: Request, res: Response) =
           const weekSubjectId = weekEntry.subject.toString();
           const subject = subjects[weekSubjectId];
 
-          if (!subject || subject.count === undefined || subject.count <= 0) {
+          if (!subject || subject.remain === undefined || subject.remain <= 0) {
               continue;
           }
 
           // startDateから時間割をもとにイベントの日付を計算
           const eventStartDate = new Date(startDate);
-          eventStartDate.setDate(startDate.getDate() + i); // i日後
+          eventStartDate.setDate(startDate.getDate() + i - startDayOfWeek); // i日後
           eventStartDate.setHours(classStartTimes[j].hour, classStartTimes[j].minute); // 開始時間を設定
 
           // Subjectからイベントを作成
@@ -107,14 +108,15 @@ export const createScheduleFromTimetable = async (req: Request, res: Response) =
           schedule.events.push(event._id);
 
           // Subjectのcountをデクリメント
-          if (typeof subject.count === 'number') {
-              subject.count--;
+          if (typeof subject.remain === 'number') {
+              subject.remain--;
+              subject.count++;
           }
         }
       }
 
       // 次の週に進む
-      startDate.setDate(startDate.getDate() + 7);
+      startDate.setDate(startDate.getDate() + 7 - startDayOfWeek);
       // 月曜からstart
       startDayOfWeek = 0;
     }
