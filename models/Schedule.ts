@@ -1,8 +1,14 @@
 import mongoose from 'mongoose';
 import Event from './Event';
 
+export type ScheduleType = {
+  reference: mongoose.Schema.Types.ObjectId;
+  onModel: 'Room' | 'User' | 'Class';
+  events: mongoose.Schema.Types.ObjectId[];
+};
+
 const ScheduleSchema = new mongoose.Schema({
-  user: {
+  reference: {
     type: mongoose.Schema.Types.ObjectId,
     refPath: 'onModel',
   },
@@ -11,6 +17,9 @@ const ScheduleSchema = new mongoose.Schema({
     enum: ['Room', 'User', 'Class'],
     required: true,
   },
-  events: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Event' }],
+  events: [{ 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Event' 
+  }],
 });
 export default mongoose.model('Schedule', ScheduleSchema);
