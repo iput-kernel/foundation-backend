@@ -109,7 +109,7 @@ async function sendConfirmationEmail(email: string, token: string) {
   });
 
   // リンクをクエリパラメータ形式に変更
-  const link = `https://www.iput-kernel.com/api/auth/confirm-email?token=${token}`;
+  const link = `https://www.iput-kernel.com/v1/auth/confirm-email?token=${token}`;
 
   const mailOptions = {
     from: "iput-kernel@gmail.com",
