@@ -44,7 +44,7 @@ export const createScheduleFromTimetable = async (req: Request, res: Response) =
     });
     
   // 今日の日付を開始日として設定
-  let startDate = req.body.startDate ? new Date(req.body.startDate) : new Date();
+  const startDate = req.body.startDate ? new Date(req.body.startDate) : new Date();
     const subjects: Record<string, { name: string, remain: number ,count: number }> = {};
 
 
