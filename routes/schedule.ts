@@ -5,6 +5,8 @@ import Event from '../models/Event';
 import TimeTable  from '../models/Timetable';
 import Subject from '../models/Subject';
 import Class  from '../models/Class';
+import Room from '../models/Room';
+import User from "../models/User";
 
 const router = Router();
 
@@ -64,6 +66,7 @@ export const createScheduleFromTimetable = async (req: Request, res: Response) =
         }
         const weekSubjectId = weekEntry.subject.toString();
         const subject = await Subject.findById(weekSubjectId);
+
         if (subject) {
           subjects[weekSubjectId] = {
               name: subject.subjectName,
@@ -97,11 +100,12 @@ export const createScheduleFromTimetable = async (req: Request, res: Response) =
           eventStartDate.setDate(startDate.getDate() + i - startDayOfWeek); // i日後
           eventStartDate.setHours(classStartTimes[j].hour, classStartTimes[j].minute); // 開始時間を設定
 
-          // Subjectからイベントを作成
+          const room = await Room.findById(weekEntry.room);
           const event = new Event({
             name: subject.name,
             startDate: eventStartDate,
-            endDate: new Date(eventStartDate.getTime() + 90 * 60000), // durationを固定の90分とする
+            endDate: new Date(eventStartDate.getTime() + 90 * 60000), 
+            place: room ? room.roomNumber : undefined, 
             description: `この講義は ${subject.count} 回目です。.`,
           });
           await event.save();
@@ -116,7 +120,7 @@ export const createScheduleFromTimetable = async (req: Request, res: Response) =
       }
 
       // 次の週に進む
-      startDate.setDate(startDate.getDate() + 7 - startDayOfWeek);
+      startDate.setDate(startDate.getDate() - startDayOfWeek + 7 );
       // 月曜からstart
       startDayOfWeek = 0;
     }
