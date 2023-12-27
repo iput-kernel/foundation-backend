@@ -1,17 +1,11 @@
 import { Router } from "express";
 import httpStatus from "http-status";
 import mongoose, { Types } from "mongoose";
-import { authenticateJWT } from "../jwtAuth";
+import { authenticateJWT ,RequestWithUser } from "../jwtAuth";
 import Class , { ClassType } from "../models/Class";
-import User, { UserType } from "../models/User";
+import User from "../models/User";
 
 const router = Router();
-
-declare module 'express-serve-static-core' {
-  interface Request {
-    user?: UserType; // UserTypeを使用してuserプロパティの型を定義
-  }
-}
 
 router.get("/:id", async (req, res) => {
   try {
@@ -120,7 +114,7 @@ router.put("/:id/unfollow", async (req, res) => {
   }
 });
 
-router.put('/joinClass', authenticateJWT, async (req, res) => {
+router.put('/joinClass', authenticateJWT, async (req:RequestWithUser, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -132,7 +126,7 @@ router.put('/joinClass', authenticateJWT, async (req, res) => {
 
         const { classId } = req.body; // リクエストボディからclassIdを取得
 
-        const currentUserId = new Types.ObjectId(req.user?.id);
+        const currentUserId = req.user.id;
         const currentUser = await User.findById(currentUserId).session(session);
 
         if (!currentUser) {
