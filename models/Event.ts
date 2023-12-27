@@ -14,10 +14,11 @@ const EventSchema = new mongoose.Schema({
     name: String,
     startDate: Date,
     endDate: Date,
-    authenticity: Number,
+    authenticity: { type: Number, min: 0, max: 100, default: 80},
     trust: [mongoose.Types.ObjectId],
     distrust: [mongoose.Types.ObjectId],
     description: String,
 });
+
 
 export default mongoose.model<IEvent>('Event', EventSchema);
