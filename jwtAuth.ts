@@ -1,6 +1,14 @@
+import { Types } from 'mongoose';
 import { Request, Response, NextFunction } from 'express';
 import User, { UserType } from "./models/User";
 const jwt = require('jsonwebtoken');
+
+export interface RequestWithUser extends Request {
+    user?: {
+        id: Types.ObjectId;
+        credLevel: number;
+    };
+}
 
 async function verifyJWT(user: UserType, token: string) {
     const secret = user.secretKey;
@@ -10,7 +18,7 @@ async function verifyJWT(user: UserType, token: string) {
     return jwt.verify(token, secret);
 }
 
-export const authenticateJWT = async (req: Request, res: Response, next: NextFunction) => {
+export const authenticateJWT = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const token = req.headers.authorization;
 
     if (!token) {
