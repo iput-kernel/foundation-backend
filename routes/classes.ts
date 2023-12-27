@@ -32,6 +32,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+
 router.delete("/:id", async (req, res) => {
   try {
     const post = await Class.findById(req.params.id);
@@ -65,8 +66,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-//クラスをすべて取得
-
+// クラスをすべて取得
 router.get("/", async (req: Request, res: Response) => {
   try {
     const classes = await Class.find();

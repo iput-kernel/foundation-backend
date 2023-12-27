@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 export type UserType = {
-  id: string;
   username: string;
   realnameFirst: string;
   realnameLast: string;
@@ -73,7 +72,6 @@ const UserSchema = new mongoose.Schema<UserType>(
     },
     secretKey: {
       type: String,
-      unique: true,
       default: "",
     },
     confirmationToken: {

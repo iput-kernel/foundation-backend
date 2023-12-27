@@ -16,6 +16,7 @@ const teacherRoute = require("./routes/teachers");
 const classRoute = require("./routes/classes");
 const timetableRoute = require("./routes/timetable");
 const scheduleRoute = require("./routes/schedule");
+const eventRoute = require("./routes/event");
 
 const PORT = 4000;
 const mongoose = require("mongoose");
@@ -41,5 +42,6 @@ app.use("/v1/teachers",teacherRoute);
 app.use("/v1/classes",classRoute);
 app.use("/v1/timetable",timetableRoute);
 app.use("/v1/schedule",scheduleRoute);
+app.use("/v1/event",eventRoute);
 
 app.listen(PORT,() => console.log("サーバーが起動しました"));

@@ -83,7 +83,7 @@ router.post("/login", async (req, res) => {
     }
 
     // JWTの署名
-    const token = await signJWT(user, { userId: user._id });
+    const token = await signJWT(user, { id: user._id , credLevel: user.credLevel});
 
     // ユーザー情報からpasswordと他の不要なフィールドを除外
     const {
@@ -109,7 +109,7 @@ async function sendConfirmationEmail(email: string, token: string) {
   });
 
   // リンクをクエリパラメータ形式に変更
-  const link = `https://www.iput-kernel.com/api/auth/confirm-email?token=${token}`;
+  const link = `https://www.iput-kernel.com/v1/auth/confirm-email?token=${token}`;
 
   const mailOptions = {
     from: "iput-kernel@gmail.com",
@@ -127,14 +127,6 @@ async function signJWT(user: UserType, payload: Record<string, unknown>) {
     throw new Error("No secret key found for the given user.");
   }
   return jwt.sign(payload, secret);
-}
-
-async function verifyJWT(user: UserType, token: string) {
-  const secret = user.secretKey;
-  if (!secret) {
-    throw new Error("No secret key found for the given user.");
-  }
-  return jwt.verify(token, secret);
 }
 
 module.exports = router;
