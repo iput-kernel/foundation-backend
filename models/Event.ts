@@ -5,7 +5,8 @@ interface IEvent extends Document {
     startDate: Date;
     endDate: Date;
     authenticity: number;
-    feedback: mongoose.Types.ObjectId[];
+    trust: mongoose.Types.ObjectId[];
+    distrust: mongoose.Types.ObjectId[];
     description: string;
 }
 
@@ -14,7 +15,8 @@ const EventSchema = new mongoose.Schema({
     startDate: Date,
     endDate: Date,
     authenticity: Number,
-    feedback: [mongoose.Types.ObjectId],
+    trust: [mongoose.Types.ObjectId],
+    distrust: [mongoose.Types.ObjectId],
     description: String,
 });
 
