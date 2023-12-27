@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 export type SubjectType = {
+  _id: mongoose.Types.ObjectId;
   subjectName: string;
   teachersId: mongoose.Types.ObjectId[];
   reviewsId: mongoose.Types.ObjectId[];

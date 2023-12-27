@@ -21,7 +21,7 @@ router.post("/", authenticateJWT, async (req, res) => {
   }
 });
 
-//roomをすべて取得
+// roomをすべて取得
 router.get("/", async (req, res) => {
   try {
     const rooms = await Room.find();

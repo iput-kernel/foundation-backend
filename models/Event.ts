@@ -17,6 +17,7 @@ const EventSchema = new mongoose.Schema({
     authenticity: { type: Number, min: 0, max: 100, default: 80},
     trust: [mongoose.Types.ObjectId],
     distrust: [mongoose.Types.ObjectId],
+    place: String,
     description: String,
 });
 

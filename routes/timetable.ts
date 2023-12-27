@@ -2,23 +2,37 @@ import { Router } from "express";
 import httpStatus from "http-status";
 import Subject from "../models/Subject";
 import Timetable from "../models/Timetable";
+import Room from "../models/Room"
 
 const router = Router();
 
 // Create a Timetable
 router.post("/", async (req, res) => {
-  const { usedClass, weekSubjects } = req.body;
+  const { usedClass, weekEntries } = req.body;
 
   try {
-    const timetableSubjects = await Promise.all(
-      weekSubjects.map(async (daySubjects: string[]) => {
+    const timetableEntries = await Promise.all(
+      weekEntries.map(async (dayEntries: {subject: string | null, room: number | null}[]) => {
         return await Promise.all(
-          daySubjects.map(async (name) => {
-            const subject = await Subject.findOne({ subjectName: name });
-            if (!subject) {
-              throw new Error(`${name} という科目は存在しません`);
+          dayEntries.map(async ({subject: subjectName, room: roomNumber}) => {
+            let subject = null;
+            let room = null;
+
+            if (subjectName) {
+              subject = await Subject.findOne({ subjectName });
+              if (!subject) {
+                throw new Error(`${subjectName} という科目は存在しません`);
+              }
             }
-            return subject._id;
+
+            if (roomNumber) {
+              room = await Room.findOne({ roomNumber });
+              if (!room) {
+                throw new Error(`${roomNumber} という教室は存在しません`);
+              }
+            }
+
+            return {subject: subject?._id, room: room?._id};
           })
         );
       })
@@ -26,7 +40,7 @@ router.post("/", async (req, res) => {
 
     const timetable = new Timetable({
       usedClass,
-      weekSubjects: timetableSubjects,
+      weekEntries: timetableEntries,
     });
     await timetable.save();
     res.status(201).json(timetable);
@@ -35,13 +49,17 @@ router.post("/", async (req, res) => {
   }
 });
 
+
 // Get a Timetable by ID
 router.get("/:id", async (req, res) => {
   try {
     const timetable = await Timetable.findById(req.params.id)
       .populate([{
-        path: "weekSubjects",
+        path: "weekEntries.subject",
         model: "Subject",
+      }, {
+        path: "weekEntries.room",
+        model: "Room",
       }])
       .populate({
         path: "usedClass",
@@ -63,13 +81,16 @@ router.get("/", async (req, res) => {
   try {
     const timetables = await Timetable.find()
       .populate({
-        path: "weekSubjects",
-        model: "Subject",
-      })
-      .populate({
         path: "usedClass",
         model: "Class",
-      });
+      })
+      .populate([{
+        path: "weekEntries.subject",
+        model: "Subject",
+      }, {
+        path: "weekEntries.room",
+        model: "Room",
+      }]);
     res.status(httpStatus.OK).json(timetables);
   } catch (err: any) {
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: err.message });

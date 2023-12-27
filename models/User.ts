@@ -73,7 +73,6 @@ const UserSchema = new mongoose.Schema<UserType>(
     },
     secretKey: {
       type: String,
-      unique: true,
       default: "",
     },
     confirmationToken: {

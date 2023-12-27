@@ -1,11 +1,11 @@
 import { Router } from "express";
 import httpStatus from "http-status";
 import Post from "../models/Post";
-import Subject from "../models/Subject";
+import Subject , {SubjectType} from "../models/Subject";
 
 const router = Router();
 
-//Subject作成
+// Subject作成
 router.post("/", async (req, res) => {
   const newSubject = new Subject(req.body);
   try {
@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-//Subject更新
+// Subject更新
 router.put("/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -29,7 +29,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-//Subject削除
+// Subject削除
 router.delete("/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -53,36 +53,28 @@ router.delete("/name/:subjectName", async (req, res) => {
   }
 });
 
-//全てのSubject取得
+// 全てのSubject取得
 router.get("/", async (req, res) => {
   try {
-    const subjects = await Subject.find()
-            .populate([{
-                path: 'teacherId',
-                model: 'Teacher',
-            }])
-            .populate([{
-                path: 'reviewId',
-                model: 'Review',
-            }])
+    const subjects = await Subject.find();
     return res.status(httpStatus.OK).json(subjects);
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
   }
 });
 
-//任意のgradeのSubject取得
+// 任意のgradeのSubject取得
 router.get("/grade/:grade", async (req, res) => {
   try {
     const subjects = await Subject.find({ grade: req.params.grade })
-            .populate([{
-                path: 'teacherId',
-                model: 'Teacher',
-            }])
-            .populate([{
-                path: 'reviewId',
-                model: 'Review',
-            }])
+      .populate([{
+          path: 'teacherId',
+          model: 'Teacher',
+      }])
+      .populate([{
+          path: 'reviewId',
+          model: 'Review',
+      }])
     return res.status(httpStatus.OK).json(subjects);
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
