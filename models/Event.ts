@@ -7,6 +7,7 @@ interface IEvent extends Document {
     authenticity: number;
     trust: mongoose.Types.ObjectId[];
     distrust: mongoose.Types.ObjectId[];
+    place: string;
     description: string;
 }
 
