@@ -1,4 +1,3 @@
-
 import { Router } from "express";
 import httpStatus from "http-status";
 import Teacher from "../models/Teacher";
