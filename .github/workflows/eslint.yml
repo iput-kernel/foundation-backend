@@ -1,22 +1,29 @@
 name: ESLint
 
+name: IPUT-Kernel
+
 on:
-  push:
   pull_request:
 
 jobs:
   eslint:
-    name: eslint
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v1
-    - name: install node v12
-      uses: actions/setup-node@v1
-      with:
-        node-version: 12
-    - name: npm install
-      run: npm install
-    - name: eslint
-      uses: icrawl/action-eslint@v1
-      with:
-        custom-glob: .
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+
+      - name: Navigate to project directory
+        run: cd /home/runner/work/foundation-backend/
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run ESLint and Prettier
+        run: npm run lint && npm run formatter
+
