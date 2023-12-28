@@ -13,7 +13,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run lint && npm run formatter"
+      "pre-commit": "npm run lint"
     }
   },
   "author": "bitcat",
