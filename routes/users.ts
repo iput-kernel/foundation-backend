@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { authenticateJWT, RequestWithUser } from "../jwtAuth";
 import Class from "../models/Class";
 import User from "../models/User";
-import { Router as userRoute } from "./route";
+import { Router as userRoute } from "../route";
 
 userRoute.get("/:id", async (req, res) => {
   try {

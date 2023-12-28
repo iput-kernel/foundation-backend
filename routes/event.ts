@@ -2,7 +2,7 @@ import { Response } from "express";
 import { RequestWithUser, authenticateJWT } from "../jwtAuth";
 import Event from "../models/Event";
 import httpStatus from "http-status";
-import { Router as eventRoute } from "./route";
+import { Router as eventRoute } from "../route";
 
 eventRoute.put(
   "/trust/:id",

@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "build": "tsc",
-    "lint": "eslint . --fix --max-warnings 0",
+    "lint": "eslint --fix --max-warnings 0 .",
     "formatter": "prettier --write .",
     "start": "node ./build/server.js",
     "dev": "tsc && nodemon ./build/server.js",

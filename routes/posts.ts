@@ -1,7 +1,7 @@
 import httpStatus from "http-status";
 import Post from "../models/Post";
 import User from "../models/User";
-import { Router as postRoute } from "./route";
+import { Router as postRoute } from "../route";
 
 //投稿
 postRoute.post("/", async (req, res) => {

@@ -1,7 +1,7 @@
 import httpStatus from "http-status";
 import Subject from "../models/Subject";
 import Timetable from "../models/Timetable";
-import { Router as airRoute } from "./route";
+import { Router as airRoute } from "../route";
 
 airRoute.post("/", async (req, res) => {
   const { usedClass, weekSubjects } = req.body;
@@ -27,7 +27,7 @@ airRoute.post("/", async (req, res) => {
     });
     await timetable.save();
     res.status(201).json(timetable);
-  } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any 
+  } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: err.message });
   }
 });

@@ -2,7 +2,7 @@ import httpStatus from "http-status";
 import Subject from "../models/Subject";
 import Timetable from "../models/Timetable";
 import Room from "../models/Room";
-import { Router as timetableRoute } from "./route";
+import { Router as timetableRoute } from "../route";
 
 // Create a Timetable
 timetableRoute.post("/", async (req, res) => {

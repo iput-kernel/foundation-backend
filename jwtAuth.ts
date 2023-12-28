@@ -21,7 +21,7 @@ async function verifyJWT(user: UserType, token: string) {
 export const authenticateJWT = async (
   req: RequestWithUser,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const token = req.headers.authorization;
 

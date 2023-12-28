@@ -6,7 +6,7 @@ import User, { UserType } from "../models/User";
 
 import nodemailer from "nodemailer";
 
-import { Router as authRoute } from "./route";
+import { Router as authRoute } from "../route";
 
 const saltRounds = 10;
 
@@ -89,7 +89,7 @@ authRoute.post("/login", async (req, res) => {
 
     // ユーザー情報からpasswordと他の不要なフィールドを除外
     const { password, secretKey, confirmationToken, ...userResponse } = // eslint-disable-line
-      user.toObject();
+      user.toObject(); // eslint-disable-line
 
     return res.status(httpStatus.OK).json({ user: userResponse, token }); // トークンも応答として返します
   } catch (err) {

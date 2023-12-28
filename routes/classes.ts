@@ -1,7 +1,7 @@
 import httpStatus from "http-status";
 import Class from "../models/Class";
 import User from "../models/User";
-import { Router as classRoute } from "./route";
+import { Router as classRoute } from "../route";
 import { Request, Response } from "express";
 
 //クラス
