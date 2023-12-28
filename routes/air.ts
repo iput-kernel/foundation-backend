@@ -76,8 +76,12 @@ airRoute.get("/", async (req, res) => {
         model: "Class",
       });
     res.status(httpStatus.OK).json(timetables);
-  } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: err.message });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: err.message });
+    } else {
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: '未知のエラーが発生しました' });
+    }
   }
 });
 
