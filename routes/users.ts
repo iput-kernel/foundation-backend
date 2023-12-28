@@ -1,40 +1,44 @@
-import { Router } from "express";
 import httpStatus from "http-status";
-import mongoose, { Types } from "mongoose";
-import { authenticateJWT ,RequestWithUser } from "../jwtAuth";
-import Class , { ClassType } from "../models/Class";
+import mongoose from "mongoose";
+import { authenticateJWT, RequestWithUser } from "../jwtAuth";
+import Class from "../models/Class";
 import User from "../models/User";
+import { Router } from "express";
 
-const router = Router();
+const userRoute = Router();
 
-router.get("/:id", async (req, res) => {
+userRoute.get("/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
-            .populate([{
-                path: 'followings',
-                model: 'User',
-            }])
-            .populate([{
-                path: 'followers',
-                model: 'User',
-            }])
-            .populate({
-                path: 'classId',
-                model: 'Class',
-            });
+      .populate([
+        {
+          path: "followings",
+          model: "User",
+        },
+      ])
+      .populate([
+        {
+          path: "followers",
+          model: "User",
+        },
+      ])
+      .populate({
+        path: "classId",
+        model: "Class",
+      });
 
     const userObject = user!.toObject();
-    const { password, ...other } = userObject;
+    const { password, ...other } = userObject; // eslint-disable-line
     res.status(httpStatus.OK).json(other);
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
   }
 });
 
-router.put("/:id", async (req, res) => {
+userRoute.put("/:id", async (req, res) => {
   if (req.body.userId === req.params.id || req.body.isAdmin) {
     try {
-      const user = await User.findByIdAndUpdate(req.params.id, {
+      const user = await User.findByIdAndUpdate(req.params.id, { // eslint-disable-line
         $set: req.body,
       });
       res.status(httpStatus.OK).json("アカウントが更新されました");
@@ -46,10 +50,10 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+userRoute.delete("/:id", async (req, res) => {
   if (req.body.userId === req.params.id || req.body.isAdmin) {
     try {
-      const user = await User.findByIdAndDelete(req.params.id);
+      const user = await User.findByIdAndDelete(req.params.id); // eslint-disable-line
       res.status(httpStatus.OK).json("アカウントが削除されました");
     } catch (err) {
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
@@ -60,7 +64,7 @@ router.delete("/:id", async (req, res) => {
 });
 
 //フォロー
-router.put("/:id/follow", async (req, res) => {
+userRoute.put("/:id/follow", async (req, res) => {
   //bodyのほうが自分 paramsのほうが相手
   if (req.body.userId !== req.params.id) {
     try {
@@ -86,7 +90,7 @@ router.put("/:id/follow", async (req, res) => {
 });
 
 //フォロー解除
-router.put("/:id/unfollow", async (req, res) => {
+userRoute.put("/:id/unfollow", async (req, res) => {
   //bodyのほうが自分 paramsのほうが相手
   if (req.body.userId !== req.params.id) {
     try {
@@ -114,49 +118,58 @@ router.put("/:id/unfollow", async (req, res) => {
   }
 });
 
-router.put('/joinClass', authenticateJWT, async (req:RequestWithUser, res) => {
+userRoute.put(
+  "/joinClass",
+  authenticateJWT,
+  async (req: RequestWithUser, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
+      if (!req.user) {
+        return res
+          .status(httpStatus.UNAUTHORIZED)
+          .json({ message: "ユーザーが認証されていません" });
+      }
 
-        if (!req.user) {
-          return res.status(httpStatus.UNAUTHORIZED).json({ message: "ユーザーが認証されていません" });
-        }
+      const { classId } = req.body; // リクエストボディからclassIdを取得
 
-        const { classId } = req.body; // リクエストボディからclassIdを取得
+      const currentUserId = req.user.id;
+      const currentUser = await User.findById(currentUserId).session(session);
 
-        const currentUserId = req.user.id;
-        const currentUser = await User.findById(currentUserId).session(session);
+      if (!currentUser) {
+        throw new Error("User not found");
+      }
 
-        if (!currentUser) {
-            throw new Error('User not found');
-        }
+      const targetClass = await Class.findById(classId).session(session);
+      if (!targetClass) {
+        throw new Error("Class not found");
+      }
 
-        const targetClass = await Class.findById(classId).session(session);
-        if (!targetClass) {
-            throw new Error('Class not found');
-        }
+      // ユーザーをクラスのstudentsIdに追加
+      if (
+        !targetClass.studentsId
+          .map((id) => id.toString())
+          .includes(currentUserId.toString())
+      ) {
+        targetClass.studentsId.push(currentUserId);
+        await targetClass.save({ session });
+      }
 
-        // ユーザーをクラスのstudentsIdに追加
-        if (!targetClass.studentsId.map(id => id.toString()).includes(currentUserId.toString())) {
-          targetClass.studentsId.push(currentUserId);
-          await targetClass.save({ session });
-        }
+      // ユーザーのclassフィールドにクラスIDを設定
+      currentUser.class = classId;
+      await currentUser.save({ session });
 
-        // ユーザーのclassフィールドにクラスIDを設定
-        currentUser.class = classId;
-        await currentUser.save({ session });
+      await session.commitTransaction();
+      session.endSession();
 
-        await session.commitTransaction();
-        session.endSession();
-
-        res.status(200).json({ message: 'Classmate added successfully' });
-    } catch (error: any) {
-        await session.abortTransaction();
-        session.endSession();
-        res.status(500).json({ message: error.message });
+      res.status(200).json({ message: "Classmate added successfully" });
+    } catch (error: any) { // eslint-disable-line
+      await session.abortTransaction();
+      session.endSession();
+      res.status(500).json({ message: error.message });
     }
-});
+  },
+);
 
-module.exports = router;
+export default userRoute;

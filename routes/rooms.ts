@@ -1,12 +1,12 @@
-import { Router } from "express";
 import httpStatus from "http-status";
 import { authenticateJWT } from "../jwtAuth";
 import Room from "../models/Room";
 import User from "../models/User";
+import { Router } from "express";
 
-const router = Router();
+const roomRoute = Router();
 
-router.post("/", authenticateJWT, async (req, res) => {
+roomRoute.post("/", authenticateJWT, async (req, res) => {
   try {
     const newRoom = new Room(req.body);
     const user = await User.findById(req.body.userId);
@@ -22,7 +22,7 @@ router.post("/", authenticateJWT, async (req, res) => {
 });
 
 // roomをすべて取得
-router.get("/", async (req, res) => {
+roomRoute.get("/", async (req, res) => {
   try {
     const rooms = await Room.find();
     res.status(httpStatus.OK).json(rooms);
@@ -32,7 +32,7 @@ router.get("/", async (req, res) => {
 });
 
 //特定のroomを取得
-router.get("/:id", async (req, res) => {
+roomRoute.get("/:id", async (req, res) => {
   try {
     const room = await Room.findById(req.params.id);
     return res.status(httpStatus.OK).json(room);
@@ -42,7 +42,7 @@ router.get("/:id", async (req, res) => {
 });
 
 //特定のroomを更新
-router.put("/number/:number", authenticateJWT, async (req, res) => {
+roomRoute.put("/number/:number", authenticateJWT, async (req, res) => {
   try {
     const room = await Room.findOne({ roomNumber: req.params.number });
     if (!room) {
@@ -52,7 +52,7 @@ router.put("/number/:number", authenticateJWT, async (req, res) => {
       $set: req.body,
     });
     return res.status(httpStatus.OK).json("roomが更新されました");
-  } catch (err: any) {
+  } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
     return res
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .json(err.message || "Something went wrong");
@@ -60,7 +60,7 @@ router.put("/number/:number", authenticateJWT, async (req, res) => {
 });
 
 // userが管理者、もしくは信用レベルが4以上の場合にroomを削除
-router.delete("/:id", authenticateJWT, async (req, res) => {
+roomRoute.delete("/:id", authenticateJWT, async (req, res) => {
   try {
     const room = await Room.findById(req.params.id);
     const user = await User.findById(req.body.userId);
@@ -75,7 +75,7 @@ router.delete("/:id", authenticateJWT, async (req, res) => {
   }
 });
 
-router.delete("/number/:number", authenticateJWT, async (req, res) => {
+roomRoute.delete("/number/:number", authenticateJWT, async (req, res) => {
   try {
     const room = await Room.findOne({ roomNumber: req.params.number });
     const user = await User.findById(req.body.userId);
@@ -90,4 +90,4 @@ router.delete("/number/:number", authenticateJWT, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default roomRoute;

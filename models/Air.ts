@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 export type AirType = {
-  temp:number;
-  humi:number;
-  co2Level:number;
+  temp: number;
+  humi: number;
+  co2Level: number;
   createdAt: Date;
 };
 
@@ -18,7 +18,7 @@ const AirSchema = new mongoose.Schema<AirType>({
   },
   createdAt: {
     type: Date,
-  }
+  },
 });
 
 const Air = mongoose.model<AirType>("Air", AirSchema);

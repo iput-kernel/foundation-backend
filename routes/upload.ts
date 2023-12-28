@@ -2,7 +2,7 @@ import { Router } from "express";
 import httpStatus from "http-status";
 import multer from "multer";
 
-const router = Router();
+const uploadRoute = Router();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -13,9 +13,9 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({ storage }); // eslint-disable-line
 
-router.post("/", (req, res) => {
+uploadRoute.post("/", (req, res) => {
   try {
     return res
       .status(httpStatus.OK)
@@ -25,4 +25,4 @@ router.post("/", (req, res) => {
   }
 });
 
-module.exports = router;
+export default uploadRoute;

@@ -1,12 +1,12 @@
-import { Request, Response, Router as expressRouter } from "express";
 import httpStatus from "http-status";
 import Class from "../models/Class";
 import User from "../models/User";
+import { Request, Response, Router } from "express";
 
-const router = expressRouter();
+const classRoute = Router()
 
 //クラス
-router.post("/", async (req, res) => {
+classRoute.post("/", async (req, res) => {
   const newClass = new Class(req.body);
   try {
     const savedClass = await newClass.save();
@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+classRoute.put("/:id", async (req, res) => {
   try {
     const post = await Class.findById(req.params.id);
     if (post!.userId! === req.body.userId) {
@@ -32,8 +32,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-
-router.delete("/:id", async (req, res) => {
+classRoute.delete("/:id", async (req, res) => {
   try {
     const post = await Class.findById(req.params.id);
     const user = await User.findById(req.body.userId);
@@ -49,17 +48,21 @@ router.delete("/:id", async (req, res) => {
 });
 
 //特定のクラスの取得
-router.get("/:id", async (req, res) => {
+classRoute.get("/:id", async (req, res) => {
   try {
     const classes = await Class.findById(req.params.id)
-        .populate([{
-            path: 'studentsId',
-            model: 'User',
-        }])
-        .populate([{
-            path: 'timetableId',
-            model: 'Timetable',
-        }])
+      .populate([
+        {
+          path: "studentsId",
+          model: "User",
+        },
+      ])
+      .populate([
+        {
+          path: "timetableId",
+          model: "Timetable",
+        },
+      ]);
     return res.status(httpStatus.OK).json(classes);
   } catch (err) {
     return res.status(httpStatus.FORBIDDEN).json(err);
@@ -67,7 +70,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // クラスをすべて取得
-router.get("/", async (req: Request, res: Response) => {
+classRoute.get("/", async (req: Request, res: Response) => {
   try {
     const classes = await Class.find();
     return res.status(httpStatus.OK).json(classes);
@@ -76,4 +79,4 @@ router.get("/", async (req: Request, res: Response) => {
   }
 });
 
-module.exports = router;
+export default classRoute;

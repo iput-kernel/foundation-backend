@@ -28,7 +28,7 @@ const ClassSchema = new mongoose.Schema<ClassType>({
     type: String,
     max: 2,
   },
-  studentsCount:{
+  studentsCount: {
     type: Number,
   },
   studentsId: [

@@ -1,12 +1,12 @@
-import { Router } from "express";
 import httpStatus from "http-status";
 import Post from "../models/Post";
-import Subject , {SubjectType} from "../models/Subject";
+import Subject from "../models/Subject";
+import { Router } from "express";
 
-const router = Router();
+const subjectRoute = Router();
 
 // Subject作成
-router.post("/", async (req, res) => {
+subjectRoute.post("/", async (req, res) => {
   const newSubject = new Subject(req.body);
   try {
     const savedSubject = await newSubject.save();
@@ -17,7 +17,7 @@ router.post("/", async (req, res) => {
 });
 
 // Subject更新
-router.put("/:id", async (req, res) => {
+subjectRoute.put("/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     await post!.updateOne({
@@ -30,7 +30,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // Subject削除
-router.delete("/:id", async (req, res) => {
+subjectRoute.delete("/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     await post!.deleteOne();
@@ -41,7 +41,7 @@ router.delete("/:id", async (req, res) => {
 });
 
 // Subjectを削除 subjectNameで
-router.delete("/name/:subjectName", async (req, res) => {
+subjectRoute.delete("/name/:subjectName", async (req, res) => {
   try {
     const subject = await Subject.findOne({
       subjectName: req.params.subjectName,
@@ -54,7 +54,7 @@ router.delete("/name/:subjectName", async (req, res) => {
 });
 
 // 全てのSubject取得
-router.get("/", async (req, res) => {
+subjectRoute.get("/", async (req, res) => {
   try {
     const subjects = await Subject.find();
     return res.status(httpStatus.OK).json(subjects);
@@ -64,21 +64,25 @@ router.get("/", async (req, res) => {
 });
 
 // 任意のgradeのSubject取得
-router.get("/grade/:grade", async (req, res) => {
+subjectRoute.get("/grade/:grade", async (req, res) => {
   try {
     const subjects = await Subject.find({ grade: req.params.grade })
-      .populate([{
-          path: 'teacherId',
-          model: 'Teacher',
-      }])
-      .populate([{
-          path: 'reviewId',
-          model: 'Review',
-      }])
+      .populate([
+        {
+          path: "teacherId",
+          model: "Teacher",
+        },
+      ])
+      .populate([
+        {
+          path: "reviewId",
+          model: "Review",
+        },
+      ]);
     return res.status(httpStatus.OK).json(subjects);
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
   }
 });
 
-module.exports = router;
+export default subjectRoute;

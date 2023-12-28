@@ -1,27 +1,26 @@
-import { Router } from "express";
 import httpStatus from "http-status";
 import Subject from "../models/Subject";
 import Timetable from "../models/Timetable";
+import { Router } from "express";
 
-const router = Router();
+const airRoute = Router()
 
-// Create a Timetable
-router.post("/", async (req, res) => {
+airRoute.post("/", async (req, res) => {
   const { usedClass, weekSubjects } = req.body;
 
   try {
     const timetableSubjects = await Promise.all(
       weekSubjects.map(async (daySubjects: string[]) => {
         return await Promise.all(
-          daySubjects.map(async (name:string) => {
+          daySubjects.map(async (name: string) => {
             const subject = await Subject.findOne({ subjectName: name });
             if (!subject) {
               throw new Error(`${name} という科目は存在しません`);
             }
             return subject._id;
-          })
+          }),
         );
-      })
+      }),
     );
 
     const timetable = new Timetable({
@@ -30,19 +29,21 @@ router.post("/", async (req, res) => {
     });
     await timetable.save();
     res.status(201).json(timetable);
-  } catch (err:any) {
+  } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: err.message });
   }
 });
 
 // Get a Timetable by ID
-router.get("/:id", async (req, res) => {
+airRoute.get("/:id", async (req, res) => {
   try {
     const timetable = await Timetable.findById(req.params.id)
-      .populate([{
-        path: "weekSubjects",
-        model: "Subject",
-      }])
+      .populate([
+        {
+          path: "weekSubjects",
+          model: "Subject",
+        },
+      ])
       .populate({
         path: "usedClass",
         model: "Class",
@@ -53,13 +54,17 @@ router.get("/:id", async (req, res) => {
         .json({ message: "指定されたIDの時間割は存在しません" });
     }
     res.status(httpStatus.OK).json(timetable);
-  } catch (err:any) {
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: err.message });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: err.message });
+    } else {
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: '未知のエラーが発生しました' });
+    }
   }
 });
 
 // Get all Timetables
-router.get("/", async (req, res) => {
+airRoute.get("/", async (req, res) => {
   try {
     const timetables = await Timetable.find()
       .populate({
@@ -71,9 +76,9 @@ router.get("/", async (req, res) => {
         model: "Class",
       });
     res.status(httpStatus.OK).json(timetables);
-  } catch (err:any) {
+  } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: err.message });
   }
 });
 
-module.exports = router;
+export default airRoute;
