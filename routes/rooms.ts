@@ -2,7 +2,9 @@ import httpStatus from "http-status";
 import { authenticateJWT } from "../jwtAuth";
 import Room from "../models/Room";
 import User from "../models/User";
-import { Router as roomRoute } from "../route";
+import { Router } from "express";
+
+const roomRoute = Router();
 
 roomRoute.post("/", authenticateJWT, async (req, res) => {
   try {

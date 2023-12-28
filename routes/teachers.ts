@@ -1,7 +1,9 @@
 import httpStatus from "http-status";
 import Teacher from "../models/Teacher";
 import User from "../models/User";
-import { Router as teacherRoute } from "../route";
+import { Router } from "express";
+
+const teacherRoute = Router();
 
 // Create a teacher but only admin or has cred-level of 4 or higher
 teacherRoute.post("/", async (req, res) => {

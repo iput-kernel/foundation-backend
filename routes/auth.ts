@@ -5,8 +5,9 @@ import jwt from "jsonwebtoken";
 import User, { UserType } from "../models/User";
 
 import nodemailer from "nodemailer";
+import { Router } from "express";
 
-import { Router as authRoute } from "../route";
+const authRoute = Router();
 
 const saltRounds = 10;
 
@@ -70,7 +71,7 @@ authRoute.post("/login", async (req, res) => {
 
     const validPassword = await bcrypt.compare(
       req.body.password,
-      user.password,
+      user.password
     );
     if (!validPassword)
       return res.status(httpStatus.BAD_REQUEST).json("パスワードが違います");
@@ -88,8 +89,8 @@ authRoute.post("/login", async (req, res) => {
     });
 
     // ユーザー情報からpasswordと他の不要なフィールドを除外
-    const { password, secretKey, confirmationToken, ...userResponse } = // eslint-disable-line
-      user.toObject(); // eslint-disable-line
+    const { password, secretKey, confirmationToken, ...userResponse } =
+      user.toObject();
 
     return res.status(httpStatus.OK).json({ user: userResponse, token }); // トークンも応答として返します
   } catch (err) {

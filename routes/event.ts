@@ -1,8 +1,9 @@
-import { Response } from "express";
+import { Response, Router } from "express";
 import { RequestWithUser, authenticateJWT } from "../jwtAuth";
 import Event from "../models/Event";
 import httpStatus from "http-status";
-import { Router as eventRoute } from "../route";
+
+const eventRoute = Router();
 
 eventRoute.put(
   "/trust/:id",

@@ -1,7 +1,9 @@
 import httpStatus from "http-status";
 import Subject from "../models/Subject";
 import Timetable from "../models/Timetable";
-import { Router as airRoute } from "../route";
+import { Router } from "express";
+
+const airRoute = Router()
 
 airRoute.post("/", async (req, res) => {
   const { usedClass, weekSubjects } = req.body;
