@@ -1,12 +1,10 @@
-import { Router } from "express";
 import httpStatus from "http-status";
 import Teacher from "../models/Teacher";
 import User from "../models/User";
-
-const router = Router();
+import { Router as teacherRoute } from "./route";
 
 // Create a teacher but only admin or has cred-level of 4 or higher
-router.post("/", async (req, res) => {
+teacherRoute.post("/", async (req, res) => {
   try {
     const userId = req.body.userId;
     const user = await User.findById(userId);
@@ -26,7 +24,7 @@ router.post("/", async (req, res) => {
   }
 });
 // Get all teachers
-router.get("/", async (req, res) => {
+teacherRoute.get("/", async (req, res) => {
   try {
     const teachers = await Teacher.find();
     res.status(httpStatus.OK).json(teachers);
@@ -35,7 +33,7 @@ router.get("/", async (req, res) => {
   }
 });
 // Get a teacher by id
-router.get("/course/:course", async (req, res) => {
+teacherRoute.get("/course/:course", async (req, res) => {
   try {
     const teachers = await Teacher.find({ course: req.params.course });
     res.status(httpStatus.OK).json(teachers);
@@ -44,7 +42,7 @@ router.get("/course/:course", async (req, res) => {
   }
 });
 // Update a teacher but only admin or has cred-level of 4 or higher
-router.put("/:id", async (req, res) => {
+teacherRoute.put("/:id", async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id);
     const user = await User.findById(req.body.userId);
@@ -62,7 +60,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // Delete a teacher but only admin or has cred-level of 4 or higher
-router.delete("/:id", async (req, res) => {
+teacherRoute.delete("/:id", async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id);
     const user = await User.findById(req.body.userId);
@@ -77,4 +75,4 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default teacherRoute;

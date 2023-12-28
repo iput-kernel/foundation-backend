@@ -5,10 +5,11 @@
   "main": "server.js",
   "scripts": {
     "build": "tsc",
-    "lint": "eslint . --fix",
-    "prettier": "prettier --write .",
+    "lint": "eslint . --fix --max-warnings 0",
+    "formatter": "prettier --write .",
     "start": "node ./build/server.js",
-    "dev": "tsc && nodemon ./build/server.js"
+    "dev": "tsc && nodemon ./build/server.js",
+    "type:check": "tsc --noEmit"
   },
   "author": "bitcat",
   "license": "ISC",
@@ -34,6 +35,7 @@
   "devDependencies": {
     "@tsconfig/node20": "^20.1.2",
     "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.5",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",

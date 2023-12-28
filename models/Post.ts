@@ -29,7 +29,7 @@ const PostSchema = new mongoose.Schema<PostType>(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Post = mongoose.model<PostType>("Post", PostSchema);

@@ -19,7 +19,7 @@ const RoomSchema = new mongoose.Schema<RoomType>({
   seats: {
     type: Number,
   },
-  airId:{
+  airId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Air",
   },
