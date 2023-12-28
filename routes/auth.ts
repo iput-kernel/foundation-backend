@@ -89,7 +89,7 @@ authRoute.post("/login", async (req, res) => {
     });
 
     // ユーザー情報からpasswordと他の不要なフィールドを除外
-    const { password, secretKey, confirmationToken, ...userResponse } =
+    const { password, secretKey, confirmationToken, ...userResponse } = // eslint-disable-line @typescript-eslint/no-unused-vars
       user.toObject();
 
     return res.status(httpStatus.OK).json({ user: userResponse, token }); // トークンも応答として返します
