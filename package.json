@@ -11,6 +11,11 @@
     "dev": "tsc && nodemon ./build/server.js",
     "type:check": "tsc --noEmit"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint && npm run formatter" 
+    }
+  },
   "author": "bitcat",
   "license": "ISC",
   "dependencies": {
