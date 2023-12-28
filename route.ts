@@ -12,7 +12,9 @@ import teacherRoute from "./routes/teachers";
 import timetableRoute from "./routes/timetable";
 import userRoute from "./routes/users";
 
+
 export const app = express();
+
 
 app.use(express.json());
 app.use(cors());
