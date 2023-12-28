@@ -1,6 +1,8 @@
+import { Router } from "express";
 import httpStatus from "http-status";
 import multer from "multer";
-import { Router as uploadRoute } from "../route";
+
+const uploadRoute = Router();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {

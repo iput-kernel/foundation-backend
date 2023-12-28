@@ -1,7 +1,9 @@
 import httpStatus from "http-status";
 import Post from "../models/Post";
 import Subject from "../models/Subject";
-import { Router as subjectRoute } from "../route";
+import { Router } from "express";
+
+const subjectRoute = Router();
 
 // Subject作成
 subjectRoute.post("/", async (req, res) => {

@@ -6,7 +6,9 @@ import TimeTable from "../models/Timetable";
 import Subject from "../models/Subject";
 import Class from "../models/Class";
 import Room from "../models/Room";
-import { Router as scheduleRoute } from "../route";
+import { Router } from "express";
+
+const scheduleRoute = Router();
 
 export const createScheduleFromTimetable = async (
   req: Request,

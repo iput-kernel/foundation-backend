@@ -1,7 +1,9 @@
 import httpStatus from "http-status";
 import Subject from "../models/Subject";
 import Timetable from "../models/Timetable";
-import { Router as airRoute } from "../route";
+import { Router } from "express";
+
+const airRoute = Router()
 
 airRoute.post("/", async (req, res) => {
   const { usedClass, weekSubjects } = req.body;
@@ -52,8 +54,12 @@ airRoute.get("/:id", async (req, res) => {
         .json({ message: "指定されたIDの時間割は存在しません" });
     }
     res.status(httpStatus.OK).json(timetable);
-  } catch (err: any) { // eslint-disable-line
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: err.message });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: err.message });
+    } else {
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: '未知のエラーが発生しました' });
+    }
   }
 });
 

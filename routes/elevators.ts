@@ -1,6 +1,8 @@
 import httpStatus from "http-status";
 import Elevator from "../models/Elevator";
-import { Router as elevatorRoute } from "../route";
+import { Router } from "express";
+
+const elevatorRoute = Router();
 
 // Create Elevator
 elevatorRoute.post("/", async (req, res) => {

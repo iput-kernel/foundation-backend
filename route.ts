@@ -11,13 +11,13 @@ import subjectRoute from "./routes/subjects";
 import teacherRoute from "./routes/teachers";
 import timetableRoute from "./routes/timetable";
 import userRoute from "./routes/users";
-
+import healthRoute from "./routes/health";
 
 export const app = express();
 
-
 app.use(express.json());
 app.use(cors());
+app.use("/v1/health", healthRoute)
 app.use("/v1/users", userRoute);
 app.use("/v1/auth", authRoute);
 app.use("/v1/posts", postRoute);
