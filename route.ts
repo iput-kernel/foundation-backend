@@ -1,7 +1,7 @@
 import express, { Router as ExpressRouter } from "express";
 
 import cors from "cors";
-// import authRoute from "./routes/auth";
+import authRoute from "./routes/auth";
 import classRoute from "./routes/classes";
 import eventRoute from "./routes/event";
 import postRoute from "./routes/posts";
@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(cors());
 app.use("/v1/health", healthRoute)
 app.use("/v1/users", userRoute);
-// app.use("/v1/auth", authRoute);
+app.use("/v1/auth", authRoute);
 app.use("/v1/posts", postRoute);
 app.use("/v1/subjects", subjectRoute);
 app.use("/v1/rooms", roomRoute);
