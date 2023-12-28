@@ -1,7 +1,5 @@
 name: ESLint
 
-name: IPUT-Kernel
-
 on:
   pull_request:
 
