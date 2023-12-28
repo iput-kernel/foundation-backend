@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-type EnglishClassType = {
+type ExtraClassType = {
   classGrade: number;
   classChar?: string;
   studentsId: mongoose.Schema.Types.ObjectId[];
@@ -8,7 +8,7 @@ type EnglishClassType = {
   timetableId: mongoose.Schema.Types.ObjectId[];
 };
 
-const EnglishClassSchema = new mongoose.Schema<EnglishClassType>({
+const ExtraClassSchema = new mongoose.Schema<ExtraClassType>({
   classGrade: {
     type: Number,
     required: true,
@@ -36,6 +36,9 @@ const EnglishClassSchema = new mongoose.Schema<EnglishClassType>({
   ],
 });
 
-const EnglishClass = mongoose.model<EnglishClassType>("EnglishClass",EnglishClassSchema);
+const ExtraClass = mongoose.model<ExtraClassType>(
+  "ExtraClass",
+  ExtraClassSchema
+);
 
-export default EnglishClass;
+export default ExtraClass;
