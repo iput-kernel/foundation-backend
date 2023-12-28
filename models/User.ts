@@ -177,13 +177,13 @@ const UserSchema = new mongoose.Schema<UserType>(
       max: 50,
     },
     trustLevel: {
-        type: Number,
-        min: 0,
-        max: 10,
-        default: 0,
-    }
+      type: Number,
+      min: 0,
+      max: 10,
+      default: 0,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 const User = mongoose.model<UserType>("User", UserSchema);
 

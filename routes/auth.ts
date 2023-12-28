@@ -4,14 +4,13 @@ import httpStatus from "http-status";
 import jwt from "jsonwebtoken";
 import User, { UserType } from "../models/User";
 
-import { Router as expressRouter } from "express";
-const router = expressRouter();
-
 import nodemailer from "nodemailer";
+
+import { Router as authRoute } from "../route";
 
 const saltRounds = 10;
 
-router.post("/register", async (req, res) => {
+authRoute.post("/register", async (req, res) => {
   try {
     const findUser = await User.findOne({ email: req.body.email });
     if (findUser && findUser.isVerified)
@@ -43,7 +42,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.get("/confirm-email", async (req, res) => {
+authRoute.get("/confirm-email", async (req, res) => {
   try {
     const { token } = req.query; // クエリパラメータからtokenを取得
 
@@ -64,14 +63,14 @@ router.get("/confirm-email", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {
+authRoute.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
     if (!user) return res.status(404).send("ユーザーが見つかりません");
 
     const validPassword = await bcrypt.compare(
       req.body.password,
-      user.password
+      user.password,
     );
     if (!validPassword)
       return res.status(httpStatus.BAD_REQUEST).json("パスワードが違います");
@@ -83,15 +82,14 @@ router.post("/login", async (req, res) => {
     }
 
     // JWTの署名
-    const token = await signJWT(user, { id: user._id , credLevel: user.credLevel});
+    const token = await signJWT(user, {
+      id: user._id,
+      credLevel: user.credLevel,
+    });
 
     // ユーザー情報からpasswordと他の不要なフィールドを除外
-    const {
-      password,
-      secretKey,
-      confirmationToken,
-      ...userResponse
-    } = user.toObject();
+    const { password, secretKey, confirmationToken, ...userResponse } = // eslint-disable-line
+      user.toObject(); // eslint-disable-line
 
     return res.status(httpStatus.OK).json({ user: userResponse, token }); // トークンも応答として返します
   } catch (err) {
@@ -129,4 +127,4 @@ async function signJWT(user: UserType, payload: Record<string, unknown>) {
   return jwt.sign(payload, secret);
 }
 
-module.exports = router;
+export default authRoute;

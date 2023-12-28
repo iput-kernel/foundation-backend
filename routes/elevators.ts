@@ -1,11 +1,9 @@
-import { Router as expressRouter } from "express";
 import httpStatus from "http-status";
 import Elevator from "../models/Elevator";
-
-const router = expressRouter();
+import { Router as elevatorRoute } from "../route";
 
 // Create Elevator
-router.post("/", async (req, res) => {
+elevatorRoute.post("/", async (req, res) => {
   const newElevator = new Elevator(req.body);
   try {
     const savedElevator = await newElevator.save();
@@ -16,7 +14,7 @@ router.post("/", async (req, res) => {
 });
 
 // Update Elevator by color
-router.put("/:color", async (req, res) => {
+elevatorRoute.put("/:color", async (req, res) => {
   try {
     const elevator = await Elevator.findOne({ color: req.params.color });
     if (elevator!.color === req.body.color) {
@@ -35,7 +33,7 @@ router.put("/:color", async (req, res) => {
 });
 
 // Delete Elevator by id
-router.delete("/:id", async (req, res) => {
+elevatorRoute.delete("/:id", async (req, res) => {
   try {
     const elevator = await Elevator.findById(req.params.id);
     await elevator!.deleteOne();
@@ -45,4 +43,4 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default elevatorRoute;

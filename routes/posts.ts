@@ -1,12 +1,10 @@
-import { Router } from "express";
 import httpStatus from "http-status";
 import Post from "../models/Post";
 import User from "../models/User";
-
-const router = Router();
+import { Router as postRoute } from "../route";
 
 //投稿
-router.post("/", async (req, res) => {
+postRoute.post("/", async (req, res) => {
   const newPost = new Post(req.body);
   try {
     const savedPost = await newPost.save();
@@ -16,7 +14,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+postRoute.put("/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (post!.userId === req.body.userId) {
@@ -32,7 +30,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+postRoute.delete("/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (post!.userId === req.body.userId) {
@@ -47,13 +45,12 @@ router.delete("/:id", async (req, res) => {
 });
 
 //特定の投稿の取得
-router.get("/:id", async (req, res) => {
+postRoute.get("/:id", async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id)
-            .populate({
-                path: 'userId',
-                model: 'User',
-            })
+    const post = await Post.findById(req.params.id).populate({
+      path: "userId",
+      model: "User",
+    });
     return res.status(httpStatus.OK).json(post);
   } catch (err) {
     return res.status(httpStatus.FORBIDDEN).json(err);
@@ -61,7 +58,7 @@ router.get("/:id", async (req, res) => {
 });
 
 //いいね
-router.put("/:id/like", async (req, res) => {
+postRoute.put("/:id/like", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post!.likes.includes(req.body.userId)) {
@@ -85,38 +82,39 @@ router.put("/:id/like", async (req, res) => {
 });
 
 //タイムラインの投稿を取得する。自分の投稿とフォローしている人の投稿を取得する
-router.get("/timeline/all", async (req, res) => {
+postRoute.get("/timeline/all", async (req, res) => {
   try {
     const currentUser = await User.findById(req.body.userId)
-            .populate([{
-                path: 'followings',
-                model: 'User',
-            }])
-            .populate([{
-                path: 'followers',
-                model: 'User',
-            }])
-            .populate({
-                path: 'classId',
-                model: 'Class',
-            });
-    
-    if (!currentUser){ 
-      return res
-        .status(httpStatus.FORBIDDEN)
-        .json("ユーザーが存在しません")
+      .populate([
+        {
+          path: "followings",
+          model: "User",
+        },
+      ])
+      .populate([
+        {
+          path: "followers",
+          model: "User",
+        },
+      ])
+      .populate({
+        path: "classId",
+        model: "Class",
+      });
+
+    if (!currentUser) {
+      return res.status(httpStatus.FORBIDDEN).json("ユーザーが存在しません");
     }
 
-    const userPosts = await Post.find({ userId: currentUser!._id })
-      .populate({
-          path: 'userId',
-          model: 'User',
-      })
+    const userPosts = await Post.find({ userId: currentUser!._id }).populate({
+      path: "userId",
+      model: "User",
+    });
     //自分がフォローしている人の投稿を取得する
     const friendPosts = await Promise.all(
       currentUser.followings.map((friendId) => {
         return Post.find({ userId: friendId });
-      })
+      }),
     );
     return res.status(httpStatus.OK).json(userPosts.concat(...friendPosts));
   } catch (err) {
@@ -124,4 +122,4 @@ router.get("/timeline/all", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default postRoute;

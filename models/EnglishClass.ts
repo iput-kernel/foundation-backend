@@ -38,7 +38,7 @@ const EnglishClassSchema = new mongoose.Schema<EnglishClassType>({
 
 const EnglishClass = mongoose.model<EnglishClassType>(
   "EnglishClass",
-  EnglishClassSchema
+  EnglishClassSchema,
 );
 
 export default EnglishClass;

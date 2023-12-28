@@ -28,12 +28,12 @@ const TimetableSchema = new mongoose.Schema<TimetableType>({
   },
   weekEntries: {
     type: [[TimetableEntrySchema]],
-    validate: [arrayLimit, '{PATH} exceeds the limit of array length']
+    validate: [arrayLimit, "{PATH} exceeds the limit of array length"],
   },
 });
 
-function arrayLimit(val:[][]) {
-  return val.length <= 7 && val.every(innerArray => innerArray.length <= 7);
+function arrayLimit(val: [][]) {
+  return val.length <= 7 && val.every((innerArray) => innerArray.length <= 7);
 }
 
 const TimeTable = mongoose.model<TimetableType>("Timetable", TimetableSchema);
