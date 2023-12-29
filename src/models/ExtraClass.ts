@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 type ExtraClassType = {
+  createdUser: mongoose.Types.ObjectId;
   classGrade: number;
   classChar?: string;
   studentsId: mongoose.Schema.Types.ObjectId[];
@@ -9,6 +10,10 @@ type ExtraClassType = {
 };
 
 const ExtraClassSchema = new mongoose.Schema<ExtraClassType>({
+  createdUser: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
   classGrade: {
     type: Number,
     required: true,
