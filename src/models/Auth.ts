@@ -27,6 +27,6 @@ const AuthSchema = new mongoose.Schema<AuthType>({
     },
 });
 
-const Auth = mongoose.model<AuthType>("Elevator", AuthSchema);
+const Auth = mongoose.model<AuthType>("Auth", AuthSchema);
 
 export default Auth;
