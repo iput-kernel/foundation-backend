@@ -1,6 +1,6 @@
 import httpStatus from "http-status";
 import Post from "../models/Post";
-import User from "../models/User";
+import User from "../models/Account/User";
 import { Router } from "express";
 
 const postRoute = Router();
