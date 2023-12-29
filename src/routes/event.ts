@@ -17,7 +17,8 @@ eventRoute.put(
 
       const event = await Event.findById(req.params.id);
       if (!event)
-        return res.status(httpStatus.NOT_FOUND).send("Event not found");
+        return res.status(httpStatus.NOT_FOUND)
+          .send("Event not found");
 
       const trustIndex = event.trust.indexOf(req.user.id);
       if (trustIndex > -1) {

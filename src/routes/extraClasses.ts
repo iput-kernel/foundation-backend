@@ -5,7 +5,6 @@ import { RequestWithUser, authenticateJWT } from "../jwtAuth";
 import extraClass from "../models/ExtraClass";
 import User from "../models/User";
 
-
 const extraClassRoute = Router()
 
 //クラス
