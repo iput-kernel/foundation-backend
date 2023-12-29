@@ -6,7 +6,6 @@ export type AuthType = {
     trustLevel: number;
     isVerified: boolean;
     secretKey: string;
-    userId: mongoose.Types.ObjectId;
 };
 
 const AuthSchema = new mongoose.Schema<AuthType>({
