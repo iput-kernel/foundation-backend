@@ -20,7 +20,6 @@ export type UserType = {
   auth: AuthType;
   followers: mongoose.Types.ObjectId[];
   followings: mongoose.Types.ObjectId[];
-  authId: mongoose.Types.ObjectId;
   classId: mongoose.Types.ObjectId;
 };
 
@@ -121,7 +120,7 @@ const UserSchema = new mongoose.Schema<UserType>(
       type: String,
       max: 50,
     },
-    authId: {
+    auth: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Auth",
     },
