@@ -73,7 +73,7 @@ authRoute.get("/confirm-email", async (req, res) => {
     user.isVerified = true; // アカウントを認証済みに設定
     user.auth.secretKey = newSecretKey; // 生成した秘密鍵をユーザーに保存
     await user.save();
-    const auth = await Auth.findOne({ _id: user.auth});
+    const auth = await Auth.findOne({ _id: user.auth });
     if (!auth) {
       return res
         .status(httpStatus.INTERNAL_SERVER_ERROR)
@@ -90,7 +90,10 @@ authRoute.get("/confirm-email", async (req, res) => {
 
 authRoute.post("/login", async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email: req.body.email }).populate({
+      path: "auth",
+      model: "Auth",
+    });
     if (!user) return res.status(404).send("ユーザーが見つかりません");
 
     const validPassword = await bcrypt.compare(
