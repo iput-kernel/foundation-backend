@@ -23,9 +23,13 @@ userRoute.get("/:id", async (req, res) => {
         },
       ])
       .populate({
-        path: "classId",
+        path: "class",
         model: "Class",
-      });
+      })
+      .populate({
+        path: "profile",
+        model: "Profile",
+      })
 
     const userObject = user!.toObject();
     const { password, ...other } = userObject; // eslint-disable-line
@@ -155,10 +159,6 @@ userRoute.put(
         targetClass.studentsId.push(currentUserId);
         await targetClass.save({ session });
       }
-
-      // ユーザーのclassフィールドにクラスIDを設定
-      // currentUser.class = classId;
-      await currentUser.save({ session });
 
       await session.commitTransaction();
       session.endSession();

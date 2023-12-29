@@ -3,7 +3,7 @@ import Class from "../models/Class";
 import User from "../models/Account/User";
 import { Request, Response, Router } from "express";
 
-const classRoute = Router()
+const classRoute = Router();
 
 //クラス
 classRoute.post("/", async (req, res) => {
@@ -35,7 +35,10 @@ classRoute.put("/:id", async (req, res) => {
 classRoute.delete("/:id", async (req, res) => {
   try {
     const post = await Class.findById(req.params.id);
-    const user = await User.findById(req.body.userId);
+    const user = await User.findById(req.body.userId).populate({
+      path: "auth",
+      model: "Auth",
+    });
     if (user!.auth.credLevel > 5) {
       await post!.deleteOne();
       return res.status(httpStatus.OK).json("クラスが削除されました");

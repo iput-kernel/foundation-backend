@@ -9,7 +9,10 @@ const teacherRoute = Router();
 teacherRoute.post("/", async (req, res) => {
   try {
     const userId = req.body.userId;
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).populate({
+      path: "auth",
+      model: "Auth",
+    });
     if (user!.auth.trustLevel >= 4) {
       const newTeacher = new Teacher(req.body);
       try {
@@ -47,7 +50,10 @@ teacherRoute.get("/course/:course", async (req, res) => {
 teacherRoute.put("/:id", async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id);
-    const user = await User.findById(req.body.userId);
+    const user = await User.findById(req.body.userId).populate({
+      path: "auth",
+      model: "Auth",
+    });
     if (user!.auth.trustLevel >= 4) {
       await teacher!.updateOne({
         $set: req.body,
@@ -65,7 +71,10 @@ teacherRoute.put("/:id", async (req, res) => {
 teacherRoute.delete("/:id", async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id);
-    const user = await User.findById(req.body.userId);
+    const user = await User.findById(req.body.userId).populate({
+      path: "auth",
+      model: "Auth",
+    });
     if (user!.auth.trustLevel >= 4) {
       await teacher!.deleteOne();
       return res.status(httpStatus.OK).json("teacherが削除されました");
