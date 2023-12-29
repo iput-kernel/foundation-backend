@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import { AuthType } from "./Auth";
+import { ClassType } from "../Class";
+import { ProfileType } from "./Profile";
 
 export type UserType = {
   handleName: string;
@@ -8,19 +10,12 @@ export type UserType = {
   email: string;
   password: string;
   isVerified: boolean;
-  sex: string;
-  phone: string;
-  motherTongue: string;
-  describe: string;
-  city: string;
-  profilePicture: string;
-  coverPicture: string;
-  birthday?: Date;
   confirmationToken: string;
   auth: AuthType;
   followers: mongoose.Types.ObjectId[];
   followings: mongoose.Types.ObjectId[];
-  classId: mongoose.Types.ObjectId;
+  class: ClassType;
+  profile: ProfileType;
 };
 
 const UserSchema = new mongoose.Schema<UserType>(
@@ -69,14 +64,6 @@ const UserSchema = new mongoose.Schema<UserType>(
       unique: true,
       sparse: true,
     },
-    profilePicture: {
-      type: String,
-      default: "",
-    },
-    coverPicture: {
-      type: String,
-      default: "",
-    },
     followers: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -89,40 +76,18 @@ const UserSchema = new mongoose.Schema<UserType>(
         ref: "User",
       },
     ],
-    classId: {
+    class: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Class",
-    },
-    phone: {
-      type: String,
-      max: 20,
-      default: "",
-    },
-    sex: {
-      type: String,
-      max: 8,
-      default: "",
-    },
-    birthday: {
-      type: Date,
-    },
-    motherTongue: {
-      type: String,
-      max: 30,
-      default: "日本語",
-    },
-    describe: {
-      type: String,
-      max: 128,
-      default: "",
-    },
-    city: {
-      type: String,
-      max: 50,
     },
     auth: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Auth",
+      required: true,
+    },
+    profile: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Profile",
       required: true,
     },
   },

@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import httpStatus from "http-status";
 import jwt from "jsonwebtoken";
-import User, { UserType } from "../models/User";
+import User, { UserType } from "../models/Account/User";
 
 import nodemailer from "nodemailer";
 import { Router } from "express";

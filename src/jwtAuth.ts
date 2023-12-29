@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 import { Request, Response, NextFunction } from "express";
-import User, { UserType } from "./models/User";
+import User, { UserType } from "./models/Account/User";
 import jwt from "jsonwebtoken";
 
 export interface RequestWithUser extends Request {

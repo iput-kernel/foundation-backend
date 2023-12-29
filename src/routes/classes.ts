@@ -1,6 +1,6 @@
 import httpStatus from "http-status";
 import Class from "../models/Class";
-import User from "../models/User";
+import User from "../models/Account/User";
 import { Request, Response, Router } from "express";
 
 const classRoute = Router()
