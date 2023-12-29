@@ -9,6 +9,8 @@ export type PostType = {
   updatedAt: Date;
 };
 
+// test
+
 const PostSchema = new mongoose.Schema<PostType>(
   {
     userId: {
