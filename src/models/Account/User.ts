@@ -4,9 +4,9 @@ import { ClassType } from "../Class";
 import { ProfileType } from "./Profile";
 
 export type UserType = {
-  handleName: string;
-  realNameFirst: string;
-  realNameLast: string;
+  userName: string;
+  realNameFirst?: string;
+  realNameLast?: string;
   email: string;
   password: string;
   isVerified: boolean;
@@ -14,13 +14,13 @@ export type UserType = {
   auth: AuthType;
   followers: mongoose.Types.ObjectId[];
   followings: mongoose.Types.ObjectId[];
-  class: ClassType;
-  profile: ProfileType;
+  class?: ClassType;
+  profile?: ProfileType;
 };
 
 const UserSchema = new mongoose.Schema<UserType>(
   {
-    handleName: {
+    userName: {
       type: String,
       required: true,
       min: 6,
@@ -88,7 +88,6 @@ const UserSchema = new mongoose.Schema<UserType>(
     profile: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Profile",
-      required: true,
     },
   },
   { timestamps: true }

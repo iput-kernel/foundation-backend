@@ -2,13 +2,13 @@ import mongoose from "mongoose";
 
 export type ProfileType = {
     birthday?: Date;
-    sex: string;
-    phone: string;
-    motherTongue: string;
-    describe: string;
-    city: string;
-    profilePictureUrl: string;
-    coverPictureUrl: string;
+    sex?: string;
+    phone?: string;
+    motherTongue?: string;
+    describe?: string;
+    city?: string;
+    profilePictureUrl?: string;
+    coverPictureUrl?: string;
 };
 
 const ProfileSchema = new mongoose.Schema<ProfileType>({

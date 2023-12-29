@@ -6,6 +6,9 @@ import User, { UserType } from "../models/Account/User";
 
 import nodemailer from "nodemailer";
 import { Router } from "express";
+import mongoose from "mongoose";
+import { authDefaultModel } from "../models/Account/Auth";
+import Profile from "../models/Account/Profile";
 
 const authRoute = Router();
 
@@ -23,20 +26,29 @@ authRoute.post("/register", async (req, res) => {
 
     const token = crypto.randomBytes(16).toString("hex");
 
-    const newUser = new User({
-      username: req.body.username,
-      email: req.body.email,
-      password: hashedPassword,
-      confirmationToken: token,
-      isVerified: false,
-    });
+    if (findUser) {
+      // 既存のユーザーが存在する場合、トークンを更新
+      findUser.confirmationToken = token;
+      await findUser.save();
+    }else {
+      // User作成
+      await createNewUserWithAuthAndProfile(
+        req.body.username,
+        req.body.email,
+        hashedPassword,
+        token,
+      ).catch((err) => {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
+      });
+    }
 
-    await sendConfirmationEmail(req.body.email, token);
+    const user = await User.findOne({ email: req.body.email });
 
-    const user = await newUser.save();
+    await sendConfirmationEmail(user!.email, token);
+
     return res
       .status(httpStatus.OK)
-      .json({ message: "Confirmation email sent", user: user._id });
+      .json({ message: "Confirmation email sent", user: user!._id });
   } catch (err) {
     console.error(err);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
@@ -89,8 +101,7 @@ authRoute.post("/login", async (req, res) => {
     });
 
     // ユーザー情報からpasswordと他の不要なフィールドを除外
-    const { password, auth, confirmationToken, ...userResponse } = // eslint-disable-line @typescript-eslint/no-unused-vars
-      user.toObject();
+    const { password, auth, confirmationToken, ...userResponse } = user.toObject(); // eslint-disable-line @typescript-eslint/no-unused-vars
 
     return res.status(httpStatus.OK).json({ user: userResponse, token }); // トークンも応答として返します
   } catch (err) {
@@ -126,6 +137,42 @@ async function signJWT(user: UserType, payload: Record<string, unknown>) {
     throw new Error("No secret key found for the given user.");
   }
   return jwt.sign(payload, secret);
+}
+
+async function createNewUserWithAuthAndProfile(
+  userName: string,
+  email: string,
+  password: string,
+  token: string
+): Promise<UserType> {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const auth = authDefaultModel();
+
+    const user = new User({
+      userName,
+      email,
+      password,
+      auth: auth,
+      isVerified: false,
+      confirmationToken: token,
+      profile: new Profile(),
+    });
+
+    // トランザクション内で保存
+    await Promise.all([auth.save({ session }), user.save({ session })]);
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return user;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
 }
 
 export default authRoute;
