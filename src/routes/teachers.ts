@@ -10,7 +10,7 @@ teacherRoute.post("/", async (req, res) => {
   try {
     const userId = req.body.userId;
     const user = await User.findById(userId);
-    if (user!.isAdmin || user!.trustLevel >= 4) {
+    if (user!.auth.trustLevel >= 4) {
       const newTeacher = new Teacher(req.body);
       try {
         const savedTeacher = await newTeacher.save();
@@ -48,7 +48,7 @@ teacherRoute.put("/:id", async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id);
     const user = await User.findById(req.body.userId);
-    if (user!.isAdmin || user!.trustLevel >= 4) {
+    if (user!.auth.trustLevel >= 4) {
       await teacher!.updateOne({
         $set: req.body,
       });
@@ -66,7 +66,7 @@ teacherRoute.delete("/:id", async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id);
     const user = await User.findById(req.body.userId);
-    if (user!.isAdmin || user!.trustLevel >= 4) {
+    if (user!.auth.trustLevel >= 4) {
       await teacher!.deleteOne();
       return res.status(httpStatus.OK).json("teacherが削除されました");
     } else {

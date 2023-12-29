@@ -157,7 +157,7 @@ userRoute.put(
       }
 
       // ユーザーのclassフィールドにクラスIDを設定
-      currentUser.class = classId;
+      // currentUser.class = classId;
       await currentUser.save({ session });
 
       await session.commitTransaction();

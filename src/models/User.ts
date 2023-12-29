@@ -1,53 +1,44 @@
 import mongoose from "mongoose";
+import { AuthType } from "./Auth";
 
 export type UserType = {
-  username: string;
-  realnameFirst: string;
-  realnameLast: string;
+  handleName: string;
+  realNameFirst: string;
+  realNameLast: string;
   email: string;
   password: string;
-  secretKey: string;
-  confirmationToken: string;
   isVerified: boolean;
+  sex: string;
+  phone: string;
+  motherTongue: string;
+  describe: string;
+  city: string;
   profilePicture: string;
   coverPicture: string;
+  birthday?: Date;
+  confirmationToken: string;
+  auth: AuthType;
   followers: mongoose.Types.ObjectId[];
   followings: mongoose.Types.ObjectId[];
-  grade: number;
-  course: string;
+  authId: mongoose.Types.ObjectId;
   classId: mongoose.Types.ObjectId;
-  class: string;
-  englishClass: string;
-  phone: string;
-  sex: string;
-  birthday?: Date;
-  major: string;
-  motherTongue: string;
-  isAdmin: boolean;
-  isAnonymous: boolean;
-  isFirstTime: boolean;
-  credLevel: number;
-  credToken: number;
-  desc: string;
-  city: string;
-  trustLevel: number;
 };
 
 const UserSchema = new mongoose.Schema<UserType>(
   {
-    username: {
+    handleName: {
       type: String,
       required: true,
       min: 6,
       max: 16,
       unique: true,
     },
-    realnameFirst: {
+    realNameFirst: {
       type: String,
       default: "",
       max: 32,
     },
-    realnameLast: {
+    realNameLast: {
       type: String,
       default: "",
       max: 32,
@@ -70,18 +61,14 @@ const UserSchema = new mongoose.Schema<UserType>(
       min: 1,
       max: 70,
     },
-    secretKey: {
-      type: String,
-      default: "",
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
     confirmationToken: {
       type: String,
       unique: true,
       sparse: true,
-    },
-    isVerified: {
-      type: Boolean,
-      default: false,
     },
     profilePicture: {
       type: String,
@@ -103,26 +90,9 @@ const UserSchema = new mongoose.Schema<UserType>(
         ref: "User",
       },
     ],
-    grade: {
-      type: Number,
-      max: 10,
-    },
-    course: {
-      type: String,
-      max: 30,
-      default: "",
-    },
     classId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Class",
-    },
-    class: {
-      type: String,
-      max: 4,
-    },
-    englishClass: {
-      type: String,
-      max: 4,
     },
     phone: {
       type: String,
@@ -137,37 +107,12 @@ const UserSchema = new mongoose.Schema<UserType>(
     birthday: {
       type: Date,
     },
-    major: {
-      type: String,
-      max: 30,
-      default: "",
-    },
     motherTongue: {
       type: String,
       max: 30,
       default: "日本語",
     },
-    isAdmin: {
-      type: Boolean,
-      default: false,
-    },
-    isAnonymous: {
-      type: Boolean,
-      default: true,
-    },
-    isFirstTime: {
-      type: Boolean,
-      default: true,
-    },
-    credLevel: {
-      type: Number,
-      default: 2,
-    },
-    credToken: {
-      type: Number,
-      default: 3,
-    },
-    desc: {
+    describe: {
       type: String,
       max: 128,
       default: "",
@@ -176,14 +121,12 @@ const UserSchema = new mongoose.Schema<UserType>(
       type: String,
       max: 50,
     },
-    trustLevel: {
-      type: Number,
-      min: 0,
-      max: 10,
-      default: 0,
+    authId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Auth",
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 const User = mongoose.model<UserType>("User", UserSchema);
 

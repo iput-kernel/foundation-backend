@@ -36,7 +36,7 @@ classRoute.delete("/:id", async (req, res) => {
   try {
     const post = await Class.findById(req.params.id);
     const user = await User.findById(req.body.userId);
-    if (user!.isAdmin || user!.credLevel > 5) {
+    if (user!.auth.credLevel > 5) {
       await post!.deleteOne();
       return res.status(httpStatus.OK).json("クラスが削除されました");
     } else {

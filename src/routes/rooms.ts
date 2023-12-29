@@ -10,7 +10,7 @@ roomRoute.post("/", authenticateJWT, async (req, res) => {
   try {
     const newRoom = new Room(req.body);
     const user = await User.findById(req.body.userId);
-    if (user!.isAdmin || user!.credLevel >= 4) {
+    if (user!.auth.credLevel >= 4) {
       const savedRoom = await newRoom.save();
       res.status(httpStatus.OK).json(savedRoom);
     } else {
@@ -64,7 +64,7 @@ roomRoute.delete("/:id", authenticateJWT, async (req, res) => {
   try {
     const room = await Room.findById(req.params.id);
     const user = await User.findById(req.body.userId);
-    if (user!.isAdmin || user!.credLevel >= 4) {
+    if (user!.auth.credLevel >= 4) {
       await room!.deleteOne();
       return res.status(httpStatus.OK).json("roomが削除されました");
     } else {
@@ -79,7 +79,7 @@ roomRoute.delete("/number/:number", authenticateJWT, async (req, res) => {
   try {
     const room = await Room.findOne({ roomNumber: req.params.number });
     const user = await User.findById(req.body.userId);
-    if (user!.isAdmin || user!.credLevel >= 4) {
+    if (user!.auth.credLevel >= 4) {
       await room!.deleteOne();
       return res.status(httpStatus.OK).json("roomが削除されました");
     } else {

@@ -11,7 +11,7 @@ export interface RequestWithUser extends Request {
 }
 
 async function verifyJWT(user: UserType, token: string) {
-  const secret = user.secretKey;
+  const secret = user.auth.secretKey;
   if (!secret) {
     throw new Error("No secret key found for the given user.");
   }
