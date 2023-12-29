@@ -15,6 +15,6 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node16"
   },
-  "include": ["routes/*", "models/*", "./*.ts"],
+  "include": ["src/routes/*", "src/models/*", "./*.ts", "src/route.ts", "src/server.ts", "src/jwtAuth.ts", "src/fetchAmbient.ts"],
   "exclude": ["node_modules", "build"] // コンパイルから除外するファイル
 }
