@@ -6,6 +6,9 @@ import User, { UserType } from "../models/Account/User";
 
 import nodemailer from "nodemailer";
 import { Router } from "express";
+import mongoose from "mongoose";
+import Auth, { authDefaultModel } from "../models/Account/Auth";
+import Profile from "../models/Account/Profile";
 
 const authRoute = Router();
 
@@ -23,20 +26,29 @@ authRoute.post("/register", async (req, res) => {
 
     const token = crypto.randomBytes(16).toString("hex");
 
-    const newUser = new User({
-      username: req.body.username,
-      email: req.body.email,
-      password: hashedPassword,
-      confirmationToken: token,
-      isVerified: false,
-    });
+    if (findUser) {
+      // 既存のユーザーが存在する場合、トークンを更新
+      findUser.confirmationToken = token;
+      await findUser.save();
+    } else {
+      // User作成
+      await createNewUserWithAuthAndProfile(
+        req.body.username,
+        req.body.email,
+        hashedPassword,
+        token
+      ).catch((err) => {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
+      });
+    }
 
-    await sendConfirmationEmail(req.body.email, token);
+    const user = await User.findOne({ email: req.body.email });
 
-    const user = await newUser.save();
+    await sendConfirmationEmail(user!.email, token);
+
     return res
       .status(httpStatus.OK)
-      .json({ message: "Confirmation email sent", user: user._id });
+      .json({ message: "Confirmation email sent", user: user!._id });
   } catch (err) {
     console.error(err);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
@@ -47,7 +59,11 @@ authRoute.get("/confirm-email", async (req, res) => {
   try {
     const { token } = req.query; // クエリパラメータからtokenを取得
 
-    const user = await User.findOne({ confirmationToken: token });
+    const user = await User.findOne({ confirmationToken: token }).populate({
+      path: "auth",
+      model: "Auth",
+    });
+
     if (!user)
       return res.status(httpStatus.BAD_REQUEST).send("無効なトークンです。");
 
@@ -57,6 +73,14 @@ authRoute.get("/confirm-email", async (req, res) => {
     user.isVerified = true; // アカウントを認証済みに設定
     user.auth.secretKey = newSecretKey; // 生成した秘密鍵をユーザーに保存
     await user.save();
+    const auth = await Auth.findOne({ _id: user.auth });
+    if (!auth) {
+      return res
+        .status(httpStatus.INTERNAL_SERVER_ERROR)
+        .send("ユーザに紐づくAuth Documentが存在しません");
+    }
+    auth!.secretKey = newSecretKey;
+    auth.save();
 
     return res.status(httpStatus.OK).send("アカウントが認証されました。");
   } catch (err) {
@@ -66,7 +90,10 @@ authRoute.get("/confirm-email", async (req, res) => {
 
 authRoute.post("/login", async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email: req.body.email }).populate({
+      path: "auth",
+      model: "Auth",
+    });
     if (!user) return res.status(404).send("ユーザーが見つかりません");
 
     const validPassword = await bcrypt.compare(
@@ -89,8 +116,7 @@ authRoute.post("/login", async (req, res) => {
     });
 
     // ユーザー情報からpasswordと他の不要なフィールドを除外
-    const { password, auth, confirmationToken, ...userResponse } = // eslint-disable-line @typescript-eslint/no-unused-vars
-      user.toObject();
+    const { password, auth, confirmationToken, ...userResponse } = user.toObject(); // eslint-disable-line @typescript-eslint/no-unused-vars
 
     return res.status(httpStatus.OK).json({ user: userResponse, token }); // トークンも応答として返します
   } catch (err) {
@@ -126,6 +152,42 @@ async function signJWT(user: UserType, payload: Record<string, unknown>) {
     throw new Error("No secret key found for the given user.");
   }
   return jwt.sign(payload, secret);
+}
+
+async function createNewUserWithAuthAndProfile(
+  userName: string,
+  email: string,
+  password: string,
+  token: string
+): Promise<UserType> {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const auth = authDefaultModel();
+
+    const user = new User({
+      userName,
+      email,
+      password,
+      auth: auth,
+      isVerified: false,
+      confirmationToken: token,
+      profile: new Profile(),
+    });
+
+    // トランザクション内で保存
+    await Promise.all([auth.save({ session }), user.save({ session })]);
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return user;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
 }
 
 export default authRoute;
