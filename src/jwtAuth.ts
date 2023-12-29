@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 import { Request, Response, NextFunction } from "express";
-import User, { UserType } from "./models/User";
+import User, { UserType } from "./models/Account/User";
 import jwt from "jsonwebtoken";
 
 export interface RequestWithUser extends Request {
@@ -11,7 +11,7 @@ export interface RequestWithUser extends Request {
 }
 
 async function verifyJWT(user: UserType, token: string) {
-  const secret = user.secretKey;
+  const secret = user.auth.secretKey;
   if (!secret) {
     throw new Error("No secret key found for the given user.");
   }

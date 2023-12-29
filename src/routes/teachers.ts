@@ -1,6 +1,6 @@
 import httpStatus from "http-status";
 import Teacher from "../models/Teacher";
-import User from "../models/User";
+import User from "../models/Account/User";
 import { Router } from "express";
 
 const teacherRoute = Router();
@@ -9,8 +9,11 @@ const teacherRoute = Router();
 teacherRoute.post("/", async (req, res) => {
   try {
     const userId = req.body.userId;
-    const user = await User.findById(userId);
-    if (user!.isAdmin || user!.trustLevel >= 4) {
+    const user = await User.findById(userId).populate({
+      path: "auth",
+      model: "Auth",
+    });
+    if (user!.auth.trustLevel >= 4) {
       const newTeacher = new Teacher(req.body);
       try {
         const savedTeacher = await newTeacher.save();
@@ -47,8 +50,11 @@ teacherRoute.get("/course/:course", async (req, res) => {
 teacherRoute.put("/:id", async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id);
-    const user = await User.findById(req.body.userId);
-    if (user!.isAdmin || user!.trustLevel >= 4) {
+    const user = await User.findById(req.body.userId).populate({
+      path: "auth",
+      model: "Auth",
+    });
+    if (user!.auth.trustLevel >= 4) {
       await teacher!.updateOne({
         $set: req.body,
       });
@@ -65,8 +71,11 @@ teacherRoute.put("/:id", async (req, res) => {
 teacherRoute.delete("/:id", async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id);
-    const user = await User.findById(req.body.userId);
-    if (user!.isAdmin || user!.trustLevel >= 4) {
+    const user = await User.findById(req.body.userId).populate({
+      path: "auth",
+      model: "Auth",
+    });
+    if (user!.auth.trustLevel >= 4) {
       await teacher!.deleteOne();
       return res.status(httpStatus.OK).json("teacherが削除されました");
     } else {

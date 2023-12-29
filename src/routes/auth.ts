@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import httpStatus from "http-status";
 import jwt from "jsonwebtoken";
-import User, { UserType } from "../models/User";
+import User, { UserType } from "../models/Account/User";
 
 import nodemailer from "nodemailer";
 import { Router } from "express";
@@ -55,7 +55,7 @@ authRoute.get("/confirm-email", async (req, res) => {
     const newSecretKey = crypto.randomBytes(32).toString("hex");
 
     user.isVerified = true; // アカウントを認証済みに設定
-    user.secretKey = newSecretKey; // 生成した秘密鍵をユーザーに保存
+    user.auth.secretKey = newSecretKey; // 生成した秘密鍵をユーザーに保存
     await user.save();
 
     return res.status(httpStatus.OK).send("アカウントが認証されました。");
@@ -76,7 +76,7 @@ authRoute.post("/login", async (req, res) => {
     if (!validPassword)
       return res.status(httpStatus.BAD_REQUEST).json("パスワードが違います");
 
-    if (!user.secretKey) {
+    if (!user.auth.secretKey) {
       return res
         .status(httpStatus.INTERNAL_SERVER_ERROR)
         .send("サーバー内部エラー: ユーザーの秘密鍵が見つかりません");
@@ -85,11 +85,11 @@ authRoute.post("/login", async (req, res) => {
     // JWTの署名
     const token = await signJWT(user, {
       id: user._id,
-      credLevel: user.credLevel,
+      credLevel: user.auth.credLevel,
     });
 
     // ユーザー情報からpasswordと他の不要なフィールドを除外
-    const { password, secretKey, confirmationToken, ...userResponse } = // eslint-disable-line @typescript-eslint/no-unused-vars
+    const { password, auth, confirmationToken, ...userResponse } = // eslint-disable-line @typescript-eslint/no-unused-vars
       user.toObject();
 
     return res.status(httpStatus.OK).json({ user: userResponse, token }); // トークンも応答として返します
@@ -121,7 +121,7 @@ async function sendConfirmationEmail(email: string, token: string) {
 }
 
 async function signJWT(user: UserType, payload: Record<string, unknown>) {
-  const secret = user.secretKey;
+  const secret = user.auth.secretKey;
   if (!secret) {
     throw new Error("No secret key found for the given user.");
   }
