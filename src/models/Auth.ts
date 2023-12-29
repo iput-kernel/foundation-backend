@@ -26,11 +26,6 @@ const AuthSchema = new mongoose.Schema<AuthType>({
         type: String,
         default: "",
     },
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-    },
 });
 
 const Auth = mongoose.model<AuthType>("Elevator", AuthSchema);

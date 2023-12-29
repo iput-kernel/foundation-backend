@@ -123,6 +123,7 @@ const UserSchema = new mongoose.Schema<UserType>(
     auth: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Auth",
+      required: true,
     },
   },
   { timestamps: true }
