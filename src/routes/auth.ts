@@ -7,7 +7,7 @@ import User, { UserType } from "../models/Account/User";
 import nodemailer from "nodemailer";
 import { Router } from "express";
 import mongoose from "mongoose";
-import { authDefaultModel } from "../models/Account/Auth";
+import Auth, { authDefaultModel } from "../models/Account/Auth";
 import Profile from "../models/Account/Profile";
 
 const authRoute = Router();
@@ -30,13 +30,13 @@ authRoute.post("/register", async (req, res) => {
       // 既存のユーザーが存在する場合、トークンを更新
       findUser.confirmationToken = token;
       await findUser.save();
-    }else {
+    } else {
       // User作成
       await createNewUserWithAuthAndProfile(
         req.body.username,
         req.body.email,
         hashedPassword,
-        token,
+        token
       ).catch((err) => {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
       });
@@ -59,7 +59,11 @@ authRoute.get("/confirm-email", async (req, res) => {
   try {
     const { token } = req.query; // クエリパラメータからtokenを取得
 
-    const user = await User.findOne({ confirmationToken: token });
+    const user = await User.findOne({ confirmationToken: token }).populate({
+      path: "auth",
+      model: "Auth",
+    });
+
     if (!user)
       return res.status(httpStatus.BAD_REQUEST).send("無効なトークンです。");
 
@@ -69,6 +73,14 @@ authRoute.get("/confirm-email", async (req, res) => {
     user.isVerified = true; // アカウントを認証済みに設定
     user.auth.secretKey = newSecretKey; // 生成した秘密鍵をユーザーに保存
     await user.save();
+    const auth = await Auth.findOne({ _id: user.auth});
+    if (!auth) {
+      return res
+        .status(httpStatus.INTERNAL_SERVER_ERROR)
+        .send("ユーザに紐づくAuth Documentが存在しません");
+    }
+    auth!.secretKey = newSecretKey;
+    auth.save();
 
     return res.status(httpStatus.OK).send("アカウントが認証されました。");
   } catch (err) {
