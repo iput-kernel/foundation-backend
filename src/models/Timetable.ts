@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-type TimetableEntryType = {
+export type TimetableEntryType = {
   subject: mongoose.Schema.Types.ObjectId;
   room: mongoose.Schema.Types.ObjectId;
 };

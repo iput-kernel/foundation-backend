@@ -30,7 +30,12 @@ export const authenticateJWT = async (
   }
 
   try {
-    const user = await User.findById(req.body.userId);
+    const user = await User.findById(req.body.userId)
+      .populate({
+        path: "auth",
+        model: "Auth",
+      });
+      
     if (!user) {
       return res.status(404).json({ message: "ユーザーが見つかりません" });
     }
@@ -40,12 +45,13 @@ export const authenticateJWT = async (
     // decodedがstring型かどうかチェック
     if (typeof decoded === "string") {
       // エラー処理か何か
-      return res.status(403).json({ message: "無効なトークン" });
+      return res.status(403).json({ message: "not string" });
     }
 
-    req.user = decoded as { id: Types.ObjectId; credLevel: number }; // 型アサーション
+    req.user = decoded as { id: Types.ObjectId; credLevel: number };
     next();
   } catch (err) {
-    return res.status(403).json({ message: "無効なトークン" });
+    console.log(err);
+    return res.status(403).json({ message: "無効トークン" });
   }
 };

@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 
-type ExtraClassType = {
+export type ExtraClassType = {
   createdUser: mongoose.Types.ObjectId;
-  classGrade: number;
-  classChar?: string;
+  extraClassName: string;
   studentsId: mongoose.Schema.Types.ObjectId[];
   teachersId: mongoose.Schema.Types.ObjectId[];
   timetableId: mongoose.Schema.Types.ObjectId[];
+  createdAt: Date;
 };
 
 const ExtraClassSchema = new mongoose.Schema<ExtraClassType>({
@@ -14,12 +14,11 @@ const ExtraClassSchema = new mongoose.Schema<ExtraClassType>({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-  classGrade: {
-    type: Number,
-    required: true,
-  },
-  classChar: {
+  extraClassName: {
     type: String,
+    required: true,
+    min: 1,
+    max: 64,
   },
   studentsId: [
     {
@@ -39,6 +38,11 @@ const ExtraClassSchema = new mongoose.Schema<ExtraClassType>({
       ref: "Timetable",
     },
   ],
+  createdAt: { // 追加
+    type: Date,
+    default: Date.now,
+    index: { expires: '1y' } // 1年後に削除
+  },
 });
 
 const ExtraClass = mongoose.model<ExtraClassType>(

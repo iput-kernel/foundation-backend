@@ -90,10 +90,11 @@ authRoute.get("/confirm-email", async (req, res) => {
 
 authRoute.post("/login", async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.body.email }).populate({
-      path: "auth",
-      model: "Auth",
-    });
+    const user = await User.findOne({ email: req.body.email })
+      .populate({
+        path: "auth",
+        model: "Auth",
+      });
     if (!user) return res.status(404).send("ユーザーが見つかりません");
 
     const validPassword = await bcrypt.compare(
@@ -108,7 +109,8 @@ authRoute.post("/login", async (req, res) => {
         .status(httpStatus.INTERNAL_SERVER_ERROR)
         .send("サーバー内部エラー: ユーザーの秘密鍵が見つかりません");
     }
-
+    console.log(user);
+    console.log(user.auth);
     // JWTの署名
     const token = await signJWT(user, {
       id: user._id,

@@ -3,7 +3,7 @@ import httpStatus from "http-status";
 import { RequestWithUser, authenticateJWT } from "../jwtAuth";
 
 import extraClass from "../models/ExtraClass";
-import User from "../models/User";
+import User from "../models/Account/User";
 
 const extraClassRoute = Router()
 
@@ -51,7 +51,7 @@ extraClassRoute.delete(
   try {
     const post = await extraClass.findById(req.params.id);
     const user = await User.findById(req.body.userId);
-    if (user!.isAdmin || user!.credLevel > 5) {
+    if (user!.auth.credLevel > 5) {
       await post!.deleteOne();
       return res.status(httpStatus.OK).json("クラスが削除されました");
     } else {

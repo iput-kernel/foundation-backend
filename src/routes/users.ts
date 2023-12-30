@@ -172,4 +172,38 @@ userRoute.put(
   },
 );
 
+userRoute.post(
+  "",
+  authenticateJWT,
+  async (req:RequestWithUser ,res) => {
+    // ユーザーを取得
+    const user = await User.findById(req.body.userId)
+      .populate({
+        path: "class",
+        model: "Class",
+        populate: {
+          path: "timetableId",
+          model: "Timetable",
+        },
+      })
+      .populate({
+        path: "extraClass",
+        model: "ExtraClass",
+        populate: {
+          path: "timetableId",
+          model: "Timetable",
+        },
+      });
+  
+    if (!user) {
+      return res
+        .status(httpStatus.UNAUTHORIZED)
+        .json({ message: "ユーザーが認証されていません" });
+    }
+
+    console.log(user.class?.timetableId);
+    return res.status(200).json(user);
+  },
+);
+
 export default userRoute;
