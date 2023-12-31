@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { authenticateJWT, RequestWithUser } from "../jwtAuth";
 import Class from "../models/Class";
 import User from "../models/Account/User";
-import { Router } from "express";
+import { Router, Response } from "express";
 
 const userRoute = Router();
 
@@ -29,49 +29,73 @@ userRoute.get("/:id", async (req, res) => {
       .populate({
         path: "profile",
         model: "Profile",
-      })
+      });
 
     const userObject = user!.toObject();
-    const { password, ...other } = userObject; // eslint-disable-line
+    // eslint-disable-next-line
+    const { password, auth, confirmationToken, isVerified, ...other } =
+      userObject;
     res.status(httpStatus.OK).json(other);
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
   }
 });
 
-userRoute.put("/:id", async (req, res) => {
-  if (req.body.userId === req.params.id || req.body.isAdmin) {
+userRoute.put(
+  "/:id",
+  authenticateJWT,
+  async (req: RequestWithUser, res: Response) => {
     try {
-      const user = await User.findByIdAndUpdate(req.params.id, { // eslint-disable-line
+      if (req.body.userId !== req.params.id) {
+        return res.status(httpStatus.UNAUTHORIZED).send("権限がありません。");
+      }
+      // eslint-disable-next-line
+      await User.findByIdAndUpdate(req.params.id, {
         $set: req.body,
       });
       res.status(httpStatus.OK).json("アカウントが更新されました");
     } catch (err) {
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
     }
-  } else {
-    return res.status(httpStatus.FORBIDDEN).json("アカウントを更新できません");
-  }
-});
+  },
+);
 
-userRoute.delete("/:id", async (req, res) => {
-  if (req.body.userId === req.params.id || req.body.isAdmin) {
+userRoute.delete(
+  "/:id",
+  authenticateJWT,
+  async (req: RequestWithUser, res: Response) => {
     try {
-      const user = await User.findByIdAndDelete(req.params.id); // eslint-disable-line
+      if (!req.user) {
+        return res
+          .status(httpStatus.UNAUTHORIZED)
+          .send("ユーザー認証が必要です。");
+      }
+      if (req.body.userId !== req.params.id) {
+        return res.status(httpStatus.UNAUTHORIZED).send("権限がありません。");
+      }
+      await User.findByIdAndDelete(req.params.id); // eslint-disable-line
       res.status(httpStatus.OK).json("アカウントが削除されました");
     } catch (err) {
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
     }
-  } else {
-    return res.status(httpStatus.FORBIDDEN).json("アカウントを削除できません");
-  }
-});
+  },
+);
 
 //フォロー
-userRoute.put("/:id/follow", async (req, res) => {
-  //bodyのほうが自分 paramsのほうが相手
-  if (req.body.userId !== req.params.id) {
+userRoute.put(
+  "/:id/follow",
+  authenticateJWT,
+  async (req: RequestWithUser, res: Response) => {
+    //bodyのほうが自分 paramsのほうが相手
     try {
+      if (req.body.userId !== req.params.id) {
+        return res.status(httpStatus.FORBIDDEN).json("権限がありません。");
+      }
+      if (req.body.userId === req.params.id) {
+        return res
+          .status(httpStatus.FORBIDDEN)
+          .json("自分をフォローできません");
+      }
       const user = await User.findById(req.params.id);
       const currentUser = await User.findById(req.body.userId);
       if (!user!.followers.includes(req.body.userId)) {
@@ -88,16 +112,21 @@ userRoute.put("/:id/follow", async (req, res) => {
     } catch (err) {
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
     }
-  } else {
-    return res.status(httpStatus.FORBIDDEN).json("自分をフォローできません");
-  }
-});
+  },
+);
 
 //フォロー解除
-userRoute.put("/:id/unfollow", async (req, res) => {
-  //bodyのほうが自分 paramsのほうが相手
-  if (req.body.userId !== req.params.id) {
+userRoute.put(
+  "/:id/unfollow",
+  authenticateJWT,
+  async (req: RequestWithUser, res: Response) => {
+    //bodyのほうが自分 paramsのほうが相手
     try {
+      if (req.body.userId === req.params.id) {
+        return res
+          .status(httpStatus.FORBIDDEN)
+          .json("自分をフォロー解除できません");
+      }
       const user = await User.findById(req.params.id);
       const currentUser = await User.findById(req.body.userId);
       //フォロワーに存在したらフォローを解除できる
@@ -115,12 +144,8 @@ userRoute.put("/:id/unfollow", async (req, res) => {
     } catch (err) {
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
     }
-  } else {
-    return res
-      .status(httpStatus.FORBIDDEN)
-      .json("自分をフォロー解除できません");
-  }
-});
+  },
+);
 
 userRoute.put(
   "/joinClass",
@@ -135,19 +160,33 @@ userRoute.put(
           .status(httpStatus.UNAUTHORIZED)
           .json({ message: "ユーザーが認証されていません" });
       }
+      if (!req.body.classId) {
+        return res
+          .status(httpStatus.BAD_REQUEST)
+          .json({ message: "クラスIDが指定されていません" });
+      }
 
       const { classId } = req.body; // リクエストボディからclassIdを取得
-
       const currentUserId = req.user.id;
       const currentUser = await User.findById(currentUserId).session(session);
 
+      if (currentUser!.class !== classId) {
+        return res
+          .status(httpStatus.BAD_REQUEST)
+          .json({ message: "権限がありません。" });
+      }
+
       if (!currentUser) {
-        throw new Error("User not found");
+        return res
+          .status(httpStatus.BAD_REQUEST)
+          .json({ message: "ユーザーが見つかりません" });
       }
 
       const targetClass = await Class.findById(classId).session(session);
       if (!targetClass) {
-        throw new Error("Class not found");
+        return res
+          .status(httpStatus.BAD_REQUEST)
+          .json({ message: "クラスが見つかりません" });
       }
 
       // ユーザーをクラスのstudentsIdに追加
@@ -164,7 +203,8 @@ userRoute.put(
       session.endSession();
 
       res.status(200).json({ message: "Classmate added successfully" });
-    } catch (error: any) { // eslint-disable-line
+      // eslint-disable-next-line
+    } catch (error: any) {
       await session.abortTransaction();
       session.endSession();
       res.status(500).json({ message: error.message });

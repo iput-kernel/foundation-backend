@@ -90,7 +90,7 @@ const UserSchema = new mongoose.Schema<UserType>(
       ref: "Profile",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 const User = mongoose.model<UserType>("User", UserSchema);
 

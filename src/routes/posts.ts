@@ -1,50 +1,61 @@
 import httpStatus from "http-status";
 import Post from "../models/Post";
 import User from "../models/Account/User";
-import { Router } from "express";
+import { Router, Response } from "express";
+import { RequestWithUser, authenticateJWT } from "../jwtAuth";
 
 const postRoute = Router();
 
 //投稿
-postRoute.post("/", async (req, res) => {
-  const newPost = new Post(req.body);
-  try {
-    const savedPost = await newPost.save();
-    res.status(httpStatus.OK).json(savedPost);
-  } catch (err) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
-  }
-});
+postRoute.post(
+  "/",
+  authenticateJWT,
+  async (req: RequestWithUser, res: Response) => {
+    const newPost = new Post(req.body);
+    try {
+      const savedPost = await newPost.save();
+      res.status(httpStatus.OK).json(savedPost);
+    } catch (err) {
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
+    }
+  },
+);
 
-postRoute.put("/:id", async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id);
-    if (post!.userId === req.body.userId) {
+postRoute.put(
+  "/:id",
+  authenticateJWT,
+  async (req: RequestWithUser, res: Response) => {
+    try {
+      const post = await Post.findById(req.params.id);
+      if (req.body.userId !== post!.userId) {
+        return res.status(httpStatus.UNAUTHORIZED).send("権限がありません。");
+      }
       await post!.updateOne({
         $set: req.body,
       });
       return res.status(httpStatus.OK).json("投稿が更新されました");
-    } else {
-      return res.status(httpStatus.FORBIDDEN).json("投稿を更新できません");
+    } catch (err) {
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
     }
-  } catch (err) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
-  }
-});
+  },
+);
 
-postRoute.delete("/:id", async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id);
-    if (post!.userId === req.body.userId) {
+postRoute.delete(
+  "/:id",
+  authenticateJWT,
+  async (req: RequestWithUser, res: Response) => {
+    try {
+      const post = await Post.findById(req.params.id);
+      if (req.body.userId != post!.userId) {
+        return res.status(httpStatus.UNAUTHORIZED).send("権限がありません。");
+      }
       await post!.deleteOne();
       return res.status(httpStatus.OK).json("投稿が削除されました");
-    } else {
-      return res.status(httpStatus.FORBIDDEN).json("投稿を削除できません");
+    } catch (err) {
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
     }
-  } catch (err) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
-  }
-});
+  },
+);
 
 //特定の投稿の取得
 postRoute.get("/:id", async (req, res) => {
@@ -60,28 +71,32 @@ postRoute.get("/:id", async (req, res) => {
 });
 
 //いいね
-postRoute.put("/:id/like", async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id);
-    if (!post!.likes.includes(req.body.userId)) {
-      await post!.updateOne({
-        $push: {
-          likes: req.body.userId,
-        },
-      });
-      return res.status(httpStatus.OK).json("投稿にいいねしました");
-    } else {
-      await post!.updateOne({
-        $pull: {
-          likes: req.body.userId,
-        },
-      });
-      return res.status(httpStatus.OK).json("投稿のいいねを取り消しました");
+postRoute.put(
+  "/:id/like",
+  authenticateJWT,
+  async (req: RequestWithUser, res: Response) => {
+    try {
+      const post = await Post.findById(req.params.id);
+      if (!post!.likes.includes(req.body.userId)) {
+        await post!.updateOne({
+          $push: {
+            likes: req.body.userId,
+          },
+        });
+        return res.status(httpStatus.OK).json("投稿にいいねしました");
+      } else {
+        await post!.updateOne({
+          $pull: {
+            likes: req.body.userId,
+          },
+        });
+        return res.status(httpStatus.OK).json("投稿のいいねを取り消しました");
+      }
+    } catch (err) {
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
     }
-  } catch (err) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
-  }
-});
+  },
+);
 
 //タイムラインの投稿を取得する。自分の投稿とフォローしている人の投稿を取得する
 postRoute.get("/timeline/all", async (req, res) => {

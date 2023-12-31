@@ -50,7 +50,8 @@ timetableRoute.post("/", async (req, res) => {
     });
     await timetable.save();
     res.status(201).json(timetable);
-  } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line
+  } catch (err: any) {
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: err.message });
   }
 });
@@ -79,7 +80,8 @@ timetableRoute.get("/:id", async (req, res) => {
         .json({ message: "指定されたIDの時間割は存在しません" });
     }
     res.status(httpStatus.OK).json(timetable);
-  } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line
+  } catch (err: any) {
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: err.message });
   }
 });
@@ -103,7 +105,8 @@ timetableRoute.get("/", async (req, res) => {
         },
       ]);
     res.status(httpStatus.OK).json(timetables);
-  } catch (err: any) { // eslint-disable-line
+    // eslint-disable-next-line
+  } catch (err: any) {
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: err.message });
   }
 });
