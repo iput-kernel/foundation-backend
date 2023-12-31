@@ -12,7 +12,7 @@ classRoute.post(
   authenticateJWT,
   async (req: RequestWithUser, res: Response) => {
     try {
-      if (req.user!.credLevel < 3) {
+      if (req.user!.credLevel < 4) {
         return res.status(httpStatus.UNAUTHORIZED).send("権限がありません。");
       }
       const newClass = new Class(req.body);
