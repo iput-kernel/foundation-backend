@@ -1,6 +1,7 @@
 import httpStatus from "http-status";
 import mongoose from "mongoose";
 import { authenticateJWT, RequestWithUser } from "../jwtAuth";
+
 import Class from "../models/Class";
 import User from "../models/Account/User";
 import { Router } from "express";
@@ -173,7 +174,7 @@ userRoute.put(
 );
 
 userRoute.post(
-  "",
+  "/test/test",
   authenticateJWT,
   async (req:RequestWithUser ,res) => {
     // ユーザーを取得
@@ -201,7 +202,8 @@ userRoute.post(
         .json({ message: "ユーザーが認証されていません" });
     }
 
-    console.log(user.class?.timetableId);
+    console.log(user);
+
     return res.status(200).json(user);
   },
 );

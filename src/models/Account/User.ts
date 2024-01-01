@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
 import { AuthType } from "./Auth";
-import { ClassType } from "../Class";
-import { ExtraClassType } from "../ExtraClass";
 import { ProfileType } from "./Profile";
 
 export type UserType = {
@@ -15,8 +13,8 @@ export type UserType = {
   auth: AuthType;
   followers: mongoose.Types.ObjectId[];
   followings: mongoose.Types.ObjectId[];
-  class?: ClassType;
-  extraClass?: ExtraClassType;
+  class?: mongoose.Types.ObjectId;
+  extraClass?: mongoose.Types.ObjectId[];
   profile?: ProfileType;
 };
 
@@ -81,6 +79,7 @@ const UserSchema = new mongoose.Schema<UserType>(
     class: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Class",
+      default: null,
     },
     extraClass: [{
       type: mongoose.Schema.Types.ObjectId,
