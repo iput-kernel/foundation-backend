@@ -58,12 +58,13 @@ eventRoute.put(
   authenticateJWT,
   async (req: RequestWithUser, res: Response) => {
     try {
-      if (!req.user)
+      const event = await Event.findById(req.params.id);
+
+      if (req.user!.credLevel < 2)
         return res
           .status(httpStatus.UNAUTHORIZED)
           .send("アカウントが認証されていません。");
 
-      const event = await Event.findById(req.params.id);
       if (!event)
         return res.status(httpStatus.NOT_FOUND).send("Event not found");
 

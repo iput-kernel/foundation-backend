@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 export interface RequestWithUser extends Request {
   user?: {
     id: Types.ObjectId;
+    classId?: Types.ObjectId | string;
     credLevel: number;
   };
 }
@@ -30,22 +31,27 @@ export const authenticateJWT = async (
   }
 
   try {
-    const user = await User.findById(req.body.userId);
+    const user = await User.findById(req.body.userId).populate({
+      path: "auth",
+      model: "Auth",
+    });
     if (!user) {
       return res.status(404).json({ message: "ユーザーが見つかりません" });
     }
 
     const decoded = await verifyJWT(user, token);
 
+    // TODO: ここでdecodedの型をチェックする
     // decodedがstring型かどうかチェック
-    if (typeof decoded === "string") {
-      // エラー処理か何か
-      return res.status(403).json({ message: "無効なトークン" });
-    }
+    // if (typeof decoded === "string") {
+    //   // エラー処理か何か
+    //   return res.status(403).json({ message: "無効なトークン" });
+    // }
 
     req.user = decoded as { id: Types.ObjectId; credLevel: number }; // 型アサーション
     next();
   } catch (err) {
+    console.log(err);
     return res.status(403).json({ message: "無効なトークン" });
   }
 };

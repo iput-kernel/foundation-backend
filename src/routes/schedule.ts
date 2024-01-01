@@ -7,14 +7,18 @@ import Subject from "../models/Subject";
 import Class from "../models/Class";
 import Room from "../models/Room";
 import { Router } from "express";
+import { RequestWithUser, authenticateJWT } from "../jwtAuth";
 
 const scheduleRoute = Router();
 
 export const createScheduleFromTimetable = async (
-  req: Request,
+  req: RequestWithUser,
   res: Response,
 ) => {
   try {
+    if (req.user!.credLevel < 4) {
+      return res.status(httpStatus.UNAUTHORIZED).send("権限がありません。");
+    }
     // 18週間以上のスケジュール生成はできない。
     const WEEK_LIMIT = 18;
 
@@ -164,6 +168,9 @@ scheduleRoute.get("/:id", async (req: Request, res: Response) => {
   }
 });
 
-scheduleRoute.post("/create-schedule/:id", createScheduleFromTimetable);
-
+scheduleRoute.post(
+  "/create-schedule/:id",
+  authenticateJWT,
+  createScheduleFromTimetable,
+);
 export default scheduleRoute;

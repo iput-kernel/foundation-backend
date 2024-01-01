@@ -36,7 +36,7 @@ authRoute.post("/register", async (req, res) => {
         req.body.username,
         req.body.email,
         hashedPassword,
-        token
+        token,
       ).catch((err) => {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
       });
@@ -98,7 +98,7 @@ authRoute.post("/login", async (req, res) => {
 
     const validPassword = await bcrypt.compare(
       req.body.password,
-      user.password
+      user.password,
     );
     if (!validPassword)
       return res.status(httpStatus.BAD_REQUEST).json("パスワードが違います");
@@ -116,7 +116,9 @@ authRoute.post("/login", async (req, res) => {
     });
 
     // ユーザー情報からpasswordと他の不要なフィールドを除外
-    const { password, auth, confirmationToken, ...userResponse } = user.toObject(); // eslint-disable-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line
+    const { password, auth, confirmationToken, ...userResponse } =
+      user.toObject();
 
     return res.status(httpStatus.OK).json({ user: userResponse, token }); // トークンも応答として返します
   } catch (err) {
@@ -158,7 +160,7 @@ async function createNewUserWithAuthAndProfile(
   userName: string,
   email: string,
   password: string,
-  token: string
+  token: string,
 ): Promise<UserType> {
   const session = await mongoose.startSession();
   session.startTransaction();
