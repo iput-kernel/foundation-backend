@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 export type ElevatorType = {
   name: string;
@@ -9,12 +9,12 @@ export type ElevatorType = {
 const ElevatorSchema = new mongoose.Schema<ElevatorType>({
   name: {
     type: String,
-    default: "",
+    default: '',
   },
 
   color: {
     type: String,
-    default: "",
+    default: '',
   },
 
   stops: {
@@ -23,6 +23,6 @@ const ElevatorSchema = new mongoose.Schema<ElevatorType>({
   },
 });
 
-const Elevator = mongoose.model<ElevatorType>("Elevator", ElevatorSchema);
+const Elevator = mongoose.model<ElevatorType>('Elevator', ElevatorSchema);
 
 export default Elevator;

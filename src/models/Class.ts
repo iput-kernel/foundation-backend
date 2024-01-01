@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 export type ClassType = {
   userId: mongoose.Schema.Types.ObjectId;
   department: string;
@@ -13,7 +13,7 @@ export type ClassType = {
 const ClassSchema = new mongoose.Schema<ClassType>({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: 'User',
   },
   department: {
     type: String,
@@ -34,15 +34,15 @@ const ClassSchema = new mongoose.Schema<ClassType>({
   studentsId: [
     {
       type: mongoose.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
     },
   ],
   timetableId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Timetable",
+    ref: 'Timetable',
   },
 });
 
-const Class = mongoose.model<ClassType>("Class", ClassSchema);
+const Class = mongoose.model<ClassType>('Class', ClassSchema);
 
 export default Class;

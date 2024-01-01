@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 export type ExtraClassType = {
   createdUser: mongoose.Types.ObjectId;
@@ -12,7 +12,7 @@ export type ExtraClassType = {
 const ExtraClassSchema = new mongoose.Schema<ExtraClassType>({
   createdUser: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: 'User',
   },
   extraClassName: {
     type: String,
@@ -23,19 +23,19 @@ const ExtraClassSchema = new mongoose.Schema<ExtraClassType>({
   studentsId: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
     },
   ],
   teachersId: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Teacher",
+      ref: 'Teacher',
     },
   ],
   timetableId: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Timetable",
+      ref: 'Timetable',
     },
   ],
   createdAt: { // 追加
@@ -46,7 +46,7 @@ const ExtraClassSchema = new mongoose.Schema<ExtraClassType>({
 });
 
 const ExtraClass = mongoose.model<ExtraClassType>(
-  "ExtraClass",
+  'ExtraClass',
   ExtraClassSchema
 );
 

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 export type ProfileType = {
     birthday?: Date;
@@ -18,22 +18,22 @@ const ProfileSchema = new mongoose.Schema<ProfileType>({
     sex: {
         type: String,
         max: 8,
-        default: "",
+        default: '',
     },
     phone: {
         type: String,
         max: 20,
-        default: "",
+        default: '',
     },
     motherTongue: {
         type: String,
         max: 30,
-        default: "日本語",
+        default: '日本語',
     },
     describe: {
         type: String,
         max: 128,
-        default: "",
+        default: '',
     },
     city: {
         type: String,
@@ -41,14 +41,14 @@ const ProfileSchema = new mongoose.Schema<ProfileType>({
     },
     profilePictureUrl: {
         type: String,
-        default: "",
+        default: '',
     },
     coverPictureUrl: {
         type: String,
-        default: "",
+        default: '',
     },
 });
 
-const Profile = mongoose.model<ProfileType>("Profile", ProfileSchema);
+const Profile = mongoose.model<ProfileType>('Profile', ProfileSchema);
 
 export default Profile;

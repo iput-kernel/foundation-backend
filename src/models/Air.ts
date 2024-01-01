@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 export type AirType = {
   temp: number;
   humi: number;
@@ -21,6 +21,6 @@ const AirSchema = new mongoose.Schema<AirType>({
   },
 });
 
-const Air = mongoose.model<AirType>("Air", AirSchema);
+const Air = mongoose.model<AirType>('Air', AirSchema);
 
 export default Air;

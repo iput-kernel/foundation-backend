@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 export type AuthType = {
     credLevel: number;
@@ -14,7 +14,7 @@ const AuthSchema = new mongoose.Schema<AuthType>({
     },
     credToken: {
         type: String,
-        default: "",
+        default: '',
     },
     trustLevel: {
         type: Number,
@@ -22,18 +22,18 @@ const AuthSchema = new mongoose.Schema<AuthType>({
     },
     secretKey: {
         type: String,
-        default: "",
+        default: '',
     },
 });
 
-const Auth = mongoose.model<AuthType>("Auth", AuthSchema);
+const Auth = mongoose.model<AuthType>('Auth', AuthSchema);
 
 export const authDefaultModel = () => {
     return new Auth<AuthType>({
         credLevel: 0,
-        credToken: "",
+        credToken: '',
         trustLevel: 0,
-        secretKey: "",
+        secretKey: '',
     })
 }
 

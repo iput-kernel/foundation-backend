@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 export type FloorType = {
   floor: number;
@@ -13,11 +13,11 @@ const FloorSchema = new mongoose.Schema<FloorType>({
   roomsId: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Room",
+      ref: 'Room',
     },
   ],
 });
 
-const Floor = mongoose.model<FloorType>("Floor", FloorSchema);
+const Floor = mongoose.model<FloorType>('Floor', FloorSchema);
 
 export default Floor;

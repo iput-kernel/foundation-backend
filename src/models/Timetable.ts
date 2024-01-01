@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 export type TimetableEntryType = {
   subject: mongoose.Schema.Types.ObjectId;
@@ -13,22 +13,22 @@ export type TimetableType = {
 const TimetableEntrySchema = new mongoose.Schema({
   subject: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Subject",
+    ref: 'Subject',
   },
   room: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Room",
+    ref: 'Room',
   },
 });
 
 const TimetableSchema = new mongoose.Schema<TimetableType>({
   usedClass: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Class",
+    ref: 'Class',
   },
   weekEntries: {
     type: [[TimetableEntrySchema]],
-    validate: [arrayLimit, "{PATH} exceeds the limit of array length"],
+    validate: [arrayLimit, '{PATH} exceeds the limit of array length'],
   },
 });
 
@@ -36,5 +36,5 @@ function arrayLimit(val: [][]) {
   return val.length <= 7 && val.every((innerArray) => innerArray.length <= 7);
 }
 
-const TimeTable = mongoose.model<TimetableType>("Timetable", TimetableSchema);
+const TimeTable = mongoose.model<TimetableType>('Timetable', TimetableSchema);
 export default TimeTable;

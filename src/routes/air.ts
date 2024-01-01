@@ -1,11 +1,11 @@
-import httpStatus from "http-status";
-import Subject from "../models/Subject";
-import Timetable from "../models/Timetable";
-import { Router } from "express";
+import httpStatus from 'http-status';
+import Subject from '../models/Subject';
+import Timetable from '../models/Timetable';
+import { Router } from 'express';
 
 const airRoute = Router()
 
-airRoute.post("/", async (req, res) => {
+airRoute.post('/', async (req, res) => {
   const { usedClass, weekSubjects } = req.body;
 
   try {
@@ -35,23 +35,23 @@ airRoute.post("/", async (req, res) => {
 });
 
 // Get a Timetable by ID
-airRoute.get("/:id", async (req, res) => {
+airRoute.get('/:id', async (req, res) => {
   try {
     const timetable = await Timetable.findById(req.params.id)
       .populate([
         {
-          path: "weekSubjects",
-          model: "Subject",
+          path: 'weekSubjects',
+          model: 'Subject',
         },
       ])
       .populate({
-        path: "usedClass",
-        model: "Class",
+        path: 'usedClass',
+        model: 'Class',
       });
     if (!timetable) {
       return res
         .status(404)
-        .json({ message: "指定されたIDの時間割は存在しません" });
+        .json({ message: '指定されたIDの時間割は存在しません' });
     }
     res.status(httpStatus.OK).json(timetable);
   } catch (err: unknown) {
@@ -64,16 +64,16 @@ airRoute.get("/:id", async (req, res) => {
 });
 
 // Get all Timetables
-airRoute.get("/", async (req, res) => {
+airRoute.get('/', async (req, res) => {
   try {
     const timetables = await Timetable.find()
       .populate({
-        path: "weekSubjects",
-        model: "Subject",
+        path: 'weekSubjects',
+        model: 'Subject',
       })
       .populate({
-        path: "usedClass",
-        model: "Class",
+        path: 'usedClass',
+        model: 'Class',
       });
     res.status(httpStatus.OK).json(timetables);
   } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any

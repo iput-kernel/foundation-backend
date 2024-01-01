@@ -1,30 +1,30 @@
-import bcrypt from "bcrypt";
-import crypto from "crypto";
-import httpStatus from "http-status";
-import jwt from "jsonwebtoken";
-import User, { UserType } from "../models/Account/User";
+import bcrypt from 'bcrypt';
+import crypto from 'crypto';
+import httpStatus from 'http-status';
+import jwt from 'jsonwebtoken';
+import User, { UserType } from '../models/Account/User';
 
-import nodemailer from "nodemailer";
-import { Router } from "express";
-import mongoose from "mongoose";
-import Auth, { authDefaultModel } from "../models/Account/Auth";
-import Profile from "../models/Account/Profile";
+import nodemailer from 'nodemailer';
+import { Router } from 'express';
+import mongoose from 'mongoose';
+import Auth, { authDefaultModel } from '../models/Account/Auth';
+import Profile from '../models/Account/Profile';
 
 const authRoute = Router();
 
 const saltRounds = 10;
 
-authRoute.post("/register", async (req, res) => {
+authRoute.post('/register', async (req, res) => {
   try {
     const findUser = await User.findOne({ email: req.body.email });
     if (findUser && findUser.isVerified)
       return res
         .status(httpStatus.BAD_REQUEST)
-        .send("このメールアドレスはすでに登録されています。");
+        .send('このメールアドレスはすでに登録されています。');
 
     const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
 
-    const token = crypto.randomBytes(16).toString("hex");
+    const token = crypto.randomBytes(16).toString('hex');
 
     if (findUser) {
       // 既存のユーザーが存在する場合、トークンを更新
@@ -48,27 +48,27 @@ authRoute.post("/register", async (req, res) => {
 
     return res
       .status(httpStatus.OK)
-      .json({ message: "Confirmation email sent", user: user!._id });
+      .json({ message: 'Confirmation email sent', user: user!._id });
   } catch (err) {
     console.error(err);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
   }
 });
 
-authRoute.get("/confirm-email", async (req, res) => {
+authRoute.get('/confirm-email', async (req, res) => {
   try {
     const { token } = req.query; // クエリパラメータからtokenを取得
 
     const user = await User.findOne({ confirmationToken: token }).populate({
-      path: "auth",
-      model: "Auth",
+      path: 'auth',
+      model: 'Auth',
     });
 
     if (!user)
-      return res.status(httpStatus.BAD_REQUEST).send("無効なトークンです。");
+      return res.status(httpStatus.BAD_REQUEST).send('無効なトークンです。');
 
     // 秘密鍵を生成
-    const newSecretKey = crypto.randomBytes(32).toString("hex");
+    const newSecretKey = crypto.randomBytes(32).toString('hex');
 
     user.isVerified = true; // アカウントを認証済みに設定
     user.auth.secretKey = newSecretKey; // 生成した秘密鍵をユーザーに保存
@@ -77,37 +77,37 @@ authRoute.get("/confirm-email", async (req, res) => {
     if (!auth) {
       return res
         .status(httpStatus.INTERNAL_SERVER_ERROR)
-        .send("ユーザに紐づくAuth Documentが存在しません");
+        .send('ユーザに紐づくAuth Documentが存在しません');
     }
     auth!.secretKey = newSecretKey;
     auth.save();
 
-    return res.status(httpStatus.OK).send("アカウントが認証されました。");
+    return res.status(httpStatus.OK).send('アカウントが認証されました。');
   } catch (err) {
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
   }
 });
 
-authRoute.post("/login", async (req, res) => {
+authRoute.post('/login', async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email })
       .populate({
-        path: "auth",
-        model: "Auth",
+        path: 'auth',
+        model: 'Auth',
       });
-    if (!user) return res.status(404).send("ユーザーが見つかりません");
+    if (!user) return res.status(404).send('ユーザーが見つかりません');
 
     const validPassword = await bcrypt.compare(
       req.body.password,
       user.password
     );
     if (!validPassword)
-      return res.status(httpStatus.BAD_REQUEST).json("パスワードが違います");
+      return res.status(httpStatus.BAD_REQUEST).json('パスワードが違います');
 
     if (!user.auth.secretKey) {
       return res
         .status(httpStatus.INTERNAL_SERVER_ERROR)
-        .send("サーバー内部エラー: ユーザーの秘密鍵が見つかりません");
+        .send('サーバー内部エラー: ユーザーの秘密鍵が見つかりません');
     }
     console.log(user);
     console.log(user.auth);
@@ -128,9 +128,9 @@ authRoute.post("/login", async (req, res) => {
 
 async function sendConfirmationEmail(email: string, token: string) {
   const transporter = nodemailer.createTransport({
-    service: "Gmail",
+    service: 'Gmail',
     auth: {
-      user: "iput.kernel@gmail.com",
+      user: 'iput.kernel@gmail.com',
       pass: process.env.MAILPASS,
     },
   });
@@ -139,10 +139,10 @@ async function sendConfirmationEmail(email: string, token: string) {
   const link = `https://www.iput-kernel.com/v1/auth/confirm-email?token=${token}`;
 
   const mailOptions = {
-    from: "iput-kernel@gmail.com",
+    from: 'iput-kernel@gmail.com',
     to: email,
-    subject: "アカウント登録",
-    text: "このリンクをクリックすれば有効化されるよ: " + link,
+    subject: 'アカウント登録',
+    text: 'このリンクをクリックすれば有効化されるよ: ' + link,
   };
 
   await transporter.sendMail(mailOptions);
@@ -151,7 +151,7 @@ async function sendConfirmationEmail(email: string, token: string) {
 async function signJWT(user: UserType, payload: Record<string, unknown>) {
   const secret = user.auth.secretKey;
   if (!secret) {
-    throw new Error("No secret key found for the given user.");
+    throw new Error('No secret key found for the given user.');
   }
   return jwt.sign(payload, secret);
 }

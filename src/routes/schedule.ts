@@ -1,12 +1,12 @@
-import { Request, Response } from "express";
-import httpStatus from "http-status";
-import Schedule from "../models/Schedule";
-import Event from "../models/Event";
-import TimeTable from "../models/Timetable";
-import Subject from "../models/Subject";
-import Class from "../models/Class";
-import Room from "../models/Room";
-import { Router } from "express";
+import { Request, Response } from 'express';
+import httpStatus from 'http-status';
+import Schedule from '../models/Schedule';
+import Event from '../models/Event';
+import TimeTable from '../models/Timetable';
+import Subject from '../models/Subject';
+import Class from '../models/Class';
+import Room from '../models/Room';
+import { Router } from 'express';
 
 const scheduleRoute = Router();
 
@@ -34,7 +34,7 @@ export const createScheduleFromTimetable = async (
     const timetable = await TimeTable.findById(timetableId);
 
     if (!timetable) {
-      return res.status(404).send("Timetable not found");
+      return res.status(404).send('Timetable not found');
     }
 
     const usedClass = await Class.findById(timetable.usedClass);
@@ -42,7 +42,7 @@ export const createScheduleFromTimetable = async (
     // 新しいスケジュールを作成
     const schedule = new Schedule({
       reference: usedClass?._id,
-      onModel: "Class",
+      onModel: 'Class',
       events: [],
     });
 
@@ -122,7 +122,7 @@ export const createScheduleFromTimetable = async (
           schedule.events.push(event._id);
 
           // Subjectのcountをデクリメント
-          if (typeof subject.remain === "number") {
+          if (typeof subject.remain === 'number') {
             subject.remain--;
             subject.count++;
           }
@@ -144,26 +144,26 @@ export const createScheduleFromTimetable = async (
   }
 };
 
-scheduleRoute.get("/:id", async (req: Request, res: Response) => {
+scheduleRoute.get('/:id', async (req: Request, res: Response) => {
   try {
     const schedule = await Schedule.findById(req.params.id)
-      .populate("events")
+      .populate('events')
       .populate({
-        path: "reference",
-        model: "Class",
+        path: 'reference',
+        model: 'Class',
       });
 
     if (!schedule) {
-      return res.status(404).send("Schedule not found");
+      return res.status(404).send('Schedule not found');
     }
 
     res.status(200).json(schedule);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).send('Internal Server Error');
   }
 });
 
-scheduleRoute.post("/create-schedule/:id", createScheduleFromTimetable);
+scheduleRoute.post('/create-schedule/:id', createScheduleFromTimetable);
 
 export default scheduleRoute;

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 export type TeacherType = {
   firstName: string;
@@ -16,10 +16,10 @@ const TeacherSchema = new mongoose.Schema<TeacherType>({
   },
   course: {
     type: String,
-    default: "",
+    default: '',
   },
 });
 
-const Teacher = mongoose.model<TeacherType>("Teacher", TeacherSchema);
+const Teacher = mongoose.model<TeacherType>('Teacher', TeacherSchema);
 
 export default Teacher;

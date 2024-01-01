@@ -1,35 +1,35 @@
-import httpStatus from "http-status";
-import mongoose from "mongoose";
-import { authenticateJWT, RequestWithUser } from "../jwtAuth";
+import httpStatus from 'http-status';
+import mongoose from 'mongoose';
+import { authenticateJWT, RequestWithUser } from '../jwtAuth';
 
-import Class from "../models/Class";
-import User from "../models/Account/User";
-import { Router } from "express";
+import Class from '../models/Class';
+import User from '../models/Account/User';
+import { Router } from 'express';
 
 const userRoute = Router();
 
-userRoute.get("/:id", async (req, res) => {
+userRoute.get('/:id', async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
       .populate([
         {
-          path: "followings",
-          model: "User",
+          path: 'followings',
+          model: 'User',
         },
       ])
       .populate([
         {
-          path: "followers",
-          model: "User",
+          path: 'followers',
+          model: 'User',
         },
       ])
       .populate({
-        path: "class",
-        model: "Class",
+        path: 'class',
+        model: 'Class',
       })
       .populate({
-        path: "profile",
-        model: "Profile",
+        path: 'profile',
+        model: 'Profile',
       })
 
     const userObject = user!.toObject();
@@ -40,36 +40,36 @@ userRoute.get("/:id", async (req, res) => {
   }
 });
 
-userRoute.put("/:id", async (req, res) => {
+userRoute.put('/:id', async (req, res) => {
   if (req.body.userId === req.params.id || req.body.isAdmin) {
     try {
       const user = await User.findByIdAndUpdate(req.params.id, { // eslint-disable-line
         $set: req.body,
       });
-      res.status(httpStatus.OK).json("アカウントが更新されました");
+      res.status(httpStatus.OK).json('アカウントが更新されました');
     } catch (err) {
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
     }
   } else {
-    return res.status(httpStatus.FORBIDDEN).json("アカウントを更新できません");
+    return res.status(httpStatus.FORBIDDEN).json('アカウントを更新できません');
   }
 });
 
-userRoute.delete("/:id", async (req, res) => {
+userRoute.delete('/:id', async (req, res) => {
   if (req.body.userId === req.params.id || req.body.isAdmin) {
     try {
       const user = await User.findByIdAndDelete(req.params.id); // eslint-disable-line
-      res.status(httpStatus.OK).json("アカウントが削除されました");
+      res.status(httpStatus.OK).json('アカウントが削除されました');
     } catch (err) {
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
     }
   } else {
-    return res.status(httpStatus.FORBIDDEN).json("アカウントを削除できません");
+    return res.status(httpStatus.FORBIDDEN).json('アカウントを削除できません');
   }
 });
 
 //フォロー
-userRoute.put("/:id/follow", async (req, res) => {
+userRoute.put('/:id/follow', async (req, res) => {
   //bodyのほうが自分 paramsのほうが相手
   if (req.body.userId !== req.params.id) {
     try {
@@ -82,20 +82,20 @@ userRoute.put("/:id/follow", async (req, res) => {
         await currentUser!.updateOne({
           $push: { followings: req.params.id },
         });
-        res.status(httpStatus.OK).json("フォローしました");
+        res.status(httpStatus.OK).json('フォローしました');
       } else {
-        res.status(httpStatus.FORBIDDEN).json("フォロー済みです");
+        res.status(httpStatus.FORBIDDEN).json('フォロー済みです');
       }
     } catch (err) {
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
     }
   } else {
-    return res.status(httpStatus.FORBIDDEN).json("自分をフォローできません");
+    return res.status(httpStatus.FORBIDDEN).json('自分をフォローできません');
   }
 });
 
 //フォロー解除
-userRoute.put("/:id/unfollow", async (req, res) => {
+userRoute.put('/:id/unfollow', async (req, res) => {
   //bodyのほうが自分 paramsのほうが相手
   if (req.body.userId !== req.params.id) {
     try {
@@ -109,9 +109,9 @@ userRoute.put("/:id/unfollow", async (req, res) => {
         await currentUser!.updateOne({
           $pull: { followings: req.params.id },
         });
-        res.status(httpStatus.OK).json("フォローを解除しました");
+        res.status(httpStatus.OK).json('フォローを解除しました');
       } else {
-        res.status(httpStatus.FORBIDDEN).json("フォローを解除済みです。");
+        res.status(httpStatus.FORBIDDEN).json('フォローを解除済みです。');
       }
     } catch (err) {
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
@@ -119,12 +119,12 @@ userRoute.put("/:id/unfollow", async (req, res) => {
   } else {
     return res
       .status(httpStatus.FORBIDDEN)
-      .json("自分をフォロー解除できません");
+      .json('自分をフォロー解除できません');
   }
 });
 
 userRoute.put(
-  "/joinClass",
+  '/joinClass',
   authenticateJWT,
   async (req: RequestWithUser, res) => {
     const session = await mongoose.startSession();
@@ -134,7 +134,7 @@ userRoute.put(
       if (!req.user) {
         return res
           .status(httpStatus.UNAUTHORIZED)
-          .json({ message: "ユーザーが認証されていません" });
+          .json({ message: 'ユーザーが認証されていません' });
       }
 
       const { classId } = req.body; // リクエストボディからclassIdを取得
@@ -143,12 +143,12 @@ userRoute.put(
       const currentUser = await User.findById(currentUserId).session(session);
 
       if (!currentUser) {
-        throw new Error("User not found");
+        throw new Error('User not found');
       }
 
       const targetClass = await Class.findById(classId).session(session);
       if (!targetClass) {
-        throw new Error("Class not found");
+        throw new Error('Class not found');
       }
 
       // ユーザーをクラスのstudentsIdに追加
@@ -164,7 +164,7 @@ userRoute.put(
       await session.commitTransaction();
       session.endSession();
 
-      res.status(200).json({ message: "Classmate added successfully" });
+      res.status(200).json({ message: 'Classmate added successfully' });
     } catch (error: any) { // eslint-disable-line
       await session.abortTransaction();
       session.endSession();
@@ -174,32 +174,32 @@ userRoute.put(
 );
 
 userRoute.post(
-  "/test/test",
+  '/test/test',
   authenticateJWT,
   async (req:RequestWithUser ,res) => {
     // ユーザーを取得
     const user = await User.findById(req.body.userId)
       .populate({
-        path: "class",
-        model: "Class",
+        path: 'class',
+        model: 'Class',
         populate: {
-          path: "timetableId",
-          model: "Timetable",
+          path: 'timetableId',
+          model: 'Timetable',
         },
       })
       .populate({
-        path: "extraClass",
-        model: "ExtraClass",
+        path: 'extraClass',
+        model: 'ExtraClass',
         populate: {
-          path: "timetableId",
-          model: "Timetable",
+          path: 'timetableId',
+          model: 'Timetable',
         },
       });
   
     if (!user) {
       return res
         .status(httpStatus.UNAUTHORIZED)
-        .json({ message: "ユーザーが認証されていません" });
+        .json({ message: 'ユーザーが認証されていません' });
     }
 
     console.log(user);

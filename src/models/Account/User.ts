@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
-import { AuthType } from "./Auth";
-import { ProfileType } from "./Profile";
+import mongoose from 'mongoose';
+import { AuthType } from './Auth';
+import { ProfileType } from './Profile';
 
 export type UserType = {
   userName: string;
@@ -29,12 +29,12 @@ const UserSchema = new mongoose.Schema<UserType>(
     },
     realNameFirst: {
       type: String,
-      default: "",
+      default: '',
       max: 32,
     },
     realNameLast: {
       type: String,
-      default: "",
+      default: '',
       max: 32,
     },
     email: {
@@ -45,7 +45,7 @@ const UserSchema = new mongoose.Schema<UserType>(
       lowercase: true,
       match: [
         /^[a-zA-Z0-9_.+-]+@tks.iput.ac.jp/,
-        "ドメインはtks.iput.ac.jpである必要があります",
+        'ドメインはtks.iput.ac.jpである必要があります',
       ],
       max: 319,
     },
@@ -67,36 +67,36 @@ const UserSchema = new mongoose.Schema<UserType>(
     followers: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: 'User',
       },
     ],
     followings: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: 'User',
       },
     ],
     class: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Class",
+      ref: 'Class',
       default: null,
     },
     extraClass: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: "ExtraClass",
+      ref: 'ExtraClass',
     }],
     auth: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Auth",
+      ref: 'Auth',
       required: true,
     },
     profile: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Profile",
+      ref: 'Profile',
     },
   },
   { timestamps: true }
 );
-const User = mongoose.model<UserType>("User", UserSchema);
+const User = mongoose.model<UserType>('User', UserSchema);
 
 export default User;

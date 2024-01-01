@@ -1,24 +1,24 @@
-import { Response, Router } from "express";
-import { RequestWithUser, authenticateJWT } from "../jwtAuth";
-import Event from "../models/Event";
-import httpStatus from "http-status";
+import { Response, Router } from 'express';
+import { RequestWithUser, authenticateJWT } from '../jwtAuth';
+import Event from '../models/Event';
+import httpStatus from 'http-status';
 
 const eventRoute = Router();
 
 eventRoute.put(
-  "/trust/:id",
+  '/trust/:id',
   authenticateJWT,
   async (req: RequestWithUser, res: Response) => {
     try {
       if (!req.user)
         return res
           .status(httpStatus.UNAUTHORIZED)
-          .send("アカウントが認証されていません。");
+          .send('アカウントが認証されていません。');
 
       const event = await Event.findById(req.params.id);
       if (!event)
         return res.status(httpStatus.NOT_FOUND)
-          .send("Event not found");
+          .send('Event not found');
 
       const trustIndex = event.trust.indexOf(req.user.id);
       if (trustIndex > -1) {
@@ -47,26 +47,26 @@ eventRoute.put(
 
       await event.save();
 
-      res.send("Trust added successfully");
+      res.send('Trust added successfully');
     } catch (err) {
-      res.status(httpStatus.INTERNAL_SERVER_ERROR).send("Server error");
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send('Server error');
     }
   },
 );
 
 eventRoute.put(
-  "/distrust/:id",
+  '/distrust/:id',
   authenticateJWT,
   async (req: RequestWithUser, res: Response) => {
     try {
       if (!req.user)
         return res
           .status(httpStatus.UNAUTHORIZED)
-          .send("アカウントが認証されていません。");
+          .send('アカウントが認証されていません。');
 
       const event = await Event.findById(req.params.id);
       if (!event)
-        return res.status(httpStatus.NOT_FOUND).send("Event not found");
+        return res.status(httpStatus.NOT_FOUND).send('Event not found');
 
       // すでにdistrustに同じidが存在する場合、そのdistrustをキャンセル
       const distrustIndex = event.distrust.indexOf(req.user.id);
@@ -96,9 +96,9 @@ eventRoute.put(
 
       await event.save();
 
-      res.send("Distrust added successfully");
+      res.send('Distrust added successfully');
     } catch (err) {
-      res.status(httpStatus.INTERNAL_SERVER_ERROR).send("Server error");
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send('Server error');
     }
   },
 );

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 export type ReviewType = {
   userId: mongoose.Schema.Types.ObjectId;
@@ -9,7 +9,7 @@ export type ReviewType = {
 const ReviewSchema = new mongoose.Schema<ReviewType>({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: 'User',
   },
   score: {
     type: Number,
@@ -23,6 +23,6 @@ const ReviewSchema = new mongoose.Schema<ReviewType>({
   },
 });
 
-const Review = mongoose.model<ReviewType>("Review", ReviewSchema);
+const Review = mongoose.model<ReviewType>('Review', ReviewSchema);
 
 export default Review;

@@ -14,5 +14,7 @@
     "ecmaVersion": "latest"
   },
   "plugins": ["@typescript-eslint", "react"],
-  "rules": {}
+  "rules": {
+    "quotes": ["error", "single"]
+  }
 }

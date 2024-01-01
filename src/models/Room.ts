@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 export type RoomType = {
   roomName: string;
@@ -11,7 +11,7 @@ export type RoomType = {
 const RoomSchema = new mongoose.Schema<RoomType>({
   roomName: {
     type: String,
-    default: "教室",
+    default: '教室',
   },
   roomNumber: {
     type: Number,
@@ -21,14 +21,14 @@ const RoomSchema = new mongoose.Schema<RoomType>({
   },
   airId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Air",
+    ref: 'Air',
   },
   status: {
     type: String,
-    default: "",
+    default: '',
   },
 });
 
-const Room = mongoose.model<RoomType>("Room", RoomSchema);
+const Room = mongoose.model<RoomType>('Room', RoomSchema);
 
 export default Room;

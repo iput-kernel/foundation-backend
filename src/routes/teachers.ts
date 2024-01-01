@@ -1,17 +1,17 @@
-import httpStatus from "http-status";
-import Teacher from "../models/Teacher";
-import User from "../models/Account/User";
-import { Router } from "express";
+import httpStatus from 'http-status';
+import Teacher from '../models/Teacher';
+import User from '../models/Account/User';
+import { Router } from 'express';
 
 const teacherRoute = Router();
 
 // Create a teacher but only admin or has cred-level of 4 or higher
-teacherRoute.post("/", async (req, res) => {
+teacherRoute.post('/', async (req, res) => {
   try {
     const userId = req.body.userId;
     const user = await User.findById(userId).populate({
-      path: "auth",
-      model: "Auth",
+      path: 'auth',
+      model: 'Auth',
     });
     if (user!.auth.trustLevel >= 4) {
       const newTeacher = new Teacher(req.body);
@@ -22,14 +22,14 @@ teacherRoute.post("/", async (req, res) => {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
       }
     } else {
-      return res.status(httpStatus.FORBIDDEN).json("権限がありません。");
+      return res.status(httpStatus.FORBIDDEN).json('権限がありません。');
     }
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
   }
 });
 // Get all teachers
-teacherRoute.get("/", async (req, res) => {
+teacherRoute.get('/', async (req, res) => {
   try {
     const teachers = await Teacher.find();
     res.status(httpStatus.OK).json(teachers);
@@ -38,7 +38,7 @@ teacherRoute.get("/", async (req, res) => {
   }
 });
 // Get a teacher by id
-teacherRoute.get("/course/:course", async (req, res) => {
+teacherRoute.get('/course/:course', async (req, res) => {
   try {
     const teachers = await Teacher.find({ course: req.params.course });
     res.status(httpStatus.OK).json(teachers);
@@ -47,20 +47,20 @@ teacherRoute.get("/course/:course", async (req, res) => {
   }
 });
 // Update a teacher but only admin or has cred-level of 4 or higher
-teacherRoute.put("/:id", async (req, res) => {
+teacherRoute.put('/:id', async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id);
     const user = await User.findById(req.body.userId).populate({
-      path: "auth",
-      model: "Auth",
+      path: 'auth',
+      model: 'Auth',
     });
     if (user!.auth.trustLevel >= 4) {
       await teacher!.updateOne({
         $set: req.body,
       });
-      return res.status(httpStatus.OK).json("teacherが更新されました");
+      return res.status(httpStatus.OK).json('teacherが更新されました');
     } else {
-      return res.status(httpStatus.FORBIDDEN).json("権限がありません。");
+      return res.status(httpStatus.FORBIDDEN).json('権限がありません。');
     }
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
@@ -68,18 +68,18 @@ teacherRoute.put("/:id", async (req, res) => {
 });
 
 // Delete a teacher but only admin or has cred-level of 4 or higher
-teacherRoute.delete("/:id", async (req, res) => {
+teacherRoute.delete('/:id', async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id);
     const user = await User.findById(req.body.userId).populate({
-      path: "auth",
-      model: "Auth",
+      path: 'auth',
+      model: 'Auth',
     });
     if (user!.auth.trustLevel >= 4) {
       await teacher!.deleteOne();
-      return res.status(httpStatus.OK).json("teacherが削除されました");
+      return res.status(httpStatus.OK).json('teacherが削除されました');
     } else {
-      return res.status(httpStatus.FORBIDDEN).json("権限がありません。");
+      return res.status(httpStatus.FORBIDDEN).json('権限がありません。');
     }
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);

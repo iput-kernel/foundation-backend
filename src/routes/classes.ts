@@ -1,12 +1,12 @@
-import httpStatus from "http-status";
-import Class from "../models/Class";
-import User from "../models/Account/User";
-import { Request, Response, Router } from "express";
+import httpStatus from 'http-status';
+import Class from '../models/Class';
+import User from '../models/Account/User';
+import { Request, Response, Router } from 'express';
 
 const classRoute = Router();
 
 //クラス
-classRoute.post("/", async (req, res) => {
+classRoute.post('/', async (req, res) => {
   const newClass = new Class(req.body);
   try {
     const savedClass = await newClass.save();
@@ -16,34 +16,34 @@ classRoute.post("/", async (req, res) => {
   }
 });
 
-classRoute.put("/:id", async (req, res) => {
+classRoute.put('/:id', async (req, res) => {
   try {
     const post = await Class.findById(req.params.id);
     if (post!.userId! === req.body.userId) {
       await post!.updateOne({
         $set: req.body,
       });
-      return res.status(httpStatus.OK).json("クラスが更新されました");
+      return res.status(httpStatus.OK).json('クラスが更新されました');
     } else {
-      return res.status(httpStatus.FORBIDDEN).json("クラスを更新できません");
+      return res.status(httpStatus.FORBIDDEN).json('クラスを更新できません');
     }
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
   }
 });
 
-classRoute.delete("/:id", async (req, res) => {
+classRoute.delete('/:id', async (req, res) => {
   try {
     const post = await Class.findById(req.params.id);
     const user = await User.findById(req.body.userId).populate({
-      path: "auth",
-      model: "Auth",
+      path: 'auth',
+      model: 'Auth',
     });
     if (user!.auth.credLevel > 5) {
       await post!.deleteOne();
-      return res.status(httpStatus.OK).json("クラスが削除されました");
+      return res.status(httpStatus.OK).json('クラスが削除されました');
     } else {
-      return res.status(httpStatus.FORBIDDEN).json("クラスを削除できません");
+      return res.status(httpStatus.FORBIDDEN).json('クラスを削除できません');
     }
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
@@ -51,19 +51,19 @@ classRoute.delete("/:id", async (req, res) => {
 });
 
 //特定のクラスの取得
-classRoute.get("/:id", async (req, res) => {
+classRoute.get('/:id', async (req, res) => {
   try {
     const classes = await Class.findById(req.params.id)
       .populate([
         {
-          path: "studentsId",
-          model: "User",
+          path: 'studentsId',
+          model: 'User',
         },
       ])
       .populate([
         {
-          path: "timetableId",
-          model: "Timetable",
+          path: 'timetableId',
+          model: 'Timetable',
         },
       ]);
     return res.status(httpStatus.OK).json(classes);
@@ -73,7 +73,7 @@ classRoute.get("/:id", async (req, res) => {
 });
 
 // クラスをすべて取得
-classRoute.get("/", async (req: Request, res: Response) => {
+classRoute.get('/', async (req: Request, res: Response) => {
   try {
     const classes = await Class.find();
     return res.status(httpStatus.OK).json(classes);

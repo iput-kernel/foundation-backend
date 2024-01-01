@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 export type SubjectType = {
   _id: mongoose.Types.ObjectId;
@@ -13,19 +13,19 @@ export type SubjectType = {
 const SubjectSchema = new mongoose.Schema<SubjectType>({
   subjectName: {
     type: String,
-    default: "",
+    default: '',
     required: true,
   },
   teachersId: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Teacher",
+      ref: 'Teacher',
     },
   ],
   reviewsId: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Review",
+      ref: 'Review',
     },
   ],
   grade: {
@@ -41,6 +41,6 @@ const SubjectSchema = new mongoose.Schema<SubjectType>({
   },
 });
 
-const Subject = mongoose.model<SubjectType>("Subject", SubjectSchema);
+const Subject = mongoose.model<SubjectType>('Subject', SubjectSchema);
 
 export default Subject;

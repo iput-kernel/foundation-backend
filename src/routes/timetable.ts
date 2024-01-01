@@ -1,13 +1,13 @@
-import httpStatus from "http-status";
-import Subject from "../models/Subject";
-import Timetable from "../models/Timetable";
-import Room from "../models/Room";
-import { Router } from "express";
+import httpStatus from 'http-status';
+import Subject from '../models/Subject';
+import Timetable from '../models/Timetable';
+import Room from '../models/Room';
+import { Router } from 'express';
 
 const timetableRoute = Router();
 
 // Create a Timetable
-timetableRoute.post("/", async (req, res) => {
+timetableRoute.post('/', async (req, res) => {
   const { usedClass, weekEntries } = req.body;
 
   try {
@@ -50,33 +50,37 @@ timetableRoute.post("/", async (req, res) => {
     });
     await timetable.save();
     res.status(201).json(timetable);
-  } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: err.message });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: err.message });
+    } else {
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: '未知のエラーが発生しました' });
+    }
   }
 });
 
 // Get a Timetable by ID
-timetableRoute.get("/:id", async (req, res) => {
+timetableRoute.get('/:id', async (req, res) => {
   try {
     const timetable = await Timetable.findById(req.params.id)
       .populate([
         {
-          path: "weekEntries.subject",
-          model: "Subject",
+          path: 'weekEntries.subject',
+          model: 'Subject',
         },
         {
-          path: "weekEntries.room",
-          model: "Room",
+          path: 'weekEntries.room',
+          model: 'Room',
         },
       ])
       .populate({
-        path: "usedClass",
-        model: "Class",
+        path: 'usedClass',
+        model: 'Class',
       });
     if (!timetable) {
       return res
         .status(404)
-        .json({ message: "指定されたIDの時間割は存在しません" });
+        .json({ message: '指定されたIDの時間割は存在しません' });
     }
     res.status(httpStatus.OK).json(timetable);
   } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -85,21 +89,21 @@ timetableRoute.get("/:id", async (req, res) => {
 });
 
 // Get all Timetables
-timetableRoute.get("/", async (req, res) => {
+timetableRoute.get('/', async (req, res) => {
   try {
     const timetables = await Timetable.find()
       .populate({
-        path: "usedClass",
-        model: "Class",
+        path: 'usedClass',
+        model: 'Class',
       })
       .populate([
         {
-          path: "weekEntries.subject",
-          model: "Subject",
+          path: 'weekEntries.subject',
+          model: 'Subject',
         },
         {
-          path: "weekEntries.room",
-          model: "Room",
+          path: 'weekEntries.room',
+          model: 'Room',
         },
       ]);
     res.status(httpStatus.OK).json(timetables);
