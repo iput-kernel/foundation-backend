@@ -5,7 +5,6 @@ type StartEndTimeSchemaType = {
     endTime: Date;
 };
 
-// 授業スキーマの定義
 const StartEndTimeSchema = new mongoose.Schema<StartEndTimeSchemaType>({
     startTime: {
         type: Date,
