@@ -69,24 +69,24 @@ eventRoute.put(
         return res.status(httpStatus.NOT_FOUND).send("Event not found");
 
       // すでにdistrustに同じidが存在する場合、そのdistrustをキャンセル
-      const distrustIndex = event.distrust.indexOf(req.user.id);
+      const distrustIndex = event.distrust.indexOf(req.user!.id);
       if (distrustIndex > -1) {
         event.distrust.splice(distrustIndex, 1);
       } else {
         // そうでなければ、distrustに追加
-        event.distrust.push(req.user.id);
+        event.distrust.push(req.user!.id);
 
         // trustに存在する場合、それを削除
-        const trustIndex = event.trust.indexOf(req.user.id);
+        const trustIndex = event.trust.indexOf(req.user!.id);
         if (trustIndex > -1) {
           event.trust.splice(trustIndex, 1);
         }
 
         switch (true) {
-          case req.user.credLevel <= 2:
+          case req.user!.credLevel <= 2:
             event.authenticity = Math.max(event.authenticity - 10, 0);
             break;
-          case req.user.credLevel == 3:
+          case req.user!.credLevel == 3:
             event.authenticity = Math.max(event.authenticity - 30, 0);
             break;
           default:

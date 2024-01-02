@@ -8,6 +8,7 @@ export type ClassType = {
   studentsCount: number;
   studentsId: mongoose.Types.ObjectId[];
   timetableId: mongoose.Schema.Types.ObjectId;
+  startEndTime: mongoose.Schema.Types.ObjectId;
 };
 
 const ClassSchema = new mongoose.Schema<ClassType>({
@@ -40,6 +41,10 @@ const ClassSchema = new mongoose.Schema<ClassType>({
   timetableId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Timetable",
+  },
+  startEndTime: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "StartEndTime",
   },
 });
 
