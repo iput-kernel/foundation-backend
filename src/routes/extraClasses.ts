@@ -12,7 +12,15 @@ extraClassRoute.post(
   '/',
   authenticateJWT,
   async (req: RequestWithUser , res) => {
-    const newExtraClass = new extraClass(req.body);
+    if (!req.user) {
+      return res
+        .status(httpStatus.UNAUTHORIZED)
+        .send('アカウントが認証されていません。');
+    }
+    const newExtraClass = new extraClass({
+      ...req.body,
+      createdUser: req.user.id,
+    });
     try {
       const savedExtraClass = await newExtraClass.save();
       res.status(httpStatus.OK).json(savedExtraClass);

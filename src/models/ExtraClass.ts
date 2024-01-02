@@ -38,10 +38,10 @@ const ExtraClassSchema = new mongoose.Schema<ExtraClassType>({
       ref: 'Timetable',
     },
   ],
-  createdAt: { // 追加
+  createdAt: { 
     type: Date,
     default: Date.now,
-    index: { expires: '1y' } // 1年後に削除
+    index: { expires: '1y' },
   },
 });
 
