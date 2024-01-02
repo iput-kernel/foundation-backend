@@ -14,6 +14,6 @@ const StartEndTimeSchema = new mongoose.Schema<StartEndTimeSchemaType>({
     }
 });
 
-const StartEndTime = mongoose.model<StartEndTimeSchemaType>("StartEndTimeSchema", StartEndTimeSchema);
+const StartEndTime = mongoose.model<StartEndTimeSchemaType>("StartEndTime", StartEndTimeSchema);
 
 export default StartEndTime;
