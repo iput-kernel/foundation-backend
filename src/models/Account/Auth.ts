@@ -5,6 +5,7 @@ export type AuthType = {
   credToken: string;
   trustLevel: number;
   secretKey: string;
+  confirmationToken: string;
 };
 
 const AuthSchema = new mongoose.Schema<AuthType>({
@@ -24,16 +25,22 @@ const AuthSchema = new mongoose.Schema<AuthType>({
     type: String,
     default: "",
   },
+  confirmationToken: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
 });
 
 const Auth = mongoose.model<AuthType>("Auth", AuthSchema);
 
-export const authDefaultModel = () => {
+export const authDefaultModel = (token: string) => {
   return new Auth<AuthType>({
     credLevel: 0,
     credToken: "",
     trustLevel: 0,
     secretKey: "",
+    confirmationToken: token,
   });
 };
 

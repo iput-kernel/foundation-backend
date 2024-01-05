@@ -10,7 +10,6 @@ export type UserType = {
   email: string;
   password: string;
   isVerified: boolean;
-  confirmationToken: string;
   auth: AuthType;
   followers: mongoose.Types.ObjectId[];
   followings: mongoose.Types.ObjectId[];
@@ -58,11 +57,6 @@ const UserSchema = new mongoose.Schema<UserType>(
     isVerified: {
       type: Boolean,
       default: false,
-    },
-    confirmationToken: {
-      type: String,
-      unique: true,
-      sparse: true,
     },
     followers: [
       {
