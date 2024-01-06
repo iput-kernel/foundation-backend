@@ -28,15 +28,16 @@ authRoute.post("/register", async (req, res) => {
 
     if (findUser) {
       // 既存のユーザーが存在する場合、トークンを更新
-      findUser.confirmationToken = token;
-      await findUser.save();
+      const auth = await Auth.findOne({ _id: findUser.auth });
+      auth!.confirmationToken = token;
+      await auth!.save();
     } else {
       // User作成
       await createNewUserWithAuthAndProfile(
         req.body.username,
         req.body.email,
         hashedPassword,
-        token,
+        token
       ).catch((err) => {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
       });
@@ -59,26 +60,18 @@ authRoute.get("/confirm-email", async (req, res) => {
   try {
     const { token } = req.query; // クエリパラメータからtokenを取得
 
-    const user = await User.findOne({ confirmationToken: token }).populate({
-      path: "auth",
-      model: "Auth",
-    });
+    const auth = await Auth.findOne({ confirmationToken: token });
 
-    if (!user)
+    if (!auth)
       return res.status(httpStatus.BAD_REQUEST).send("無効なトークンです。");
 
+    // Userを取得
+    const user = await User.findOne({ auth: auth._id });
     // 秘密鍵を生成
     const newSecretKey = crypto.randomBytes(32).toString("hex");
 
-    user.isVerified = true; // アカウントを認証済みに設定
-    user.auth.secretKey = newSecretKey; // 生成した秘密鍵をユーザーに保存
-    await user.save();
-    const auth = await Auth.findOne({ _id: user.auth });
-    if (!auth) {
-      return res
-        .status(httpStatus.INTERNAL_SERVER_ERROR)
-        .send("ユーザに紐づくAuth Documentが存在しません");
-    }
+    user!.isVerified = true; // アカウントを認証済みに設定
+    await user!.save();
     auth!.secretKey = newSecretKey;
     auth.save();
 
@@ -98,7 +91,7 @@ authRoute.post("/login", async (req, res) => {
 
     const validPassword = await bcrypt.compare(
       req.body.password,
-      user.password,
+      user.password
     );
     if (!validPassword)
       return res.status(httpStatus.BAD_REQUEST).json("パスワードが違います");
@@ -117,8 +110,7 @@ authRoute.post("/login", async (req, res) => {
 
     // ユーザー情報からpasswordと他の不要なフィールドを除外
     // eslint-disable-next-line
-    const { password, auth, confirmationToken, ...userResponse } =
-      user.toObject();
+    const { password, auth, ...userResponse } = user.toObject();
 
     return res.status(httpStatus.OK).json({ user: userResponse, token }); // トークンも応答として返します
   } catch (err) {
@@ -160,13 +152,13 @@ async function createNewUserWithAuthAndProfile(
   userName: string,
   email: string,
   password: string,
-  token: string,
+  token: string
 ): Promise<UserType> {
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    const auth = authDefaultModel();
+    const auth = authDefaultModel(token);
 
     const user = new User({
       userName,
@@ -174,7 +166,6 @@ async function createNewUserWithAuthAndProfile(
       password,
       auth: auth,
       isVerified: false,
-      confirmationToken: token,
       profile: new Profile(),
     });
 

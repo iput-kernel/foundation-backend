@@ -33,8 +33,7 @@ userRoute.get("/:id", async (req, res) => {
 
     const userObject = user!.toObject();
     // eslint-disable-next-line
-    const { password, auth, confirmationToken, isVerified, ...other } =
-      userObject;
+    const { password, auth, isVerified, ...other } = userObject;
     res.status(httpStatus.OK).json(other);
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
@@ -57,7 +56,7 @@ userRoute.put(
     } catch (err) {
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
     }
-  },
+  }
 );
 
 userRoute.delete(
@@ -78,7 +77,7 @@ userRoute.delete(
     } catch (err) {
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
     }
-  },
+  }
 );
 
 //フォロー
@@ -112,7 +111,7 @@ userRoute.put(
     } catch (err) {
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
     }
-  },
+  }
 );
 
 //フォロー解除
@@ -144,7 +143,7 @@ userRoute.put(
     } catch (err) {
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
     }
-  },
+  }
 );
 
 userRoute.put(
@@ -209,7 +208,7 @@ userRoute.put(
       session.endSession();
       res.status(500).json({ message: error.message });
     }
-  },
+  }
 );
 
 export default userRoute;
