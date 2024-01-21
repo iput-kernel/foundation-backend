@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 import Subject from '../models/Subject';
-import Timetable from '../models/Timetable';
+import Timetable from '../models/Timeline/Timetable';
 import { Router } from 'express';
 
 const airRoute = Router()

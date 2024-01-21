@@ -2,7 +2,7 @@ import httpStatus from 'http-status';
 import mongoose from 'mongoose';
 import { authenticateJWT, RequestWithUser } from '../jwtAuth';
 
-import Class from '../models/Class';
+import Class from '../models/Social/Class';
 import User from '../models/Account/User';
 import { Router } from 'express';
 

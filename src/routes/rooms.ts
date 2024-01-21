@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 import { authenticateJWT } from '../jwtAuth';
-import Room from '../models/Room';
+import Room from '../models/Cocoon/Room';
 import User from '../models/Account/User';
 import { Router } from 'express';
 

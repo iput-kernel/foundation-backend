@@ -1,6 +1,6 @@
 import { Response, Router } from 'express';
 import { RequestWithUser, authenticateJWT } from '../jwtAuth';
-import Event from '../models/Event';
+import Event from '../models/Timeline/Event';
 import httpStatus from 'http-status';
 
 const eventRoute = Router();

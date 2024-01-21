@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import Class from '../models/Class';
+import Class from '../models/Social/Class';
 import User from '../models/Account/User';
 import { Request, Response, Router } from 'express';
 

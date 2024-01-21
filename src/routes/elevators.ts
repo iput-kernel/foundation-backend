@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import Elevator from '../models/Elevator';
+import Elevator from '../models/Cocoon/Elevator';
 import { Router } from 'express';
 
 const elevatorRoute = Router();
