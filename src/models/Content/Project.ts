@@ -6,6 +6,7 @@ export type ProjectType = {
   stacksId: mongoose.Types.ObjectId[];
   toolsId: mongoose.Types.ObjectId[];
   membersId: mongoose.Types.ObjectId[];
+  createdUser: mongoose.Types.ObjectId;
 };
 
 const ProjectSchema = new mongoose.Schema<ProjectType>({
@@ -39,6 +40,11 @@ const ProjectSchema = new mongoose.Schema<ProjectType>({
       ref: 'User',
     },
   ],
+  createdUser: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
 });
 
 const Project = mongoose.model<ProjectType>('Project', ProjectSchema);
