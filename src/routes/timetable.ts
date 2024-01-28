@@ -16,7 +16,10 @@ timetableRoute.post(
       const timetableEntries = await Promise.all(
         weekEntries.map(
           async (
-            dayEntries: { subject: string | null; room: string | null }[],
+            dayEntries: { 
+              subject: string | null;
+              room: string | null 
+            }[],
           ) => {
             return await Promise.all(
               dayEntries.map(
