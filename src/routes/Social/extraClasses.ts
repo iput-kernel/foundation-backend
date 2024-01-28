@@ -1,9 +1,9 @@
 import { Request, Response, Router } from 'express';
 import httpStatus from 'http-status';
-import { RequestWithUser, authenticateJWT } from '../jwtAuth';
+import { RequestWithUser, authenticateJWT } from '../../jwtAuth';
 
-import extraClass from '../models/Social/ExtraClass';
-import User from '../models/Account/User';
+import extraClass from '../../models/Social/ExtraClass';
+import User from '../../models/Account/User';
 
 const extraClassRoute = Router()
 

@@ -2,13 +2,13 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
-import User, { UserType } from '../models/Account/User';
+import User, { UserType } from '../../models/Account/User';
 
 import nodemailer from 'nodemailer';
 import { Router } from 'express';
 import mongoose from 'mongoose';
-import Auth, { authDefaultModel } from '../models/Account/Auth';
-import Profile from '../models/Account/Profile';
+import Auth, { authDefaultModel } from '../../models/Account/Auth';
+import Profile from '../../models/Account/Profile';
 
 const authRoute = Router();
 

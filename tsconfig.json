@@ -15,6 +15,6 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node16"
   },
-  "include": ["src/routes/*", "src/models/*", "./*.ts", "src/route.ts", "src/server.ts", "src/jwtAuth.ts", "src/fetchAmbient.ts", "src/models/Account/*.ts", "src/models/Cocoon/Elevator.ts", "src/models/Cocoon/Air.ts", "src/models/Cocoon/Room.ts", "src/models/Cocoon/Floor.ts", "src/models/Timeline/Timetable.ts", "src/models/Timeline/Event.ts", "src/models/Timeline/Schedule.ts", "src/models/Social/Class.ts", "src/models/Social/ExtraClass.ts", "src/models/Contents/Post.ts"],
+  "include": ["src/routes/*", "src/models/*", "./*.ts", "src/route.ts", "src/server.ts", "src/jwtAuth.ts", "src/fetchAmbient.ts", "src/models/Account/*.ts", "src/models/Cocoon/Elevator.ts", "src/models/Cocoon/Air.ts", "src/models/Cocoon/Room.ts", "src/models/Cocoon/Floor.ts", "src/models/Timeline/Timetable.ts", "src/models/Timeline/Event.ts", "src/models/Timeline/Schedule.ts", "src/models/Social/Class.ts", "src/models/Social/ExtraClass.ts", "src/models/Content/Post.ts", "src/models/Content/Project.ts", "src/models/Content/Review.ts", "src/routes/Cocoon/air.ts", "src/routes/Cocoon/rooms.ts", "src/routes/Cocoon/elevators.ts", "src/routes/Content/posts.ts", "src/routes/Content/upload.ts", "src/routes/Account/users.ts", "src/routes/Account/auth.ts", "src/routes/Social/classes.ts", "src/routes/Social/extraClasses.ts"],
   "exclude": ["node_modules", "build"] // コンパイルから除外するファイル
 }

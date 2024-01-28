@@ -1,17 +1,17 @@
 import express from 'express';
 
 import cors from 'cors';
-import authRoute from './routes/auth';
-import classRoute from './routes/classes';
-import extraClassRoute from './routes/extraClasses';
+import authRoute from './routes/Account/auth';
+import classRoute from './routes/Social/classes';
+import extraClassRoute from './routes/Social/extraClasses';
 import eventRoute from './routes/event';
-import postRoute from './routes/posts';
-import roomRoute from './routes/rooms';
+import postRoute from './routes/Content/posts';
+import roomRoute from './routes/Cocoon/rooms';
 import scheduleRoute from './routes/schedule';
 import subjectRoute from './routes/subjects';
 import teacherRoute from './routes/teachers';
 import timetableRoute from './routes/timetable';
-import userRoute from './routes/users';
+import userRoute from './routes/Account/users';
 import healthRoute from './routes/health';
 
 export const app = express();
