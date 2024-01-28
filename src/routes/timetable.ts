@@ -7,57 +7,62 @@ import { Router } from 'express';
 const timetableRoute = Router();
 
 // Create a Timetable
-timetableRoute.post('/', async (req, res) => {
-  const { usedClass, weekEntries } = req.body;
+timetableRoute.post(
+  '/',
+   async (req, res) => {
+    const { usedClass, weekEntries } = req.body;
 
-  try {
-    const timetableEntries = await Promise.all(
-      weekEntries.map(
-        async (
-          dayEntries: { subject: string | null; room: number | null }[],
-        ) => {
-          return await Promise.all(
-            dayEntries.map(
-              async ({ subject: subjectName, room: roomNumber }) => {
-                let subject = null;
-                let room = null;
+    try {
+      const timetableEntries = await Promise.all(
+        weekEntries.map(
+          async (
+            dayEntries: { subject: string | null; room: string | null }[],
+          ) => {
+            return await Promise.all(
+              dayEntries.map(
+                async ({ subject: subjectId, room: roomId }) => {
+                  let subject = null;
+                  let room = null;
 
-                if (subjectName) {
-                  subject = await Subject.findOne({ subjectName });
-                  if (!subject) {
-                    throw new Error(`${subjectName} という科目は存在しません`);
+                  if (subjectId) {
+                    subject = await Subject.findById(subjectId);
+                    if (!subject) {
+                      throw new Error(`${subjectId} という科目は存在しません`);
+                    }
                   }
-                }
 
-                if (roomNumber) {
-                  room = await Room.findOne({ roomNumber });
-                  if (!room) {
-                    throw new Error(`${roomNumber} という教室は存在しません`);
+                  if (roomId) {
+                    room = await Room.findById(roomId);
+                    if (!room) {
+                      throw new Error(`${roomId} という教室は存在しません`);
+                    }
                   }
-                }
 
-                return { subject: subject?._id, room: room?._id };
-              },
-            ),
-          );
-        },
-      ),
-    );
+                  return { subject: subjectId, room: roomId };
+                },
+              ),
+            );
+          },
+        ),
+      );
 
-    const timetable = new Timetable({
-      usedClass,
-      weekEntries: timetableEntries,
-    });
-    await timetable.save();
-    res.status(201).json(timetable);
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: err.message });
-    } else {
-      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: '未知のエラーが発生しました' });
+      const timetable = new Timetable({
+        usedClass,
+        weekEntries: timetableEntries,
+      });
+      await timetable.save();
+      res.status(201).json(timetable);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        res.status(httpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+      } else {
+        res.status(httpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: '未知のエラーが発生しました' });
+      }
     }
   }
-});
+);
 
 // Get a Timetable by ID
 timetableRoute.get('/:id', async (req, res) => {
