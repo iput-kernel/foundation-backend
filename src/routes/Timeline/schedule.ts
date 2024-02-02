@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
-import Schedule from '../models/Timeline/Schedule';
-import Event from '../models/Timeline/Event';
-import TimeTable from '../models/Timeline/Timetable';
-import Subject from '../models/Subject';
-import Class from '../models/Social/Class';
-import Room from '../models/Cocoon/Room';
+import Schedule from '../../models/Timeline/Schedule';
+import Event from '../../models/Timeline/Event';
+import TimeTable from '../../models/Timeline/Timetable';
+import Subject from '../../models/Subject';
+import Class from '../../models/Social/Class';
+import Room from '../../models/Cocoon/Room';
 import { Router } from 'express';
 
 const scheduleRoute = Router();

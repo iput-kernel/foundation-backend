@@ -1,7 +1,7 @@
 import httpStatus from 'http-status';
-import Subject from '../models/Subject';
-import Timetable from '../models/Timeline/Timetable';
-import Room from '../models/Cocoon/Room';
+import Subject from '../../models/Subject';
+import Timetable from '../../models/Timeline/Timetable';
+import Room from '../../models/Cocoon/Room';
 import { Router } from 'express';
 
 const timetableRoute = Router();
