@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 export type ProjectType = {
   name: string;
   desc: string;
+  field: string;
+  markdown: string;
   stacksId: mongoose.Types.ObjectId[];
   toolsId: mongoose.Types.ObjectId[];
   membersId: mongoose.Types.ObjectId[];
@@ -16,11 +18,23 @@ const ProjectSchema = new mongoose.Schema<ProjectType>({
     min: 1,
     max: 64,
   },
+  field: {
+    type: String,
+    required: true,
+    min: 1,
+    max: 64,
+  },
   desc: {
     type: String,
     required: true,
     min: 1,
-    max: 512,
+    max: 1024,
+  },
+  markdown: {
+    type: String,
+    required: true,
+    min: 1,
+    max: 4096,
   },
   stacksId: [
     {
