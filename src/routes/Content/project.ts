@@ -1,9 +1,23 @@
 import httpStatus from 'http-status';
 
 import Project from '../../models/Content/Project';
+// import multer from 'multer';
 import { Router } from 'express';
 
 import { authenticateJWT, RequestWithUser } from '../../jwtAuth';
+
+/* 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/') // 'uploads/' はサーバー上の画像を保存するディレクトリ
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname) // ファイル名の衝突を避けるためにタイムスタンプを追加
+  }
+});
+
+ const upload = multer({ storage: storage });
+*/
 
 const projectRoute = Router();
 

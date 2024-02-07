@@ -5,6 +5,7 @@ export type ProjectType = {
   desc: string;
   field: string;
   markdown: string;
+  thumbnailPath: string;
   stacksId: mongoose.Types.ObjectId[];
   toolsId: mongoose.Types.ObjectId[];
   membersId: mongoose.Types.ObjectId[];
@@ -34,7 +35,10 @@ const ProjectSchema = new mongoose.Schema<ProjectType>({
     type: String,
     required: true,
     min: 1,
-    max: 4096,
+    max: 8192,
+  },
+  thumbnailPath: {
+    type: String,
   },
   stacksId: [
     {
