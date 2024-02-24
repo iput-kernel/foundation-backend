@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    kubernetes.io/metadata.name: iput-kernel
+  name: iput-kernel
+  resourceVersion: "559126"
+  uid: 93aeabfe-a770-4df8-83e4-18edc9fb211c
+spec:
+  finalizers:
+  - kubernetes
+status:
+  phase: Active

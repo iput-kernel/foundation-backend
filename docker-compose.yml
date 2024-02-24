@@ -15,8 +15,9 @@ services:
     depends_on:
       - mongodb
     environment:
-      - MONGO_URI=mongodb://mongodb:27017/iputkernel
-      - MAILPASS=${MAILPASS}
+      - NODE_ENV=production
+    env_file:
+      - .env  # 本番環境用
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules

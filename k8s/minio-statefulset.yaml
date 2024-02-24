@@ -1,7 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  namespace: iput-kernel
+spec:
+  type: NodePort
+  ports:
+  ports:
+  - port: 33071
+    targetPort: 33071
+    nodePort: 30000
+  selector:
+    app: minio
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: minio
+  namespace: iput-kernel
 spec:
   serviceName: "minio"
   replicas: 1

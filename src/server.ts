@@ -3,7 +3,10 @@ import mongoose from 'mongoose';
 import path from 'path';
 import { app } from './route';
 
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config({ path: path.resolve(__dirname, '../.env') });
+  console.log('試験環境用環境変数ファイルを読み込み')
+}
 
 const PORT = 4000;
 
