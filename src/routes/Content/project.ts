@@ -1,44 +1,58 @@
 import httpStatus from 'http-status';
 
 import Project from '../../models/Content/Project';
-// import multer from 'multer';
+import multer from 'multer';
+
+import minioClient from '../../utils/minioClient';
+
 import { Router } from 'express';
 
 import { authenticateJWT, RequestWithUser } from '../../jwtAuth';
 
-/* 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/') // 'uploads/' はサーバー上の画像を保存するディレクトリ
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname) // ファイル名の衝突を避けるためにタイムスタンプを追加
-  }
-});
-
- const upload = multer({ storage: storage });
-*/
-
 const projectRoute = Router();
 
-projectRoute.post('/', authenticateJWT, 
-  async (req:RequestWithUser , res) => {
+projectRoute.post('/', authenticateJWT,
+ multer().single('thumbnail'), 
+  async (req: RequestWithUser, res) => {
     if (!req.user) {
       return res
         .status(httpStatus.UNAUTHORIZED)
         .send('アカウントが認証されていません。');
     }
-    const newProjectData = {
-      ...req.body,
-      createdUser: req.user.id
-    };
-    const newProject = new Project(newProjectData);
-    try {
-      const savedProject = await newProject.save();
-      res.status(httpStatus.OK).json(savedProject);
-    } catch (err) {
-      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
+    const file = req.file;
+    if (!file) {
+      return res.status(httpStatus.BAD_REQUEST).send('ファイルが提供されていません。');
     }
+
+    const bucketName = 'thumbnails';
+    const fileName = `${Date.now()}-${file.originalname}`;
+    const metaData = {
+      'Content-Type': file.mimetype
+    };
+
+    minioClient.putObject(bucketName, fileName, file.buffer, file.size, metaData, function(err) {
+      if (err) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).send('ファイルのアップロードに失敗しました。');
+      }
+
+      const filePath = `http://minio:9000/${bucketName}/${fileName}`;
+
+      const newProjectData = {
+        ...req.body,
+        thumbnailPath: filePath,
+        createdUser: req.user!.id
+      };
+
+      const newProject = new Project(newProjectData);
+
+      newProject.save()
+        .then(savedProject => {
+          res.status(httpStatus.OK).json(savedProject);
+        })
+        .catch(err => {
+          res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
+        });
+    });
   }
 );
 
@@ -101,3 +115,5 @@ projectRoute.put('/join/:id',
     }
   }
 );
+
+export default projectRoute;

@@ -13,6 +13,7 @@ import teacherRoute from './routes/teachers';
 import timetableRoute from './routes/Timeline/timetable';
 import userRoute from './routes/Account/users';
 import healthRoute from './routes/health';
+import projectRoute from './routes/Content/project';
 
 export const app = express();
 
@@ -30,3 +31,4 @@ app.use('/v1/extra-classes', extraClassRoute);
 app.use('/v1/timetable', timetableRoute);
 app.use('/v1/schedule', scheduleRoute);
 app.use('/v1/event', eventRoute);
+app.use('/v1/projects', projectRoute);

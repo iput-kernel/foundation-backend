@@ -18,9 +18,8 @@ services:
       - NODE_ENV=production
     env_file:
       - .env  # 本番環境用
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+    tty: true
+
   swagger-editor:
     image: swaggerapi/swagger-editor
     container_name: "swagger-editor"
@@ -45,3 +44,32 @@ services:
     volumes:
       - ./documentation/schema:/schema
       - ./documentation/openapi.yaml:/openapi.yaml
+  minio:
+    container_name: minio
+    command: ['server', '/data', '--console-address', ':9001']
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=adminpass
+    image: quay.io/minio/minio:latest
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - ./minio_data:/data
+    restart: unless-stopped
+  mc:
+    image: minio/mc
+    container_name: mc
+    depends_on:
+      - minio
+    environment:
+      MINIO_ROOT_USER: "admin"
+      MINIO_ROOT_PASSWORD: "adminpass"
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set myminio http://minio:9000 admin adminpass;
+      mc mb myminio/sample;
+      mc cp init_data/* myminio/sample;
+      "
+    volumes:
+      - ./init_data:/init_data
