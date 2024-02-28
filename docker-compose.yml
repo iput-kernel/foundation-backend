@@ -73,3 +73,31 @@ services:
       "
     volumes:
       - ./init_data:/init_data
+  influxdb:
+    image: influxdb:2.7.1
+    container_name: influxdb-local
+    volumes:
+      - ./docker/influxdb2/data:/var/lib/influxdb2
+      - ./docker/influxdb2/config:/etc/influxdb2
+    ports:
+      - 8086:8086
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=password
+      - DOCKER_INFLUXDB_INIT_ORG=organization
+      - DOCKER_INFLUXDB_INIT_BUCKET=bucket
+  
+  grafana:
+    image: grafana/grafana-oss:9.5.5
+    container_name: grafana-local
+    ports:
+      - 8085:3000
+    user: "472"
+    volumes:
+      - ./docker/grafana/data:/var/lib/grafana
+    depends_on:
+      - influxdb
+    environment:
+      - GF_SERVER_ROOT_URL=http://localhost:8085
+      - GF_SECURITY_ADMIN_PASSWORD=admin

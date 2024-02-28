@@ -33,7 +33,7 @@ authRoute.post('/register', async (req, res) => {
     } else {
       // User作成
       await createNewUserWithAuthAndProfile(
-        req.body.username,
+        req.body.userName,
         req.body.email,
         hashedPassword,
         token
@@ -41,17 +41,14 @@ authRoute.post('/register', async (req, res) => {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
       });
     }
-
-    const user = await User.findOne({ email: req.body.email });
-
-    await sendConfirmationEmail(user!.email, token);
+    
+    await sendConfirmationEmail(req.body.email, token);
 
     return res
       .status(httpStatus.OK)
-      .json({ message: 'Confirmation email sent', user: user!._id });
+      .json({ message: 'Confirmation email sent'});
   } catch (err) {
-    console.error(err);
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
   }
 });
 
