@@ -101,3 +101,19 @@ services:
     environment:
       - GF_SERVER_ROOT_URL=http://localhost:8085
       - GF_SECURITY_ADMIN_PASSWORD=admin
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres-container
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: iput-kernel
+      POSTGRES_USER: bitcat
+      POSTGRES_PASSWORD: test
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres-data:

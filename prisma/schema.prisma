@@ -1,28 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
 model User {
-  id                Int          @id @default(autoincrement())
-  name              String       @unique
-  email             String       @unique
-  auth              Auth
-  followers         User[]       @relation("UserFollowers", references: [id])
-  followings        User[]       @relation("UserFollowings", references: [id])
-  class             Class?       @relation(fields: [classId], references: [id])
-  classId           Int?         @unique
-  extraClass        ExtraClass[] @relation("User")
-  profile           Profile?     @relation(fields: [profileId], references: [id])
-  profileId         Int?         @unique
+  id                String         @id @default(uuid())
+  name              String         @unique @db.VarChar(20)
+  email             String         @unique @db.VarChar(100)
+  auth              Auth?
+  class             Class?         @relation(fields: [classId], references: [id])
+  classId           String?        @unique
+  extraSubject      ExtraSubject[] @relation("UserExtraSubject")
+  profile           Profile?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @default(now())
 }
 
 model Auth {
-  id                Int          @id @default(autoincrement())
-  user              User         @relation(fields: [userId], references: [id])
-  userId            Int          @unique
-  passwordHash      String
-  verifiedAt        DateTime?        @default(false)
-  confirmToken      String
+  id                String         @id @default(uuid())
+  passwordHash      String         @db.VarChar(60)  
+  secretKey         String         @db.VarChar(64)
+  verifiedAt        DateTime?
+  user              User           @relation(fields: [userId], references: [id])
+  userId            String         @unique
 }
 
 model Profile{
-  id                Int          @id @default(autoincrement())
+  id                String         @id @default(uuid())
   realNameFirst     String?
   realNameLast      String?
   birthday          DateTime?
@@ -31,6 +39,86 @@ model Profile{
   motherTongue      String?
   describe          String?
   city              String?
-  avatarUrl         String       @default("")
-  coverUrl          String       @default("")
+  avatarUrl         String         @default("")
+  coverUrl          String         @default("")
+  user              User           @relation(fields: [userId], references: [id])
+  userId            String         @unique
+}
+
+model Class {
+  id                String         @id @default(uuid())
+  classGrade        Int            @db.SmallInt
+  department        String
+  course            String
+  className         String
+  studentsCount     Int?
+  students          User[]         
+  subject           Subject[]
+}
+
+model ExtraSubject{
+  id                String         @id @default(uuid())
+  department        String
+  course            String
+  classGrade        Int
+  classChar         String
+  studentsCount     Int?
+  room              Room?          @relation(fields: [roomId], references: [number])
+  roomId            String?
+  studentsId        User[]         @relation("UserExtraSubject")
+  timetable         Timetable?     @relation(fields: [timetableId], references: [id])
+  timetableId       String? 
+}
+
+model Timetable{
+  id                String         @id @default(uuid())
+  day_of_week       Int            @db.SmallInt
+  period            Int            @db.SmallInt
+  starttime         DateTime       @db.Time
+  endtime           DateTime       @db.Time
+  subject           Subject[]
+  extraSubject      ExtraSubject[]      
+}
+
+model Room{
+  number            String         @id @db.VarChar(3)
+  name              String         @db.VarChar(30)
+  seats             Int?
+  status            String?       
+  subject           Subject[] 
+  extraSubject      ExtraSubject[]
+}
+
+model Subject{
+  classId           String         
+  name              String         
+  teacher           TeacherSubject[]
+  room              Room?          @relation(fields: [roomId], references: [number])
+  roomId            String?        @unique
+  timetable         Timetable?     @relation(fields: [timetableId], references: [id])
+  timetableId       String? 
+  class             Class          @relation(fields: [classId], references: [id])  
+  @@id ([classId, name])
+}
+
+model SubjectName{
+  name              String         @id @unique
+}
+
+model Teacher{
+  id                String         @id @default(uuid())
+  name              String         @unique
+  subject           TeacherSubject[]
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @default(now())
+}
+
+model TeacherSubject {
+  teacherId         String
+  classId           String
+  subjectName       String
+  teacher           Teacher        @relation(fields: [teacherId], references: [id])
+  subject           Subject        @relation(fields: [classId, subjectName], references: [classId, name])
+
+  @@id([teacherId, classId, subjectName])
 }

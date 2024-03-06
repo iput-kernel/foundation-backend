@@ -18,6 +18,7 @@
   "author": "bitcat",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^5.10.2",
     "@types/express": "^4.17.21",
     "@types/multer": "^1.4.11",
     "@types/node": "^20.9.1",
