@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Auth" ADD COLUMN     "credLevel" SMALLINT NOT NULL DEFAULT 2;

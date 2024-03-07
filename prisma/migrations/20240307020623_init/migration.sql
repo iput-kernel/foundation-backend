@@ -1,9 +1,9 @@
 -- CreateTable
 CREATE TABLE "User" (
-    "id" TEXT NOT NULL,
+    "id" VARCHAR(36) NOT NULL,
     "name" VARCHAR(20) NOT NULL,
     "email" VARCHAR(100) NOT NULL,
-    "classId" TEXT,
+    "classId" VARCHAR(36),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -12,62 +12,60 @@ CREATE TABLE "User" (
 
 -- CreateTable
 CREATE TABLE "Auth" (
-    "id" TEXT NOT NULL,
+    "id" VARCHAR(36) NOT NULL,
+    "credLevel" SMALLINT NOT NULL DEFAULT 2,
     "passwordHash" VARCHAR(60) NOT NULL,
-    "secretKey" VARCHAR(64) NOT NULL,
+    "secretKey" VARCHAR(64),
+    "confirmToken" VARCHAR(32) NOT NULL,
     "verifiedAt" TIMESTAMP(3),
-    "userId" TEXT NOT NULL,
+    "userId" VARCHAR(36) NOT NULL,
 
     CONSTRAINT "Auth_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Profile" (
-    "id" TEXT NOT NULL,
-    "realNameFirst" TEXT,
-    "realNameLast" TEXT,
-    "birthday" TIMESTAMP(3),
-    "sex" TEXT,
-    "phone" TEXT,
-    "motherTongue" TEXT,
-    "describe" TEXT,
-    "city" TEXT,
-    "avatarUrl" TEXT NOT NULL DEFAULT '',
-    "coverUrl" TEXT NOT NULL DEFAULT '',
-    "userId" TEXT NOT NULL,
+    "id" VARCHAR(36) NOT NULL,
+    "realNameFirst" VARCHAR(15),
+    "realNameLast" VARCHAR(15),
+    "birthday" DATE,
+    "sex" CHAR(6),
+    "phone" VARCHAR(11),
+    "motherTongue" VARCHAR(20),
+    "describe" VARCHAR(200),
+    "city" VARCHAR(20),
+    "avatarUrl" VARCHAR(100) NOT NULL DEFAULT '',
+    "coverUrl" VARCHAR(100) NOT NULL DEFAULT '',
+    "userId" VARCHAR(36) NOT NULL,
 
     CONSTRAINT "Profile_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Class" (
-    "id" TEXT NOT NULL,
+    "id" VARCHAR(36) NOT NULL,
     "classGrade" SMALLINT NOT NULL,
-    "department" TEXT NOT NULL,
-    "course" TEXT NOT NULL,
-    "className" TEXT NOT NULL,
-    "studentsCount" INTEGER,
+    "department" VARCHAR(20) NOT NULL,
+    "course" VARCHAR(20) NOT NULL,
+    "className" VARCHAR(2) NOT NULL,
+    "studentsCount" SMALLINT,
 
     CONSTRAINT "Class_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "ExtraSubject" (
-    "id" TEXT NOT NULL,
-    "department" TEXT NOT NULL,
-    "course" TEXT NOT NULL,
-    "classGrade" INTEGER NOT NULL,
-    "classChar" TEXT NOT NULL,
-    "studentsCount" INTEGER,
-    "roomId" TEXT,
-    "timetableId" TEXT,
+    "id" VARCHAR(36) NOT NULL,
+    "name" VARCHAR(20) NOT NULL,
+    "roomNumber" VARCHAR(3),
+    "timetableId" VARCHAR(36),
 
     CONSTRAINT "ExtraSubject_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Timetable" (
-    "id" TEXT NOT NULL,
+    "id" VARCHAR(36) NOT NULL,
     "day_of_week" SMALLINT NOT NULL,
     "period" SMALLINT NOT NULL,
     "starttime" TIME NOT NULL,
@@ -81,17 +79,17 @@ CREATE TABLE "Room" (
     "number" VARCHAR(3) NOT NULL,
     "name" VARCHAR(30) NOT NULL,
     "seats" INTEGER,
-    "status" TEXT,
+    "status" VARCHAR(10),
 
     CONSTRAINT "Room_pkey" PRIMARY KEY ("number")
 );
 
 -- CreateTable
 CREATE TABLE "Subject" (
-    "classId" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "roomId" TEXT,
-    "timetableId" TEXT,
+    "classId" VARCHAR(36) NOT NULL,
+    "name" VARCHAR(20) NOT NULL,
+    "roomNumber" VARCHAR(3),
+    "timetableId" VARCHAR(36),
 
     CONSTRAINT "Subject_pkey" PRIMARY KEY ("classId","name")
 );
@@ -105,7 +103,7 @@ CREATE TABLE "SubjectName" (
 
 -- CreateTable
 CREATE TABLE "Teacher" (
-    "id" TEXT NOT NULL,
+    "id" VARCHAR(36) NOT NULL,
     "name" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -115,17 +113,17 @@ CREATE TABLE "Teacher" (
 
 -- CreateTable
 CREATE TABLE "TeacherSubject" (
-    "teacherId" TEXT NOT NULL,
-    "classId" TEXT NOT NULL,
-    "subjectName" TEXT NOT NULL,
+    "teacherId" VARCHAR(36) NOT NULL,
+    "classId" VARCHAR(36) NOT NULL,
+    "subjectName" VARCHAR(20) NOT NULL,
 
     CONSTRAINT "TeacherSubject_pkey" PRIMARY KEY ("teacherId","classId","subjectName")
 );
 
 -- CreateTable
 CREATE TABLE "_UserExtraSubject" (
-    "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL
+    "A" VARCHAR(36) NOT NULL,
+    "B" VARCHAR(36) NOT NULL
 );
 
 -- CreateIndex
@@ -135,7 +133,7 @@ CREATE UNIQUE INDEX "User_name_key" ON "User"("name");
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_classId_key" ON "User"("classId");
+CREATE UNIQUE INDEX "Auth_confirmToken_key" ON "Auth"("confirmToken");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Auth_userId_key" ON "Auth"("userId");
@@ -144,7 +142,10 @@ CREATE UNIQUE INDEX "Auth_userId_key" ON "Auth"("userId");
 CREATE UNIQUE INDEX "Profile_userId_key" ON "Profile"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Subject_roomId_key" ON "Subject"("roomId");
+CREATE UNIQUE INDEX "ExtraSubject_name_key" ON "ExtraSubject"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Subject_roomNumber_key" ON "Subject"("roomNumber");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "SubjectName_name_key" ON "SubjectName"("name");
@@ -168,13 +169,13 @@ ALTER TABLE "Auth" ADD CONSTRAINT "Auth_userId_fkey" FOREIGN KEY ("userId") REFE
 ALTER TABLE "Profile" ADD CONSTRAINT "Profile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ExtraSubject" ADD CONSTRAINT "ExtraSubject_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "Room"("number") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "ExtraSubject" ADD CONSTRAINT "ExtraSubject_roomNumber_fkey" FOREIGN KEY ("roomNumber") REFERENCES "Room"("number") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ExtraSubject" ADD CONSTRAINT "ExtraSubject_timetableId_fkey" FOREIGN KEY ("timetableId") REFERENCES "Timetable"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Subject" ADD CONSTRAINT "Subject_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "Room"("number") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Subject" ADD CONSTRAINT "Subject_roomNumber_fkey" FOREIGN KEY ("roomNumber") REFERENCES "Room"("number") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Subject" ADD CONSTRAINT "Subject_timetableId_fkey" FOREIGN KEY ("timetableId") REFERENCES "Timetable"("id") ON DELETE SET NULL ON UPDATE CASCADE;

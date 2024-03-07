@@ -8,12 +8,12 @@ datasource db {
 }
 
 model User {
-  id                String         @id @default(uuid())
+  id                String         @id @default(uuid()) @db.VarChar(36)
   name              String         @unique @db.VarChar(20)
   email             String         @unique @db.VarChar(100)
   auth              Auth?
   class             Class?         @relation(fields: [classId], references: [id])
-  classId           String?        @unique
+  classId           String?        @db.VarChar(36)
   extraSubject      ExtraSubject[] @relation("UserExtraSubject")
   profile           Profile?
   createdAt         DateTime       @default(now())
@@ -21,84 +21,80 @@ model User {
 }
 
 model Auth {
-  id                String         @id @default(uuid())
+  id                String         @id @default(uuid()) @db.VarChar(36)
   credLevel         Int            @db.SmallInt @default(2)
   passwordHash      String         @db.VarChar(60)  
   secretKey         String?        @db.VarChar(64)
   confirmToken      String         @unique @db.VarChar(32)
   verifiedAt        DateTime?
   user              User           @relation(fields: [userId], references: [id])
-  userId            String         @unique
+  userId            String         @unique @db.VarChar(36)
 }
 
 model Profile{
-  id                String         @id @default(uuid())
-  realNameFirst     String?
-  realNameLast      String?
-  birthday          DateTime?
-  sex               String?
-  phone             String?
-  motherTongue      String?
-  describe          String?
-  city              String?
-  avatarUrl         String         @default("")
-  coverUrl          String         @default("")
+  id                String         @id @default(uuid()) @db.VarChar(36)
+  realNameFirst     String?        @db.VarChar(15)
+  realNameLast      String?        @db.VarChar(15)
+  birthday          DateTime?      @db.Date
+  sex               String?        @db.Char(6)
+  phone             String?        @db.VarChar(11)
+  motherTongue      String?        @db.VarChar(20)
+  describe          String?        @db.VarChar(200)
+  city              String?        @db.VarChar(20)
+  avatarUrl         String         @default("") @db.VarChar(100)
+  coverUrl          String         @default("") @db.VarChar(100)
   user              User           @relation(fields: [userId], references: [id])
-  userId            String         @unique
+  userId            String         @unique @db.VarChar(36)
 }
 
 model Class {
-  id                String         @id @default(uuid())
+  id                String         @id @default(uuid()) @db.VarChar(36)
   classGrade        Int            @db.SmallInt
-  department        String
-  course            String
-  className         String
-  studentsCount     Int?
+  department        String         @db.VarChar(20)
+  course            String         @db.VarChar(20)  
+  className         String         @db.VarChar(2)
+  studentsCount     Int?           @db.SmallInt
   students          User[]         
   subject           Subject[]
 }
 
 model ExtraSubject{
-  id                String         @id @default(uuid())
-  department        String
-  course            String
-  classGrade        Int
-  classChar         String
-  studentsCount     Int?
-  room              Room?          @relation(fields: [roomId], references: [number])
-  roomId            String?
-  studentsId        User[]         @relation("UserExtraSubject")
+  id                String         @id @default(uuid()) @db.VarChar(36)
+  name              String         @unique @db.VarChar(20)
+  room              Room?          @relation(fields: [roomNumber], references: [number])
+  roomNumber        String?        @db.VarChar(3)
+  students          User[]         @relation("UserExtraSubject")
   timetable         Timetable?     @relation(fields: [timetableId], references: [id])
-  timetableId       String? 
+  timetableId       String?        @db.VarChar(36)
 }
 
 model Timetable{
-  id                String         @id @default(uuid())
+  id                String         @id @default(uuid()) @db.VarChar(36)
   day_of_week       Int            @db.SmallInt
   period            Int            @db.SmallInt
   starttime         DateTime       @db.Time
   endtime           DateTime       @db.Time
   subject           Subject[]
-  extraSubject      ExtraSubject[]      
+  extraSubject      ExtraSubject[] 
 }
 
 model Room{
   number            String         @id @db.VarChar(3)
   name              String         @db.VarChar(30)
   seats             Int?
-  status            String?       
+  status            String?        @db.VarChar(10)
   subject           Subject[] 
   extraSubject      ExtraSubject[]
 }
 
 model Subject{
-  classId           String         
-  name              String         
+  classId           String         @db.VarChar(36)
+  name              String         @db.VarChar(20)
   teacher           TeacherSubject[]
-  room              Room?          @relation(fields: [roomId], references: [number])
-  roomId            String?        @unique
+  room              Room?          @relation(fields: [roomNumber], references: [number])
+  roomNumber        String?        @unique @db.VarChar(3)
   timetable         Timetable?     @relation(fields: [timetableId], references: [id])
-  timetableId       String? 
+  timetableId       String?        @db.VarChar(36)
   class             Class          @relation(fields: [classId], references: [id])  
   @@id ([classId, name])
 }
@@ -108,7 +104,7 @@ model SubjectName{
 }
 
 model Teacher{
-  id                String         @id @default(uuid())
+  id                String         @id @default(uuid()) @db.VarChar(36)
   name              String         @unique
   subject           TeacherSubject[]
   createdAt         DateTime       @default(now())
@@ -116,9 +112,9 @@ model Teacher{
 }
 
 model TeacherSubject {
-  teacherId         String
-  classId           String
-  subjectName       String
+  teacherId         String         @db.VarChar(36)
+  classId           String         @db.VarChar(36)
+  subjectName       String         @db.VarChar(20)
   teacher           Teacher        @relation(fields: [teacherId], references: [id])
   subject           Subject        @relation(fields: [classId, subjectName], references: [classId, name])
 
