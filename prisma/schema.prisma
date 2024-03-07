@@ -22,8 +22,10 @@ model User {
 
 model Auth {
   id                String         @id @default(uuid())
+  credLevel         Int            @db.SmallInt @default(2)
   passwordHash      String         @db.VarChar(60)  
-  secretKey         String         @db.VarChar(64)
+  secretKey         String?        @db.VarChar(64)
+  confirmToken      String         @unique @db.VarChar(32)
   verifiedAt        DateTime?
   user              User           @relation(fields: [userId], references: [id])
   userId            String         @unique

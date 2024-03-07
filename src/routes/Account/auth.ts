@@ -1,3 +1,5 @@
+import { PrismaClient } from '@prisma/client';
+
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import httpStatus from 'http-status';
@@ -6,40 +8,69 @@ import User, { UserType } from '../../models/Account/User';
 
 import nodemailer from 'nodemailer';
 import { Router } from 'express';
-import mongoose from 'mongoose';
-import Auth, { authDefaultModel } from '../../models/Account/Auth';
-import Profile from '../../models/Account/Profile';
 
 const authRoute = Router();
+const prisma = new PrismaClient();
 
 const saltRounds = 10;
 
+
 authRoute.post('/register', async (req, res) => {
   try {
-    const findUser = await User.findOne({ email: req.body.email });
-    if (findUser && findUser.isVerified)
+    const findUser = await prisma.user.findUnique({
+      where: {
+        email: req.body.email,
+      },
+      include: {
+        auth: true,
+      },
+    });
+    if (findUser && findUser.auth?.verifiedAt)
       return res
         .status(httpStatus.BAD_REQUEST)
         .send('このメールアドレスはすでに登録されています。');
-
     const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
 
     const token = crypto.randomBytes(16).toString('hex');
 
     if (findUser) {
       // 既存のユーザーが存在する場合、トークンを更新
-      findUser.confirmationToken = token;
-      await findUser.save();
+      await prisma.auth.update({
+        where: {
+          userId: findUser.id,
+        },
+        data: {
+          confirmToken: token,
+        },
+      });
     } else {
       // User作成
-      await createNewUserWithAuthAndProfile(
-        req.body.userName,
-        req.body.email,
-        hashedPassword,
-        token
-      ).catch((err) => {
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
-      });
+      await prisma.$transaction(
+        async (prisma) => {
+          const user = await prisma.user.create({
+            data: {
+              name: req.body.userName,
+              email: req.body.email,
+            },
+          });
+
+          const auth = await prisma.auth.create({
+            data: {
+              userId: user.id,
+              passwordHash: hashedPassword,
+              confirmToken: token,
+            },
+          });
+
+          const profile = await prisma.profile.create({
+            data: {
+              userId: user.id,
+            },
+          });
+
+          return { user, auth, profile };
+        }
+      );
     }
     
     await sendConfirmationEmail(req.body.email, token);
@@ -48,37 +79,31 @@ authRoute.post('/register', async (req, res) => {
       .status(httpStatus.OK)
       .json({ message: 'Confirmation email sent'});
   } catch (err) {
+    console.log(err);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
   }
 });
 
 authRoute.get('/confirm-email', async (req, res) => {
   try {
-    const { token } = req.query; // クエリパラメータからtokenを取得
-
-    const user = await User.findOne({ confirmationToken: token }).populate({
-      path: 'auth',
-      model: 'Auth',
-    });
-
-    if (!user)
-      return res.status(httpStatus.BAD_REQUEST).send('無効なトークンです。');
-
-    // 秘密鍵を生成
+    const { token } = req.query;
+    if (typeof token !== 'string') {
+      return res.status(httpStatus.BAD_REQUEST).send('無効なトークン形式です。');
+    }
     const newSecretKey = crypto.randomBytes(32).toString('hex');
 
-    user.isVerified = true; // アカウントを認証済みに設定
-    user.auth.secretKey = newSecretKey; // 生成した秘密鍵をユーザーに保存
-    await user.save();
-    const auth = await Auth.findOne({ _id: user.auth });
-    if (!auth) {
-      return res
-        .status(httpStatus.INTERNAL_SERVER_ERROR)
-        .send('ユーザに紐づくAuth Documentが存在しません');
-    }
-    auth!.secretKey = newSecretKey;
-    auth.save();
-
+    await prisma.auth.update({
+      where: {
+        confirmToken: token,
+      },
+      data: {
+        secretKey: newSecretKey,
+        verifiedAt: new Date(),
+      },
+    }).catch(() => {
+      return res.status(httpStatus.BAD_REQUEST).send('無効なトークンです。');
+    });
+    
     return res.status(httpStatus.OK).send('アカウントが認証されました。');
   } catch (err) {
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
@@ -153,40 +178,5 @@ async function signJWT(user: UserType, payload: Record<string, unknown>) {
   return jwt.sign(payload, secret);
 }
 
-async function createNewUserWithAuthAndProfile(
-  userName: string,
-  email: string,
-  password: string,
-  token: string
-): Promise<UserType> {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
-  try {
-    const auth = authDefaultModel();
-
-    const user = new User({
-      userName,
-      email,
-      password,
-      auth: auth,
-      isVerified: false,
-      confirmationToken: token,
-      profile: new Profile(),
-    });
-
-    // トランザクション内で保存
-    await Promise.all([auth.save({ session }), user.save({ session })]);
-
-    await session.commitTransaction();
-    session.endSession();
-
-    return user;
-  } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-    throw error;
-  }
-}
 
 export default authRoute;
