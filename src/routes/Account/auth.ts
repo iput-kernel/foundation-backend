@@ -4,7 +4,6 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
-import User, { UserType } from '../../models/Account/User';
 
 import nodemailer from 'nodemailer';
 import { Router } from 'express';
@@ -14,7 +13,6 @@ const prisma = new PrismaClient();
 
 const saltRounds = 10;
 
-
 authRoute.post('/register', async (req, res) => {
   try {
     const findUser = await prisma.user.findUnique({
@@ -23,6 +21,8 @@ authRoute.post('/register', async (req, res) => {
       },
       include: {
         auth: true,
+        class: true,
+        profile: true,
       },
     });
     if (findUser && findUser.auth?.verifiedAt)
@@ -112,37 +112,50 @@ authRoute.get('/confirm-email', async (req, res) => {
 
 authRoute.post('/login', async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.body.email })
-      .populate({
-        path: 'auth',
-        model: 'Auth',
-      });
+    const user = await prisma.user.findUnique({
+      where: {
+        email: req.body.email,
+      },
+      include: {
+        auth: true,
+        class: true,
+        profile: true,
+      },
+    });
     if (!user) return res.status(404).send('ユーザーが見つかりません');
 
     const validPassword = await bcrypt.compare(
       req.body.password,
-      user.password
+      user.auth!.passwordHash
     );
+
     if (!validPassword)
       return res.status(httpStatus.BAD_REQUEST).json('パスワードが違います');
 
-    if (!user.auth.secretKey) {
+    if (!user.auth!.secretKey) {
       return res
         .status(httpStatus.INTERNAL_SERVER_ERROR)
         .send('サーバー内部エラー: ユーザーの秘密鍵が見つかりません');
     }
     console.log(user);
     console.log(user.auth);
+
     // JWTの署名
-    const token = await signJWT(user, {
-      id: user._id,
-      credLevel: user.auth.credLevel,
-    });
+    const secret = user.auth!.secretKey;
+    if (!secret) {
+      throw new Error('No secret key found for the given user.');
+    }
+    const payload = {
+      id: user.id,
+      credLevel: user.auth!.credLevel
+    }
+    const token = jwt.sign(payload, secret);
 
     // ユーザー情報からpasswordと他の不要なフィールドを除外
-    const { password, auth, confirmationToken, ...userResponse } = user.toObject(); // eslint-disable-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { auth, ...userResponse } = user;
 
-    return res.status(httpStatus.OK).json({ user: userResponse, token }); // トークンも応答として返します
+    return res.status(httpStatus.OK).json({ user: userResponse, token });
   } catch (err) {
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
   }
@@ -169,14 +182,5 @@ async function sendConfirmationEmail(email: string, token: string) {
 
   await transporter.sendMail(mailOptions);
 }
-
-async function signJWT(user: UserType, payload: Record<string, unknown>) {
-  const secret = user.auth.secretKey;
-  if (!secret) {
-    throw new Error('No secret key found for the given user.');
-  }
-  return jwt.sign(payload, secret);
-}
-
 
 export default authRoute;

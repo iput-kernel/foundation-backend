@@ -20,7 +20,6 @@ async function main() {
     console.log('データベース接続エラー:', err);
   }
 
-  // サーバースタート
   app.listen(PORT, () => console.log('サーバーが起動しました'));
 }
 
@@ -29,6 +28,5 @@ main()
     throw e;
   })
   .finally(async () => {
-    // アプリケーションの終了時にPrisma Clientの接続を閉じる
     await prisma.$disconnect();
   });

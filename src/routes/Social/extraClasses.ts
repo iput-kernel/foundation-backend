@@ -29,29 +29,6 @@ extraClassRoute.post(
     }
 });
 
-extraClassRoute.put('/:id',
-  authenticateJWT, 
-  async (req: RequestWithUser, res) => {
-  try {
-    if (!req.user){
-      return res
-        .status(httpStatus.UNAUTHORIZED)
-        .send('アカウントが認証されていません。');
-    }
-    const currentClass = await extraClass.findById(req.params.id);
-    if (currentClass!.createdUser! === req.user.id) {
-      await extraClass!.updateOne({
-        $set: req.body,
-      });
-      return res.status(httpStatus.OK).json('クラスが更新されました');
-    } else {
-      return res.status(httpStatus.FORBIDDEN).json('クラスを更新できません');
-    }
-  } catch (err) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
-  }
-});
-
 extraClassRoute.delete(
   '/:id',
   authenticateJWT,

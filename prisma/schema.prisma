@@ -23,7 +23,7 @@ model User {
 model Auth {
   id                String         @id @default(uuid()) @db.VarChar(36)
   credLevel         Int            @db.SmallInt @default(2)
-  passwordHash      String         @db.VarChar(60)  
+  passwordHash      String         @db.VarChar(60)
   secretKey         String?        @db.VarChar(64)
   confirmToken      String         @unique @db.VarChar(32)
   verifiedAt        DateTime?
@@ -52,7 +52,7 @@ model Class {
   classGrade        Int            @db.SmallInt
   department        String         @db.VarChar(20)
   course            String         @db.VarChar(20)  
-  className         String         @db.VarChar(2)
+  className         String?        @db.VarChar(2)
   studentsCount     Int?           @db.SmallInt
   students          User[]         
   subject           Subject[]
@@ -70,7 +70,7 @@ model ExtraSubject{
 
 model Timetable{
   id                String         @id @default(uuid()) @db.VarChar(36)
-  day_of_week       Int            @db.SmallInt
+  dayOfWeek         Int            @db.SmallInt
   period            Int            @db.SmallInt
   starttime         DateTime       @db.Time
   endtime           DateTime       @db.Time
@@ -100,7 +100,7 @@ model Subject{
 }
 
 model SubjectName{
-  name              String         @id @unique
+  name              String         @id @unique @db.VarChar(20)
 }
 
 model Teacher{

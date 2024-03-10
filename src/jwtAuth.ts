@@ -1,22 +1,16 @@
-import { Types } from 'mongoose';
 import { Request, Response, NextFunction } from 'express';
-import User, { UserType } from './models/Account/User';
 import jwt from 'jsonwebtoken';
+
+import { PrismaClient } from '@prisma/client';
 
 export interface RequestWithUser extends Request {
   user?: {
-    id: Types.ObjectId;
+    id: string;
     credLevel: number;
   };
 }
 
-async function verifyJWT(user: UserType, token: string) {
-  const secret = user.auth.secretKey;
-  if (!secret) {
-    throw new Error('No secret key found for the given user.');
-  }
-  return jwt.verify(token, secret);
-}
+const prisma = new PrismaClient();
 
 export const authenticateJWT = async (
   req: RequestWithUser,
@@ -30,17 +24,25 @@ export const authenticateJWT = async (
   }
 
   try {
-    const user = await User.findById(req.body.userId)
-      .populate({
-        path: 'auth',
-        model: 'Auth',
-      });
+    const user = await prisma.user.findUnique({
+      where: {
+        id: req.body.userId,
+      },
+      include: {
+        auth: true,
+      },
+    })
       
     if (!user) {
       return res.status(404).json({ message: 'ユーザーが見つかりません' });
     }
 
-    const decoded = await verifyJWT(user, token);
+    const secret = user.auth!.secretKey;
+    if (!secret) {
+      throw new Error('No secret key found for the given user.');
+    }
+
+    const decoded = jwt.verify(token, secret);
 
     // decodedがstring型かどうかチェック
     if (typeof decoded === 'string') {
@@ -48,7 +50,7 @@ export const authenticateJWT = async (
       return res.status(403).json({ message: 'not string' });
     }
 
-    req.user = decoded as { id: Types.ObjectId; credLevel: number };
+    req.user = decoded as { id: string; credLevel: number };
     next();
   } catch (err) {
     console.log(err);
