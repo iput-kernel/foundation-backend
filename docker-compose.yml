@@ -69,7 +69,14 @@ services:
       /bin/sh -c "
       mc alias set myminio http://minio:9000 admin adminpass;
       mc mb myminio/sample;
+      mc mb myminio/subjectName-data-csv;
+      mc mb myminio/teacher-data-csv;
+      mc mb myminio/class-data-csv;
+      mc mb myminio/room-data-csv;
       mc cp init_data/* myminio/sample;
+      mc cp init_data/subjectName/* myminio/subjectName-data-csv;
+      mc cp init_data/room/* myminio/room-data-csv;
+      mc cp init_data/class/* myminio/class-data-csv;
       "
     volumes:
       - ./init_data:/init_data

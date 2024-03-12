@@ -74,6 +74,7 @@ classRoute.post('/import',
   // MinIOにファイルをアップロード
   minioClient.putObject('class-data-csv', fileName, fileBuffer, (err) => {
     if (err) {
+      console.log(err);
       return res.status(500).send('ファイルのアップロードに失敗しました。');
     }
 
