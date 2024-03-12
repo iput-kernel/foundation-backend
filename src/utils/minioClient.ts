@@ -2,7 +2,7 @@ import { Client } from 'minio';
 
 // Minioクライアントの設定
 const minioClient = new Client({
-  endPoint: 'localhost',
+  endPoint: 'minio',
   port: 9000,
   useSSL: false,
   accessKey: process.env.MINIO_ACCESS_KEY!,

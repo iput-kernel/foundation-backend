@@ -13,7 +13,7 @@
     "prepare": "husky install"
   },
   "lint-staged": {
-    "*.{ts,tsx}": "eslint --fix"
+    "*.{ts,tsx}": "eslint  --max-warnings=0 --no-warn-ignored --fix"
   },
   "author": "bitcat",
   "license": "ISC",

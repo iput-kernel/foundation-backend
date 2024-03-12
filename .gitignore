@@ -140,3 +140,5 @@ mongo-volumes
 minio_data
 
 build/
+
+docker/
