@@ -1,41 +1,25 @@
 import httpStatus from 'http-status';
-import Class from '../../models/Social/Class';
-import User from '../../models/Account/User';
 import { Router } from 'express';
+import multer from 'multer';
+import csvParser from 'csv-parser';
 import { authenticateJWT, RequestWithUser } from '../../jwtAuth';
 import { PrismaClient } from '@prisma/client';
+import minioClient  from '../../utils/minioClient';
 
 const classRoute = Router();
+const upload = multer({ storage: multer.memoryStorage() });
 const prisma = new PrismaClient();
 
-//クラス
-classRoute.post('/',
-  authenticateJWT,
-  async (req:RequestWithUser, res) => {
-  if (!req.user) {
-    return res
-      .status(httpStatus.UNAUTHORIZED)
-      .send('アカウントが認証されていません。');
-  }
-  if (req.user.credLevel < 4) {
-    return res
-      .status(httpStatus.FORBIDDEN)
-      .send('クラスを作成する権限がありません。');
-  }
-  try{
-    const newClass = prisma.class.create({
-      data: {
-        ...req.body,
-        userId: req.user.id,
-      },
-    });
-    res.status(httpStatus.OK).json(newClass);
-  }catch(err){
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
-  }
-});
+interface ClassCsvData {
+  classGrade: string;
+  department: string;
+  course: string;
+  className: string;
+  studentsCount: string;
+}
 
-classRoute.put('/:id', 
+// クラス
+classRoute.post('/',
   authenticateJWT,
   async (req:RequestWithUser, res) => {
     if (!req.user) {
@@ -43,45 +27,85 @@ classRoute.put('/:id',
         .status(httpStatus.UNAUTHORIZED)
         .send('アカウントが認証されていません。');
     }
-
-    if (req.user.credLevel < 3) {
+    if (req.user.credLevel < 4) {
       return res
         .status(httpStatus.FORBIDDEN)
-        .send('クラスを編集する権限がありません。');
+        .send('クラスを作成する権限がありません。');
     }
-
-    try {
-      const post = await Class.findById(req.params.id);
-      if (post!.userId! === req.body.userId) {
-        await post!.updateOne({
-          $set: req.body,
-        });
-        return res.status(httpStatus.OK).json('クラスが更新されました');
-      } else {
-        return res.status(httpStatus.FORBIDDEN).json('クラスを更新できません');
-      }
-    } catch (err) {
+    try{
+      const newClass = await prisma.class.create({
+        data: {
+          classGrade: req.body.classGrade,
+          department: req.body.department,
+          course: req.body.course,
+          className: req.body.className,
+          studentsCount: req.body.studentsCount,
+        },
+      });
+      res.status(httpStatus.OK).json(newClass);
+    }catch(err){
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
     }
-  }
-);
+});
 
-classRoute.delete('/:id', async (req, res) => {
-  try {
-    const post = await Class.findById(req.params.id);
-    const user = await User.findById(req.body.userId).populate({
-      path: 'auth',
-      model: 'Auth',
-    });
-    if (user!.auth.credLevel > 5) {
-      await post!.deleteOne();
-      return res.status(httpStatus.OK).json('クラスが削除されました');
-    } else {
-      return res.status(httpStatus.FORBIDDEN).json('クラスを削除できません');
-    }
-  } catch (err) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
+classRoute.post('/import',
+  authenticateJWT,
+  upload.single('file'), async (req:RequestWithUser, res) => {
+
+  if (!req.user) {
+    return res
+      .status(httpStatus.UNAUTHORIZED)
+      .send('アカウントが認証されていません。');
   }
+
+  if (req.user.credLevel < 4) {
+    return res
+      .status(httpStatus.FORBIDDEN)
+      .send('クラスデータをインポートする権限がありません。');
+  }
+
+  if (!req.file) {
+    return res.status(400).send('ファイルがアップロードされていません。');
+  }
+
+  const fileName = `${Date.now()}-${req.file.originalname}`;
+  const fileBuffer = req.file.buffer;
+
+  // MinIOにファイルをアップロード
+  minioClient.putObject('class-data-csv', fileName, fileBuffer, (err) => {
+    if (err) {
+      return res.status(500).send('ファイルのアップロードに失敗しました。');
+    }
+
+    // MinIOからファイルをストリームとして読み込む
+    minioClient.getObject('class-data-csv', fileName, (err, objStream) => {
+      if (err) {
+        return res.status(500).send('ファイルの読み込みに失敗しました。');
+      }
+
+      const results: ClassCsvData[] = [];
+
+      objStream.pipe(csvParser())
+        .on('data', (data) => results.push(data))
+        .on('end', async () => {
+          try {
+            // CSVファイルの解析が完了したら、データベースにデータを挿入
+            await prisma.class.createMany({
+              data: results.map(item => ({
+                classGrade: parseInt(item.classGrade, 10),
+                department: item.department,
+                course: item.course,
+                className: item.className,
+                studentsCount: parseInt(item.studentsCount, 10),
+              })),
+            });
+            res.status(200).send('クラスが正常にインポートされました。');
+          } catch (err) {
+            res.status(500).json(err);
+          }
+        });
+    });
+  });
 });
 
 //特定のクラスの取得

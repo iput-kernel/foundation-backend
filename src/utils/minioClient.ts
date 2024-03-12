@@ -5,8 +5,8 @@ const minioClient = new Client({
   endPoint: 'minio',
   port: 9000,
   useSSL: false,
-  accessKey: 'YOUR_ACCESS_KEY',
-  secretKey: 'YOUR_SECRET_KEY'
+  accessKey: process.env.MINIO_ACCESS_KEY!,
+  secretKey: process.env.MINIO_SECRET_KEY!
 });
 
 export default minioClient;

@@ -51,7 +51,7 @@ model Class {
   id                String         @id @default(uuid()) @db.VarChar(36)
   classGrade        Int            @db.SmallInt
   department        String         @db.VarChar(20)
-  course            String         @db.VarChar(20)  
+  course            String?        @db.VarChar(20)  
   className         String?        @db.VarChar(2)
   studentsCount     Int?           @db.SmallInt
   students          User[]         

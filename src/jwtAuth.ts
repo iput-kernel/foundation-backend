@@ -24,9 +24,13 @@ export const authenticateJWT = async (
   }
 
   try {
+    const decoded = jwt.decode(token);
+    if (typeof decoded === 'string' || !decoded) {
+      return res.status(403).json({ message: 'トークンの形式が不正です' });
+    }
     const user = await prisma.user.findUnique({
       where: {
-        id: req.body.userId,
+        id: decoded.id,
       },
       include: {
         auth: true,
@@ -42,13 +46,7 @@ export const authenticateJWT = async (
       throw new Error('No secret key found for the given user.');
     }
 
-    const decoded = jwt.verify(token, secret);
-
-    // decodedがstring型かどうかチェック
-    if (typeof decoded === 'string') {
-      // エラー処理か何か
-      return res.status(403).json({ message: 'not string' });
-    }
+    jwt.verify(token, secret);
 
     req.user = decoded as { id: string; credLevel: number };
     next();
