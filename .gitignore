@@ -137,4 +137,6 @@ dist
 mongo-volumes/
 mongo-volumes
 
+minio_data
+
 build/
