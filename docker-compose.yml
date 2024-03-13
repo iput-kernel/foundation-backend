@@ -7,6 +7,7 @@ services:
       - "27017:27017"
     volumes:
       - ./mongo-volumes:/data/db
+
   application:
     build: .
     container_name: app-container
@@ -17,10 +18,11 @@ services:
       - /usr/src/app/node_modules
     depends_on:
       - mongodb
+      - postgres
     environment:
       - NODE_ENV=production
     env_file:
-      - .env  # 本番環境用
+      - .env // 試験環境用
     tty: true
 
   swagger-editor:
@@ -28,6 +30,7 @@ services:
     container_name: "swagger-editor"
     ports:
       - "8001:8080"
+
   swagger-ui:
     image: swaggerapi/swagger-ui
     container_name: "swagger-ui"
@@ -38,6 +41,7 @@ services:
       - ./documentation/openapi.yaml:/openapi.yaml
     environment:
       SWAGGER_JSON: /openapi.yaml
+
   swagger-api:
     image: stoplight/prism:3
     container_name: "swagger-api"
@@ -47,6 +51,7 @@ services:
     volumes:
       - ./documentation/schema:/schema
       - ./documentation/openapi.yaml:/openapi.yaml
+
   minio:
     container_name: minio
     command: ['server', '/data', '--console-address', ':9001']
@@ -60,6 +65,7 @@ services:
     volumes:
       - ./minio_data:/data
     restart: unless-stopped
+
   mc:
     image: minio/mc
     container_name: mc
@@ -83,6 +89,7 @@ services:
       "
     volumes:
       - ./init_data:/init_data
+
   influxdb:
     image: influxdb:2.7.1
     container_name: influxdb-local

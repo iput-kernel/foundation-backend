@@ -27,12 +27,7 @@ userRoute.get('/:id', async (req, res) => {
 
 userRoute.delete('/:id',authenticateJWT , 
 async (req:RequestWithUser, res) => {
-  if (!req.user) {
-    return res
-      .status(httpStatus.UNAUTHORIZED)
-      .json({ message: 'ユーザーが認証されていません' });
-  }
-  if (req.user.id !== req.params.id) {
+  if (req.user!.id !== req.params.id) {
     return res
       .status(httpStatus.FORBIDDEN)
       .json({ message: '他のユーザーのアカウントを削除できません' });

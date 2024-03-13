@@ -122,7 +122,7 @@ authRoute.post('/login', async (req, res) => {
         profile: true,
       },
     });
-    if (!user) return res.status(404).send('ユーザーが見つかりません');
+    if (!user) return res.status(404).send('メールアドレスもしくはパスワードが違います');
 
     const validPassword = await bcrypt.compare(
       req.body.password,
@@ -130,16 +130,13 @@ authRoute.post('/login', async (req, res) => {
     );
 
     if (!validPassword)
-      return res.status(httpStatus.BAD_REQUEST).json('パスワードが違います');
+      return res.status(httpStatus.BAD_REQUEST).json('メールアドレスもしくはパスワードが違います');
 
     if (!user.auth!.secretKey) {
       return res
         .status(httpStatus.INTERNAL_SERVER_ERROR)
-        .send('サーバー内部エラー: ユーザーの秘密鍵が見つかりません');
+        .send('未知のエラー');
     }
-    console.log(user);
-    console.log(user.auth);
-
     // JWTの署名
     const secret = user.auth!.secretKey;
     if (!secret) {
