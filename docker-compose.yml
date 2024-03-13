@@ -15,6 +15,7 @@ services:
     container_name: app-container
     ports:
       - "4000:4000"
+      - "5555:5555"
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules

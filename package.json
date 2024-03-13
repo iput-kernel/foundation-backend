@@ -9,7 +9,8 @@
     "formatter": "prettier --write .",
     "start": "node ./build/server.js",
     "prisma:migrate":"prisma migrate dev",
-    "dev": "npm run prisma:migrate && tsc && nodemon ./build/server.js",
+    "prisma:studio":"prisma studio",
+    "dev": "npm run prisma:migrate && npm run prisma:studio && tsc && nodemon ./build/server.js",
     "type:check": "tsc --noEmit",
     "prepare": "husky install"
   },
