@@ -22,7 +22,7 @@ services:
     environment:
       - NODE_ENV=production
     env_file:
-      - .env // 試験環境用
+      - .env
     tty: true
 
   swagger-editor:

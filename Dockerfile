@@ -8,7 +8,11 @@ COPY . .
 
 RUN npm install
 RUN npm install -g typescript
+
+RUN printenv | grep DATABASE_URL
+
 RUN npx prisma migrate dev
 RUN npx prisma generate
+
 
 CMD ["npm", "run", "dev"]
