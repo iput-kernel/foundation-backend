@@ -9,7 +9,9 @@ services:
       - ./mongo-volumes:/data/db
 
   application:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
     container_name: app-container
     ports:
       - "4000:4000"
@@ -20,9 +22,8 @@ services:
       - mongodb
       - postgres
     environment:
-      - NODE_ENV=production
-    env_file:
-      - .env
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://bitcat:test@postgres:5432/iput-kernel?schema=public
     tty: true
 
   swagger-editor:

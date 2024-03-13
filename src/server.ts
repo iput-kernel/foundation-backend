@@ -3,7 +3,7 @@ import path from 'path';
 import { PrismaClient } from '@prisma/client';
 import { app } from './route';
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'development') {
   dotenv.config({ path: path.resolve(__dirname, '../.env') });
   console.log('試験環境用環境変数ファイルを読み込み')
 }

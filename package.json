@@ -8,7 +8,8 @@
     "lint": "eslint --fix --max-warnings 0 .",
     "formatter": "prettier --write .",
     "start": "node ./build/server.js",
-    "dev": "tsc && nodemon ./build/server.js",
+    "prisma:migrate":"prisma migrate dev",
+    "dev": "npm run prisma:migrate && tsc && nodemon ./build/server.js",
     "type:check": "tsc --noEmit",
     "prepare": "husky install"
   },
@@ -28,6 +29,7 @@
     "cors": "^2.8.5",
     "csv-parser": "^3.0.0",
     "dotenv": "^16.0.3",
+    "dotenv-cli": "^7.4.1",
     "express": "^4.18.2",
     "helmet": "^6.1.5",
     "http-status": "^1.7.0",
