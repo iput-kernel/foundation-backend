@@ -10,7 +10,7 @@
     "start": "node ./build/server.js",
     "prisma:migrate":"prisma migrate dev",
     "prisma:studio":"prisma studio",
-    "dev": "npm run prisma:migrate && npm run prisma:studio && tsc && nodemon ./build/server.js",
+    "dev": "npm run prisma:migrate && npm run prisma:studio & tsc && nodemon ./build/server.js",
     "type:check": "tsc --noEmit",
     "prepare": "husky install"
   },
