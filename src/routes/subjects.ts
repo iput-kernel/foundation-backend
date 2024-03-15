@@ -1,26 +1,33 @@
 import httpStatus from 'http-status';
-import Post from '../models/Content/Post';
-import Subject from '../models/Subject';
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { RequestWithUser, authenticateJWT } from '../jwtAuth';
 
 const subjectRoute = Router();
 const prisma = new PrismaClient();
 
 // Subject作成
-subjectRoute.post('/', async (req, res) => {
-  
-  try {
-    const newSubject = await prisma.subject.create({
-      data:{
-        classId: req.body.classId,
-        name   : req.body.name,
-      }
-    })
-    return res.status(httpStatus.OK).json(newSubject)
-  } catch (err) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
-  }
+subjectRoute.post('/',
+  authenticateJWT,
+  async (req:RequestWithUser, res) => {
+    if (req.user!.credLevel < 3){
+      return res
+        .status(httpStatus.FORBIDDEN)
+        .send('科目を追加する権限がありません。')
+    }
+    try {
+      const newSubject = await prisma.subject.create({
+        data:{
+          name: req.body.name,
+          classId: req.body.classId,
+        }
+      })
+      return res
+        .status(httpStatus.OK)
+        .json(newSubject)
+    } catch (err) {
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
+    }
 });
 
 // Subject更新
@@ -41,55 +48,32 @@ subjectRoute.put('/:id', async (req, res) => {
 });
 
 // Subject削除
-subjectRoute.delete('/:id', async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id);
-    await post!.deleteOne();
-    return res.status(httpStatus.OK).json('Subjectを削除しました。');
-  } catch (err) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
+subjectRoute.delete('/:id',
+  async (req:RequestWithUser, res) => {
+    try {
+      if (req.user!.credLevel < 4){
+        return res
+          .status(httpStatus.FORBIDDEN)
+          .send('科目を削除する権限がありません。')
+      }
+      const deletedSubject = await prisma.subject.delete({
+        where: {
+          id: req.params.id,
+        },
+      })
+      return res
+        .status(httpStatus.OK)
+        .json(deletedSubject);
+    } catch (err) {
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
+    }
   }
-});
-
-// Subjectを削除 subjectNameで
-subjectRoute.delete('/name/:subjectName', async (req, res) => {
-  try {
-    const subject = await Subject.findOne({
-      subjectName: req.params.subjectName,
-    });
-    await subject!.deleteOne();
-    return res.status(httpStatus.OK).json('Subjectを削除しました。');
-  } catch (err) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
-  }
-});
+);
 
 // 全てのSubject取得
 subjectRoute.get('/', async (req, res) => {
   try {
-    const subjects = await Subject.find();
-    return res.status(httpStatus.OK).json(subjects);
-  } catch (err) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
-  }
-});
-
-// 任意のgradeのSubject取得
-subjectRoute.get('/grade/:grade', async (req, res) => {
-  try {
-    const subjects = await Subject.find({ grade: req.params.grade })
-      .populate([
-        {
-          path: 'teacherId',
-          model: 'Teacher',
-        },
-      ])
-      .populate([
-        {
-          path: 'reviewId',
-          model: 'Review',
-        },
-      ]);
+    const subjects = await prisma.subject.findMany();
     return res.status(httpStatus.OK).json(subjects);
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
