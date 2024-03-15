@@ -1,86 +1,59 @@
 import httpStatus from 'http-status';
-import Teacher from '../models/Teacher';
-import User from '../models/Account/User';
 import { Router } from 'express';
+import { PrismaClient } from '@prisma/client';
+import { RequestWithUser } from '../jwtAuth';
 
 const teacherRoute = Router();
+const prisma =  new PrismaClient
 
 // Create a teacher but only admin or has cred-level of 4 or higher
-teacherRoute.post('/', async (req, res) => {
+teacherRoute.post('/', 
+async (req:RequestWithUser, res) => {
+  if (req.user!.credLevel < 4){
+    return res
+      .status(httpStatus.OK)
+      .send('教員を登録する権限がありません。')
+  }
   try {
-    const userId = req.body.userId;
-    const user = await User.findById(userId).populate({
-      path: 'auth',
-      model: 'Auth',
+    const newTeacher = await prisma.teacher.create({
+      data:{
+        name: req.body.name,
+      },
     });
-    if (user!.auth.trustLevel >= 4) {
-      const newTeacher = new Teacher(req.body);
-      try {
-        const savedTeacher = await newTeacher.save();
-        res.status(httpStatus.OK).json(savedTeacher);
-      } catch (err) {
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
-      }
-    } else {
-      return res.status(httpStatus.FORBIDDEN).json('権限がありません。');
-    }
-  } catch (err) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
+    return res
+      .status(httpStatus.OK)
+      .json(newTeacher)
+  } catch (err){
+    console.log(err);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json('内部エラーが発生しました。');
   }
 });
 // Get all teachers
 teacherRoute.get('/', async (req, res) => {
   try {
-    const teachers = await Teacher.find();
+    const teachers = await prisma.teacher.findMany();
     res.status(httpStatus.OK).json(teachers);
-  } catch (err) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
-  }
-});
-// Get a teacher by id
-teacherRoute.get('/course/:course', async (req, res) => {
-  try {
-    const teachers = await Teacher.find({ course: req.params.course });
-    res.status(httpStatus.OK).json(teachers);
-  } catch (err) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
-  }
-});
-// Update a teacher but only admin or has cred-level of 4 or higher
-teacherRoute.put('/:id', async (req, res) => {
-  try {
-    const teacher = await Teacher.findById(req.params.id);
-    const user = await User.findById(req.body.userId).populate({
-      path: 'auth',
-      model: 'Auth',
-    });
-    if (user!.auth.trustLevel >= 4) {
-      await teacher!.updateOne({
-        $set: req.body,
-      });
-      return res.status(httpStatus.OK).json('teacherが更新されました');
-    } else {
-      return res.status(httpStatus.FORBIDDEN).json('権限がありません。');
-    }
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
   }
 });
 
 // Delete a teacher but only admin or has cred-level of 4 or higher
-teacherRoute.delete('/:id', async (req, res) => {
+teacherRoute.delete('/:id', async (req:RequestWithUser, res) => {
+  if (req.user!.credLevel < 4) {
+    return res
+      .status(httpStatus.OK)
+      .send('教員を削除する権限がありません。')
+  }
   try {
-    const teacher = await Teacher.findById(req.params.id);
-    const user = await User.findById(req.body.userId).populate({
-      path: 'auth',
-      model: 'Auth',
-    });
-    if (user!.auth.trustLevel >= 4) {
-      await teacher!.deleteOne();
-      return res.status(httpStatus.OK).json('teacherが削除されました');
-    } else {
-      return res.status(httpStatus.FORBIDDEN).json('権限がありません。');
-    }
+    const deletedTeacher = await prisma.teacher.delete({
+      where: {
+        id: req.params.id,
+      },
+    })
+    return res
+      .status(httpStatus.OK)
+      .json(deletedTeacher)
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
   }
