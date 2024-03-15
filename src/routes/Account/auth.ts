@@ -9,7 +9,7 @@ import nodemailer from 'nodemailer';
 import { Router } from 'express';
 
 const authRoute = Router();
-const prisma = new PrismaClient();
+const prisma    = new PrismaClient();
 
 const saltRounds = 10;
 

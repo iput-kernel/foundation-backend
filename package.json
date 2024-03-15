@@ -8,8 +8,8 @@
     "lint": "eslint --fix --max-warnings 0 .",
     "formatter": "prettier --write .",
     "start": "node ./build/server.js",
-    "prisma:migrate":"prisma migrate dev",
-    "prisma:studio":"prisma studio",
+    "prisma:migrate": "prisma migrate dev && prisma generate",
+    "prisma:studio": "prisma studio",
     "dev": "npm run prisma:migrate && npm run prisma:studio & tsc && nodemon ./build/server.js",
     "type:check": "tsc --noEmit",
     "prepare": "husky install"
@@ -20,6 +20,7 @@
   "author": "bitcat",
   "license": "ISC",
   "dependencies": {
+    "@influxdata/influxdb-client": "^1.33.2",
     "@prisma/client": "^5.10.2",
     "@types/express": "^4.17.21",
     "@types/multer": "^1.4.11",
@@ -35,6 +36,7 @@
     "helmet": "^6.1.5",
     "http-status": "^1.7.0",
     "ics": "^3.7.1",
+    "influx": "^5.9.3",
     "jsonwebtoken": "^9.0.2",
     "minio": "^7.1.3",
     "mongoose": "^7.1.0",

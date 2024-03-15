@@ -10,6 +10,4 @@ RUN npm install -g typescript
 
 COPY . .
 
-RUN npx prisma generate
-
 CMD ["npm", "run", "dev"]

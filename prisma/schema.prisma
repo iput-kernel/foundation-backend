@@ -88,7 +88,7 @@ model Room{
 }
 
 model Subject{
-  classId           String         @db.VarChar(36)
+  id                String         @id @default(uuid()) @db.VarChar(36)
   name              String         @db.VarChar(20)
   teacher           TeacherSubject[]
   room              Room?          @relation(fields: [roomNumber], references: [number])
@@ -96,7 +96,7 @@ model Subject{
   timetable         Timetable?     @relation(fields: [timetableId], references: [id])
   timetableId       String?        @db.VarChar(36)
   class             Class          @relation(fields: [classId], references: [id])  
-  @@id ([classId, name])
+  classId           String         @db.VarChar(36)
 }
 
 model SubjectName{
@@ -113,10 +113,9 @@ model Teacher{
 
 model TeacherSubject {
   teacherId         String         @db.VarChar(36)
-  classId           String         @db.VarChar(36)
-  subjectName       String         @db.VarChar(20)
+  subjectId         String         @db.VarChar(36)
   teacher           Teacher        @relation(fields: [teacherId], references: [id])
-  subject           Subject        @relation(fields: [classId, subjectName], references: [classId, name])
+  subject           Subject        @relation(fields: [subjectId], references: [id])
 
-  @@id([teacherId, classId, subjectName])
+  @@id([teacherId, subjectId])
 }

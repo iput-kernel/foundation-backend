@@ -22,12 +22,7 @@ interface ClassCsvData {
 classRoute.post('/',
   authenticateJWT,
   async (req:RequestWithUser, res) => {
-    if (!req.user) {
-      return res
-        .status(httpStatus.UNAUTHORIZED)
-        .send('アカウントが認証されていません。');
-    }
-    if (req.user.credLevel < 4) {
+    if (req.user!.credLevel < 4) {
       return res
         .status(httpStatus.FORBIDDEN)
         .send('クラスを作成する権限がありません。');
@@ -42,40 +37,54 @@ classRoute.post('/',
           studentsCount: req.body.studentsCount,
         },
       });
-      res.status(httpStatus.OK).json(newClass);
+      return res.status(httpStatus.OK).json(newClass);
     }catch(err){
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
     }
 });
 
-classRoute.post('/import',
+classRoute.post('/upload',
   authenticateJWT,
-  upload.single('file'), async (req:RequestWithUser, res) => {
+  upload.single('file'), 
+  async (req:RequestWithUser, res) => {
+    if (req.user!.credLevel < 4) {
+      return res
+        .status(httpStatus.FORBIDDEN)
+        .send('クラスデータをインポートする権限がありません。');
+    }
 
-  if (!req.user) {
-    return res
-      .status(httpStatus.UNAUTHORIZED)
-      .send('アカウントが認証されていません。');
-  }
+    if (!req.file) {
+      return res.status(400).send('ファイルがアップロードされていません。');
+    }
 
-  if (req.user.credLevel < 4) {
-    return res
-      .status(httpStatus.FORBIDDEN)
-      .send('クラスデータをインポートする権限がありません。');
-  }
+    const fileName = `${Date.now()}-${req.file.originalname}`;
+    const fileBuffer = req.file.buffer;
 
-  if (!req.file) {
-    return res.status(400).send('ファイルがアップロードされていません。');
-  }
+    // MinIOにファイルをアップロード
+    minioClient.putObject('class-data-csv', fileName, fileBuffer, (err) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).send('ファイルのアップロードに失敗しました。');
+      }
 
-  const fileName = `${Date.now()}-${req.file.originalname}`;
-  const fileBuffer = req.file.buffer;
+      // アップロード成功のレスポンスを返す
+      return res.status(200).send({ message: 'ファイルが正常にアップロードされました。', fileName });
+    });
+});
 
-  // MinIOにファイルをアップロード
-  minioClient.putObject('class-data-csv', fileName, fileBuffer, (err) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).send('ファイルのアップロードに失敗しました。');
+classRoute.post('/import/:fileName',
+  authenticateJWT,
+  async (req:RequestWithUser, res) => {
+    if (req.user!.credLevel < 4) {
+      return res
+        .status(httpStatus.FORBIDDEN)
+        .send('データベースへのインポート権限がありません。');
+    }
+
+    const fileName = req.params.fileName;
+
+    if (!fileName) {
+      return res.status(400).send('ファイル名が指定されていません。');
     }
 
     // MinIOからファイルをストリームとして読み込む
@@ -100,28 +109,23 @@ classRoute.post('/import',
                 studentsCount: parseInt(item.studentsCount, 10),
               })),
             });
-            res.status(200).send('クラスが正常にインポートされました。');
+            return res.status(200).send('クラスが正常にインポートされました。');
           } catch (err) {
-            res.status(500).json(err);
+            return res.status(500).json(err);
           }
         });
     });
-  });
 });
 
 //特定のクラスの取得
 classRoute.get('/:id', async (req, res) => {
   try {
-    const classes = await prisma.class.findUnique({
-      where: {
-        id: req.params.id,
+    const clazz = prisma.class.findUnique({
+      where:{
+        id: req.params.id
       },
-      include: {
-        students: true,
-        subject: true,
-      },
-    });
-    return res.status(httpStatus.OK).json(classes);
+    })
+    return res.status(httpStatus.OK).json(clazz);
   } catch (err) {
     return res.status(httpStatus.FORBIDDEN).json(err);
   }

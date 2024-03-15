@@ -2,15 +2,22 @@ import httpStatus from 'http-status';
 import Post from '../models/Content/Post';
 import Subject from '../models/Subject';
 import { Router } from 'express';
+import { PrismaClient } from '@prisma/client';
 
 const subjectRoute = Router();
+const prisma = new PrismaClient();
 
 // Subject作成
 subjectRoute.post('/', async (req, res) => {
-  const newSubject = new Subject(req.body);
+  
   try {
-    const savedSubject = await newSubject.save();
-    res.status(httpStatus.OK).json(savedSubject);
+    const newSubject = await prisma.subject.create({
+      data:{
+        classId: req.body.classId,
+        name   : req.body.name,
+      }
+    })
+    return res.status(httpStatus.OK).json(newSubject)
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
   }
@@ -19,11 +26,15 @@ subjectRoute.post('/', async (req, res) => {
 // Subject更新
 subjectRoute.put('/:id', async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id);
-    await post!.updateOne({
-      $set: req.body,
-    });
-    return res.status(httpStatus.OK).json('Subjectを編集しました。');
+    const subject = await prisma.subject.update({
+      where: {
+        id: req.params.id
+      },
+      data: {
+        timetableId: req.body.timetableId,
+      },
+    })
+    return res.status(httpStatus.OK).json(subject);
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
   }
