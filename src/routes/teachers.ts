@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client';
 import { RequestWithUser } from '../jwtAuth';
 
 const teacherRoute = Router();
-const prisma =  new PrismaClient
+const prisma =  new PrismaClient();
 
 // Create a teacher but only admin or has cred-level of 4 or higher
 teacherRoute.post('/', 
