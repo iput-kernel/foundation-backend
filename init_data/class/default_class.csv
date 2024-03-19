@@ -1,4 +1,4 @@
-department,course,classGrade,className,studentsCount
+department,course,grade,className,studentsCount
 IT,AI戦略,3,B,
 IT,AI戦略,2,B,31
 IT,IoTシステム,2,,32

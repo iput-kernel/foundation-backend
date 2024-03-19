@@ -11,7 +11,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 const prisma = new PrismaClient();
 
 interface ClassCsvData {
-  classGrade: string;
+  grade: string;
   department: string;
   course: string;
   className: string;
@@ -30,7 +30,7 @@ classRoute.post('/',
     try{
       const newClass = await prisma.class.create({
         data: {
-          grade: req.body.classGrade,
+          grade: req.body.grade,
           department: req.body.department,
           course: req.body.course,
           className: req.body.className,
@@ -102,7 +102,7 @@ classRoute.post('/import/:fileName',
             // CSVファイルの解析が完了したら、データベースにデータを挿入
             await prisma.class.createMany({
               data: results.map(item => ({
-                grade: parseInt(item.classGrade, 10),
+                grade: parseInt(item.grade, 10),
                 department: item.department,
                 course: item.course,
                 className: item.className,
