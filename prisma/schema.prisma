@@ -16,8 +16,27 @@ model User {
   classId           String?        @db.VarChar(36)
   extraSubject      ExtraSubject[] @relation("UserExtraSubject")
   profile           Profile?
+  projects          UserProject[]
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @default(now())
+}
+
+model Project{
+  id               String          @id @default(uuid()) @db.VarChar(36)
+  name             String          @db.VarChar(50)
+  description      String          @db.VarChar(500)
+  remark           String          @db.VarChar(400)
+  users            UserProject[]
+}
+
+model UserProject {
+  user              User           @relation(fields: [userId], references: [id])
+  userId            String
+  project           Project        @relation(fields: [projectId], references: [id])
+  projectId         String
+  role              String 
+
+  @@id([userId, projectId])
 }
 
 model Auth {
@@ -49,13 +68,13 @@ model Profile{
 
 model Class {
   id                String         @id @default(uuid()) @db.VarChar(36)
-  classGrade        Int            @db.SmallInt
+  grade             Int            @db.SmallInt
   department        String         @db.VarChar(20)
   course            String?        @db.VarChar(20)  
   className         String?        @db.VarChar(2)
   studentsCount     Int?           @db.SmallInt
   students          User[]         
-  subject           Subject[]
+  subject           Subject[]      @relation("ClassSubject")
 }
 
 model ExtraSubject{
@@ -95,8 +114,7 @@ model Subject{
   roomNumber        String?        @unique @db.VarChar(3)
   timetable         Timetable?     @relation(fields: [timetableId], references: [id])
   timetableId       String?        @db.VarChar(36)
-  class             Class          @relation(fields: [classId], references: [id])  
-  classId           String         @db.VarChar(36)
+  class             Class[]        @relation("ClassSubject")
 }
 
 model SubjectName{

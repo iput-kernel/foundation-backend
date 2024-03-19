@@ -11,6 +11,25 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
+CREATE TABLE "Project" (
+    "id" VARCHAR(36) NOT NULL,
+    "name" VARCHAR(50) NOT NULL,
+    "description" VARCHAR(500) NOT NULL,
+    "remark" VARCHAR(400) NOT NULL,
+
+    CONSTRAINT "Project_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "UserProject" (
+    "userId" TEXT NOT NULL,
+    "projectId" TEXT NOT NULL,
+    "role" TEXT NOT NULL,
+
+    CONSTRAINT "UserProject_pkey" PRIMARY KEY ("userId","projectId")
+);
+
+-- CreateTable
 CREATE TABLE "Auth" (
     "id" VARCHAR(36) NOT NULL,
     "credLevel" SMALLINT NOT NULL DEFAULT 2,
@@ -44,10 +63,10 @@ CREATE TABLE "Profile" (
 -- CreateTable
 CREATE TABLE "Class" (
     "id" VARCHAR(36) NOT NULL,
-    "classGrade" SMALLINT NOT NULL,
+    "grade" SMALLINT NOT NULL,
     "department" VARCHAR(20) NOT NULL,
-    "course" VARCHAR(20) NOT NULL,
-    "className" VARCHAR(2) NOT NULL,
+    "course" VARCHAR(20),
+    "className" VARCHAR(2),
     "studentsCount" SMALLINT,
 
     CONSTRAINT "Class_pkey" PRIMARY KEY ("id")
@@ -66,7 +85,7 @@ CREATE TABLE "ExtraSubject" (
 -- CreateTable
 CREATE TABLE "Timetable" (
     "id" VARCHAR(36) NOT NULL,
-    "day_of_week" SMALLINT NOT NULL,
+    "dayOfWeek" SMALLINT NOT NULL,
     "period" SMALLINT NOT NULL,
     "starttime" TIME NOT NULL,
     "endtime" TIME NOT NULL,
@@ -86,17 +105,17 @@ CREATE TABLE "Room" (
 
 -- CreateTable
 CREATE TABLE "Subject" (
-    "classId" VARCHAR(36) NOT NULL,
+    "id" VARCHAR(36) NOT NULL,
     "name" VARCHAR(20) NOT NULL,
     "roomNumber" VARCHAR(3),
     "timetableId" VARCHAR(36),
 
-    CONSTRAINT "Subject_pkey" PRIMARY KEY ("classId","name")
+    CONSTRAINT "Subject_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "SubjectName" (
-    "name" TEXT NOT NULL,
+    "name" VARCHAR(20) NOT NULL,
 
     CONSTRAINT "SubjectName_pkey" PRIMARY KEY ("name")
 );
@@ -114,10 +133,15 @@ CREATE TABLE "Teacher" (
 -- CreateTable
 CREATE TABLE "TeacherSubject" (
     "teacherId" VARCHAR(36) NOT NULL,
-    "classId" VARCHAR(36) NOT NULL,
-    "subjectName" VARCHAR(20) NOT NULL,
+    "subjectId" VARCHAR(36) NOT NULL,
 
-    CONSTRAINT "TeacherSubject_pkey" PRIMARY KEY ("teacherId","classId","subjectName")
+    CONSTRAINT "TeacherSubject_pkey" PRIMARY KEY ("teacherId","subjectId")
+);
+
+-- CreateTable
+CREATE TABLE "_ClassSubject" (
+    "A" VARCHAR(36) NOT NULL,
+    "B" VARCHAR(36) NOT NULL
 );
 
 -- CreateTable
@@ -154,6 +178,12 @@ CREATE UNIQUE INDEX "SubjectName_name_key" ON "SubjectName"("name");
 CREATE UNIQUE INDEX "Teacher_name_key" ON "Teacher"("name");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "_ClassSubject_AB_unique" ON "_ClassSubject"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_ClassSubject_B_index" ON "_ClassSubject"("B");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "_UserExtraSubject_AB_unique" ON "_UserExtraSubject"("A", "B");
 
 -- CreateIndex
@@ -161,6 +191,12 @@ CREATE INDEX "_UserExtraSubject_B_index" ON "_UserExtraSubject"("B");
 
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_classId_fkey" FOREIGN KEY ("classId") REFERENCES "Class"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UserProject" ADD CONSTRAINT "UserProject_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UserProject" ADD CONSTRAINT "UserProject_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Auth" ADD CONSTRAINT "Auth_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -181,13 +217,16 @@ ALTER TABLE "Subject" ADD CONSTRAINT "Subject_roomNumber_fkey" FOREIGN KEY ("roo
 ALTER TABLE "Subject" ADD CONSTRAINT "Subject_timetableId_fkey" FOREIGN KEY ("timetableId") REFERENCES "Timetable"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Subject" ADD CONSTRAINT "Subject_classId_fkey" FOREIGN KEY ("classId") REFERENCES "Class"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "TeacherSubject" ADD CONSTRAINT "TeacherSubject_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "Teacher"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "TeacherSubject" ADD CONSTRAINT "TeacherSubject_classId_subjectName_fkey" FOREIGN KEY ("classId", "subjectName") REFERENCES "Subject"("classId", "name") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "TeacherSubject" ADD CONSTRAINT "TeacherSubject_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_ClassSubject" ADD CONSTRAINT "_ClassSubject_A_fkey" FOREIGN KEY ("A") REFERENCES "Class"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_ClassSubject" ADD CONSTRAINT "_ClassSubject_B_fkey" FOREIGN KEY ("B") REFERENCES "Subject"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_UserExtraSubject" ADD CONSTRAINT "_UserExtraSubject_A_fkey" FOREIGN KEY ("A") REFERENCES "ExtraSubject"("id") ON DELETE CASCADE ON UPDATE CASCADE;

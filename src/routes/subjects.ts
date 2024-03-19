@@ -19,7 +19,6 @@ subjectRoute.post('/',
       const newSubject = await prisma.subject.create({
         data:{
           name: req.body.name,
-          classId: req.body.classId,
         }
       })
       return res

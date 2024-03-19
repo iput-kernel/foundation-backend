@@ -30,7 +30,7 @@ classRoute.post('/',
     try{
       const newClass = await prisma.class.create({
         data: {
-          classGrade: req.body.classGrade,
+          grade: req.body.classGrade,
           department: req.body.department,
           course: req.body.course,
           className: req.body.className,
@@ -102,7 +102,7 @@ classRoute.post('/import/:fileName',
             // CSVファイルの解析が完了したら、データベースにデータを挿入
             await prisma.class.createMany({
               data: results.map(item => ({
-                classGrade: parseInt(item.classGrade, 10),
+                grade: parseInt(item.classGrade, 10),
                 department: item.department,
                 course: item.course,
                 className: item.className,
