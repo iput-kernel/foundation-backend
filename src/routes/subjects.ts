@@ -16,18 +16,39 @@ subjectRoute.post('/',
         .send('科目を追加する権限がありません。')
     }
     try {
-      const newSubject = await prisma.subject.create({
-        data:{
-          name: req.body.name,
-        }
-      })
-      return res
-        .status(httpStatus.OK)
-        .json(newSubject)
+      await prisma.$transaction(async (prisma) => {
+        const newSubject = await prisma.subject.create({
+          data:{
+            name: req.body.name,
+            room:{
+              connect: { number: req.body.roomNumber },            
+            },
+            timetable: {
+              create: {
+                dayOfWeek: req.body.timetable.dayOfWeek,
+                period: req.body.timetable.period,
+                starttime: req.body.timetable.starttime,
+                endtime: req.body.timetable.endtime,
+              },
+            },
+          },
+          include: {
+            room: true,
+            timetable: true,
+          },
+        })
+        return res
+          .status(httpStatus.OK)
+          .json(newSubject)
+      });
     } catch (err) {
-      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
-    }
-});
+      console.log(err)
+      return res
+        .status(httpStatus.INTERNAL_SERVER_ERROR)
+        .send('内部エラーが発生しました。')
+      }
+   }
+);
 
 // Subject更新
 subjectRoute.put('/:id', async (req, res) => {
