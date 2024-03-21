@@ -8,132 +8,144 @@ datasource db {
 }
 
 model User {
-  id                String         @id @default(uuid()) @db.VarChar(36)
-  name              String         @unique @db.VarChar(20)
-  email             String         @unique @db.VarChar(100)
-  auth              Auth?
-  class             Class?         @relation(fields: [classId], references: [id])
-  classId           String?        @db.VarChar(36)
-  extraSubject      ExtraSubject[] @relation("UserExtraSubject")
-  profile           Profile?
-  projects          UserProject[]
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @default(now())
+  id           String         @id @default(uuid()) @db.Uuid
+  name         String         @unique @db.VarChar(20)
+  email        String         @unique @db.VarChar(100)
+  auth         Auth?
+  class        Class?         @relation(fields: [classId], references: [id])
+  classId      String?        @db.Uuid
+  inCharge     InCharge       @relation(fields: [inChargeId], references: [id])
+  inChargeId   String         @db.Uuid
+  extraSubject ExtraLecture[] @relation("UserExtraLecture")
+  profile      Profile?
+  projects     UserProject[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now())
 }
 
-model Project{
-  id               String          @id @default(uuid()) @db.VarChar(36)
-  name             String          @db.VarChar(50)
-  description      String          @db.VarChar(500)
-  remark           String          @db.VarChar(400)
-  users            UserProject[]
+model Project {
+  id          String        @id @default(uuid()) @db.Uuid
+  name        String        @db.VarChar(50)
+  description String        @db.VarChar(500)
+  remark      String        @db.VarChar(400)
+  users       UserProject[]
 }
 
 model UserProject {
-  user              User           @relation(fields: [userId], references: [id])
-  userId            String
-  project           Project        @relation(fields: [projectId], references: [id])
-  projectId         String
-  role              String 
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId String
+  role      String
 
   @@id([userId, projectId])
 }
 
 model Auth {
-  id                String         @id @default(uuid()) @db.VarChar(36)
-  credLevel         Int            @db.SmallInt @default(2)
-  passwordHash      String         @db.VarChar(60)
-  secretKey         String?        @db.VarChar(64)
-  confirmToken      String         @unique @db.VarChar(32)
-  verifiedAt        DateTime?
-  user              User           @relation(fields: [userId], references: [id])
-  userId            String         @unique @db.VarChar(36)
+  id           String    @id @default(uuid()) @db.Uuid
+  credLevel    Int       @default(2) @db.SmallInt
+  passwordHash String    @db.VarChar(60)
+  secretKey    String?   @db.VarChar(64)
+  confirmToken String    @unique @db.VarChar(32)
+  verifiedAt   DateTime?
+  user         User      @relation(fields: [userId], references: [id])
+  userId       String    @unique @db.Uuid
 }
 
-model Profile{
-  id                String         @id @default(uuid()) @db.VarChar(36)
-  realNameFirst     String?        @db.VarChar(15)
-  realNameLast      String?        @db.VarChar(15)
-  birthday          DateTime?      @db.Date
-  sex               String?        @db.Char(6)
-  phone             String?        @db.VarChar(11)
-  motherTongue      String?        @db.VarChar(20)
-  describe          String?        @db.VarChar(200)
-  city              String?        @db.VarChar(20)
-  avatarUrl         String         @default("") @db.VarChar(100)
-  coverUrl          String         @default("") @db.VarChar(100)
-  user              User           @relation(fields: [userId], references: [id])
-  userId            String         @unique @db.VarChar(36)
+model Profile {
+  id            String    @id @default(uuid()) @db.Uuid
+  realNameFirst String?   @db.VarChar(15)
+  realNameLast  String?   @db.VarChar(15)
+  studentNumber String?   @db.VarChar(8)
+  birthday      DateTime? @db.Date
+  sex           String?   @db.Char(6)
+  phone         String?   @db.VarChar(11)
+  motherTongue  String?   @db.VarChar(20)
+  describe      String?   @db.VarChar(200)
+  city          String?   @db.VarChar(20)
+  avatarUrl     String    @default("") @db.VarChar(100)
+  coverUrl      String    @default("") @db.VarChar(100)
+  user          User      @relation(fields: [userId], references: [id])
+  userId        String    @unique @db.Uuid
 }
 
 model Class {
-  id                String         @id @default(uuid()) @db.VarChar(36)
-  grade             Int            @db.SmallInt
-  department        String         @db.VarChar(20)
-  course            String?        @db.VarChar(20)  
-  className         String?        @db.VarChar(2)
-  studentsCount     Int?           @db.SmallInt
-  students          User[]         
-  subject           Subject[]      @relation("ClassSubject")
+  id            String          @id @default(uuid()) @db.Uuid
+  grade         Int             @db.SmallInt
+  department    String          @db.VarChar(20)
+  course        String?         @db.VarChar(20)
+  className     String?         @db.VarChar(2)
+  studentsCount Int?            @db.SmallInt
+  students      User[]
+  lecture       CommonLecture[] @relation("ClassCommonLecture")
 }
 
-model ExtraSubject{
-  id                String         @id @default(uuid()) @db.VarChar(36)
-  name              String         @unique @db.VarChar(20)
-  room              Room?          @relation(fields: [roomNumber], references: [number])
-  roomNumber        String?        @db.VarChar(3)
-  students          User[]         @relation("UserExtraSubject")
-  timetable         Timetable?     @relation(fields: [timetableId], references: [id])
-  timetableId       String?        @db.VarChar(36)
+model Subject {
+  id            String          @id @default(uuid()) @db.Uuid
+  name          String          @db.VarChar(20)
+  teacher       Teacher[]       @relation("TeacherSubject")
+  commonLecture CommonLecture[]
+  extraLecture  ExtraLecture[]
 }
 
-model Timetable{
-  id                String         @id @default(uuid()) @db.VarChar(36)
-  dayOfWeek         Int            @db.SmallInt
-  period            Int            @db.SmallInt
-  starttime         DateTime       @db.Time
-  endtime           DateTime       @db.Time
-  subject           Subject[]
-  extraSubject      ExtraSubject[] 
+model ExtraLecture {
+  id          String     @id @default(uuid()) @db.Uuid
+  subject     Subject    @relation(fields: [subjectId], references: [id])
+  subjectId   String     @db.Uuid
+  room        Room?      @relation(fields: [roomNumber], references: [number])
+  roomNumber  String?    @db.VarChar(3)
+  students    User[]     @relation("UserExtraLecture")
+  timetable   Timetable? @relation(fields: [timetableId], references: [id])
+  timetableId String?    @db.Uuid
+  teachers    Teacher[]  @relation("TeacherExtraLecture")
 }
 
-model Room{
-  number            String         @id @db.VarChar(3)
-  name              String         @db.VarChar(30)
-  seats             Int?
-  status            String?        @db.VarChar(10)
-  subject           Subject[] 
-  extraSubject      ExtraSubject[]
+model Timetable {
+  id            String          @id @default(uuid()) @db.Uuid
+  dayOfWeek     Int             @db.SmallInt
+  period        Int             @db.SmallInt
+  starttime     DateTime        @db.Time
+  endtime       DateTime        @db.Time
+  commonLecture CommonLecture[]
+  extraLecture  ExtraLecture[]
 }
 
-model Subject{
-  id                String         @id @default(uuid()) @db.VarChar(36)
-  name              String         @db.VarChar(20)
-  teacher           TeacherSubject[]
-  room              Room?          @relation(fields: [roomNumber], references: [number])
-  roomNumber        String?        @unique @db.VarChar(3)
-  timetable         Timetable?     @relation(fields: [timetableId], references: [id])
-  timetableId       String?        @db.VarChar(36)
-  class             Class[]        @relation("ClassSubject")
+model Room {
+  number       String          @id @db.VarChar(3)
+  name         String          @db.VarChar(30)
+  seats        Int?
+  status       String?         @db.VarChar(10)
+  subject      CommonLecture[]
+  extraLecture ExtraLecture[]
 }
 
-model SubjectName{
-  name              String         @id @unique @db.VarChar(20)
+model CommonLecture {
+  id          String     @id @default(uuid()) @db.Uuid
+  name        String     @db.VarChar(20)
+  subject     Subject    @relation(fields: [subjectId], references: [id])
+  subjectId   String     @db.Uuid
+  room        Room?      @relation(fields: [roomNumber], references: [number])
+  roomNumber  String?    @unique @db.VarChar(3)
+  timetable   Timetable? @relation(fields: [timetableId], references: [id])
+  timetableId String?    @db.Uuid
+  class       Class[]    @relation("ClassCommonLecture")
+  teacher     Teacher[]  @relation("TeacherCommonLecture")
 }
 
-model Teacher{
-  id                String         @id @default(uuid()) @db.VarChar(36)
-  name              String         @unique
-  subject           TeacherSubject[]
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @default(now())
+model Teacher {
+  id            String          @id @default(uuid()) @db.Uuid
+  name          String          @unique
+  inCharge      InCharge?
+  subject       Subject[]       @relation("TeacherSubject")
+  commonLecture CommonLecture[] @relation("TeacherCommonLecture")
+  extraLecture  ExtraLecture[]  @relation("TeacherExtraLecture")
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @default(now())
 }
 
-model TeacherSubject {
-  teacherId         String         @db.VarChar(36)
-  subjectId         String         @db.VarChar(36)
-  teacher           Teacher        @relation(fields: [teacherId], references: [id])
-  subject           Subject        @relation(fields: [subjectId], references: [id])
-
-  @@id([teacherId, subjectId])
+model InCharge {
+  id        String  @id @default(uuid()) @db.Uuid
+  students  User[]
+  teacher   Teacher @relation(fields: [teacherId], references: [id])
+  teacherId String  @unique @db.Uuid
 }
