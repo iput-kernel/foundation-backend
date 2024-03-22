@@ -84,6 +84,7 @@ services:
       mc mb iput-kernel/class-data-csv;
       mc mb iput-kernel/room-data-csv;
       mc mb iput-kernel/air-data-csv;
+      mc mb iput-kernel/subject-data-csv;
       mc cp init_data/subject/* iput-kernel/subject-data-csv;
       mc cp init_data/room/* iput-kernel/room-data-csv;
       mc cp init_data/class/* iput-kernel/class-data-csv;

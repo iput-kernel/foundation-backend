@@ -14,8 +14,8 @@ model User {
   auth         Auth?
   class        Class?         @relation(fields: [classId], references: [id])
   classId      String?        @db.Uuid
-  inCharge     InCharge       @relation(fields: [inChargeId], references: [id])
-  inChargeId   String         @db.Uuid
+  inCharge     InCharge?      @relation(fields: [inChargeId], references: [id])
+  inChargeId   String?        @db.Uuid
   extraSubject ExtraLecture[] @relation("UserExtraLecture")
   profile      Profile?
   projects     UserProject[]
@@ -33,9 +33,9 @@ model Project {
 
 model UserProject {
   user      User    @relation(fields: [userId], references: [id])
-  userId    String
+  userId    String  @db.Uuid
   project   Project @relation(fields: [projectId], references: [id])
-  projectId String
+  projectId String  @db.Uuid
   role      String
 
   @@id([userId, projectId])

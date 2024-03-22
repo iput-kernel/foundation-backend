@@ -15,7 +15,8 @@ timetableRoute.get('/search', async (req, res) => {
         period: Number(period),
       },
       include: {
-        subject: true,
+        commonLecture: true,
+        extraLecture: true,
       },
     });
 

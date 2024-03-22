@@ -2,9 +2,20 @@ import httpStatus from 'http-status';
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { RequestWithUser, authenticateJWT } from '../jwtAuth';
+import minioClient  from '../utils/minioClient';
+import multer from 'multer';
+import csvParser from 'csv-parser';
 
 const subjectRoute = Router();
 const prisma = new PrismaClient();
+const upload = multer({ storage: multer.memoryStorage() });
+
+interface SubjectCsvData {
+  name: string;
+  count: string;
+  isRequire: string;
+}
+
 
 // Subject作成
 subjectRoute.post('/',
@@ -20,21 +31,8 @@ subjectRoute.post('/',
         const newSubject = await prisma.subject.create({
           data:{
             name: req.body.name,
-            room:{
-              connect: { number: req.body.roomNumber },            
-            },
-            timetable: {
-              create: {
-                dayOfWeek: req.body.timetable.dayOfWeek,
-                period: req.body.timetable.period,
-                starttime: req.body.timetable.starttime,
-                endtime: req.body.timetable.endtime,
-              },
-            },
-          },
-          include: {
-            room: true,
-            timetable: true,
+            count: req.body.count,
+            isRequire: req.body.isRequire,
           },
         })
         return res
@@ -50,6 +48,78 @@ subjectRoute.post('/',
    }
 );
 
+subjectRoute.post('/upload',
+  authenticateJWT,
+  upload.single('file'), 
+  async (req:RequestWithUser, res) => {
+    if (req.user!.credLevel < 4) {
+      return res
+        .status(httpStatus.FORBIDDEN)
+        .send('クラスデータをインポートする権限がありません。');
+    }
+
+    if (!req.file) {
+      return res.status(400).send('ファイルがアップロードされていません。');
+    }
+
+    const fileName = `${Date.now()}-${req.file.originalname}`;
+    const fileBuffer = req.file.buffer;
+
+    // MinIOにファイルをアップロード
+    minioClient.putObject('subject-data-csv', fileName, fileBuffer, (err) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).send('ファイルのアップロードに失敗しました。');
+      }
+
+      // アップロード成功のレスポンスを返す
+      return res.status(200).send({ message: 'ファイルが正常にアップロードされました。', fileName });
+    });
+});
+
+subjectRoute.post('/import/:fileName',
+  authenticateJWT,
+  async (req:RequestWithUser, res) => {
+    if (req.user!.credLevel < 4) {
+      return res
+        .status(httpStatus.FORBIDDEN)
+        .send('データベースへのインポート権限がありません。');
+    }
+
+    const fileName = req.params.fileName;
+
+    if (!fileName) {
+      return res.status(400).send('ファイル名が指定されていません。');
+    }
+
+    // MinIOからファイルをストリームとして読み込む
+    minioClient.getObject('subject-data-csv', fileName, (err, objStream) => {
+      if (err) {
+        return res.status(500).send('ファイルの読み込みに失敗しました。');
+      }
+
+      const results: SubjectCsvData[] = [];
+
+      objStream.pipe(csvParser())
+        .on('data', (data) => results.push(data))
+        .on('end', async () => {
+          try {
+            // CSVファイルの解析が完了したら、データベースにデータを挿入
+            await prisma.subject.createMany({
+              data: results.map(item => ({
+                name: item.name,
+                count: parseInt(item.count, 10),
+                isRequire: item.isRequire === 'true',
+              })),
+            });
+            return res.status(200).send('クラスが正常にインポートされました。');
+          } catch (err) {
+            return res.status(500).json(err);
+          }
+        });
+    });
+});
+
 // Subject更新
 subjectRoute.put('/:id', async (req, res) => {
   try {
@@ -58,7 +128,9 @@ subjectRoute.put('/:id', async (req, res) => {
         id: req.params.id
       },
       data: {
-        timetableId: req.body.timetableId,
+        teacher: {
+          connect: req.body.teacherIds.map((teacherId: string) => ({ id: teacherId }))
+        }
       },
     })
     return res.status(httpStatus.OK).json(subject);
