@@ -83,6 +83,8 @@ model Class {
 model Subject {
   id            String          @id @default(uuid()) @db.Uuid
   name          String          @db.VarChar(20)
+  count         Int?            @db.SmallInt
+  isRequire     Boolean         @default(false)
   teacher       Teacher[]       @relation("TeacherSubject")
   commonLecture CommonLecture[]
   extraLecture  ExtraLecture[]
