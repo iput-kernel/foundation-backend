@@ -1,3 +1,5 @@
+{
+  /*
 import { InfluxDB, Point } from '@influxdata/influxdb-client';
    // InfluxDBの設定
 const url = 'http://localhost:8086';
@@ -25,3 +27,6 @@ writeApi
         console.error(e);
         console.log('データ挿入中にエラーが発生しました');
     });
+*/
+}
+

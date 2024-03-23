@@ -2,7 +2,7 @@ import httpStatus from 'http-status';
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { RequestWithUser, authenticateJWT } from '../jwtAuth';
-import minioClient  from '../utils/minioClient';
+import minioClient from '../utils/minioClient';
 import multer from 'multer';
 import csvParser from 'csv-parser';
 
@@ -16,42 +16,37 @@ interface SubjectCsvData {
   isRequire: string;
 }
 
-
 // Subject作成
-subjectRoute.post('/',
-  authenticateJWT,
-  async (req:RequestWithUser, res) => {
-    if (req.user!.credLevel < 3){
-      return res
-        .status(httpStatus.FORBIDDEN)
-        .send('科目を追加する権限がありません。')
-    }
-    try {
-      await prisma.$transaction(async (prisma) => {
-        const newSubject = await prisma.subject.create({
-          data:{
-            name: req.body.name,
-            count: req.body.count,
-            isRequire: req.body.isRequire,
-          },
-        })
-        return res
-          .status(httpStatus.OK)
-          .json(newSubject)
+subjectRoute.post('/', authenticateJWT, async (req: RequestWithUser, res) => {
+  if (req.user!.credLevel < 3) {
+    return res
+      .status(httpStatus.FORBIDDEN)
+      .send('科目を追加する権限がありません。');
+  }
+  try {
+    await prisma.$transaction(async (prisma) => {
+      const newSubject = await prisma.subject.create({
+        data: {
+          name: req.body.name,
+          count: req.body.count,
+          isRequire: req.body.isRequire,
+        },
       });
-    } catch (err) {
-      console.log(err)
-      return res
-        .status(httpStatus.INTERNAL_SERVER_ERROR)
-        .send('内部エラーが発生しました。')
-      }
-   }
-);
+      return res.status(httpStatus.OK).json(newSubject);
+    });
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .send('内部エラーが発生しました。');
+  }
+});
 
-subjectRoute.post('/upload',
+subjectRoute.post(
+  '/upload',
   authenticateJWT,
-  upload.single('file'), 
-  async (req:RequestWithUser, res) => {
+  upload.single('file'),
+  async (req: RequestWithUser, res) => {
     if (req.user!.credLevel < 4) {
       return res
         .status(httpStatus.FORBIDDEN)
@@ -73,13 +68,18 @@ subjectRoute.post('/upload',
       }
 
       // アップロード成功のレスポンスを返す
-      return res.status(200).send({ message: 'ファイルが正常にアップロードされました。', fileName });
+      return res.status(200).send({
+        message: 'ファイルが正常にアップロードされました。',
+        fileName,
+      });
     });
-});
+  },
+);
 
-subjectRoute.post('/import/:fileName',
+subjectRoute.post(
+  '/import/:fileName',
   authenticateJWT,
-  async (req:RequestWithUser, res) => {
+  async (req: RequestWithUser, res) => {
     if (req.user!.credLevel < 4) {
       return res
         .status(httpStatus.FORBIDDEN)
@@ -100,13 +100,14 @@ subjectRoute.post('/import/:fileName',
 
       const results: SubjectCsvData[] = [];
 
-      objStream.pipe(csvParser())
+      objStream
+        .pipe(csvParser())
         .on('data', (data) => results.push(data))
         .on('end', async () => {
           try {
             // CSVファイルの解析が完了したら、データベースにデータを挿入
             await prisma.subject.createMany({
-              data: results.map(item => ({
+              data: results.map((item) => ({
                 name: item.name,
                 count: parseInt(item.count, 10),
                 isRequire: item.isRequire === 'true',
@@ -118,21 +119,24 @@ subjectRoute.post('/import/:fileName',
           }
         });
     });
-});
+  },
+);
 
 // Subject更新
 subjectRoute.put('/:id', async (req, res) => {
   try {
     const subject = await prisma.subject.update({
       where: {
-        id: req.params.id
+        id: req.params.id,
       },
       data: {
         teacher: {
-          connect: req.body.teacherIds.map((teacherId: string) => ({ id: teacherId }))
-        }
+          connect: req.body.teacherIds.map((teacherId: string) => ({
+            id: teacherId,
+          })),
+        },
       },
-    })
+    });
     return res.status(httpStatus.OK).json(subject);
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
@@ -140,32 +144,30 @@ subjectRoute.put('/:id', async (req, res) => {
 });
 
 // Subject削除
-subjectRoute.delete('/:id',
-  async (req:RequestWithUser, res) => {
-    try {
-      if (req.user!.credLevel < 4){
-        return res
-          .status(httpStatus.FORBIDDEN)
-          .send('科目を削除する権限がありません。')
-      }
-      const deletedSubject = await prisma.subject.delete({
-        where: {
-          id: req.params.id,
-        },
-      })
+subjectRoute.delete('/:id', async (req: RequestWithUser, res) => {
+  try {
+    if (req.user!.credLevel < 4) {
       return res
-        .status(httpStatus.OK)
-        .json(deletedSubject);
-    } catch (err) {
-      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
+        .status(httpStatus.FORBIDDEN)
+        .send('科目を削除する権限がありません。');
     }
+    const deletedSubject = await prisma.subject.delete({
+      where: {
+        id: req.params.id,
+      },
+    });
+    return res.status(httpStatus.OK).json(deletedSubject);
+  } catch (err) {
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
   }
-);
+});
 
 // 全てのSubject取得
 subjectRoute.get('/', async (req, res) => {
   try {
-    const subjects = await prisma.subject.findMany();
+    const subjects = await prisma.subject.findMany({
+      include: { teacher: true },
+    });
     return res.status(httpStatus.OK).json(subjects);
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
