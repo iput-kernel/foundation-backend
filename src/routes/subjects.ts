@@ -123,7 +123,10 @@ subjectRoute.post(
 );
 
 // Subject更新
-subjectRoute.put('/:id', async (req, res) => {
+subjectRoute.put('/:id', authenticateJWT, async (req: RequestWithUser, res) => {
+  if (req.user!.credLevel < 4) {
+    return res.status(httpStatus.FORBIDDEN).send('内部エラーが発生しました。');
+  }
   try {
     const subject = await prisma.subject.update({
       where: {
