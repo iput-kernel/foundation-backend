@@ -28,7 +28,7 @@ subjectRoute.post('/', authenticateJWT, async (req: RequestWithUser, res) => {
       const newSubject = await prisma.subject.create({
         data: {
           name: req.body.name,
-          count: req.body.count,
+          credit: req.body.credit,
           isRequire: req.body.isRequire,
         },
       });

@@ -20,7 +20,7 @@ model User {
   profile      Profile?
   projects     UserProject[]
   createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }
 
 model Project {
@@ -29,6 +29,8 @@ model Project {
   description String        @db.VarChar(500)
   remark      String        @db.VarChar(400)
   users       UserProject[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }
 
 model UserProject {
@@ -74,20 +76,24 @@ model Class {
   grade         Int             @db.SmallInt
   department    String          @db.VarChar(20)
   course        String?         @db.VarChar(20)
-  className     String?         @db.VarChar(2)
+  name          String?         @db.VarChar(2)
   studentsCount Int?            @db.SmallInt
   students      User[]
   lecture       CommonLecture[] @relation("ClassCommonLecture")
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }
 
 model Subject {
   id            String          @id @default(uuid()) @db.Uuid
   name          String          @db.VarChar(20)
-  count         Int?            @db.SmallInt
+  credit        Int?            @db.SmallInt
   isRequire     Boolean         @default(false)
   teacher       Teacher[]       @relation("TeacherSubject")
   commonLecture CommonLecture[]
   extraLecture  ExtraLecture[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }
 
 model ExtraLecture {
@@ -100,14 +106,16 @@ model ExtraLecture {
   timetable   Timetable? @relation(fields: [timetableId], references: [id])
   timetableId String?    @db.Uuid
   teachers    Teacher[]  @relation("TeacherExtraLecture")
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }
 
 model Timetable {
   id            String          @id @default(uuid()) @db.Uuid
   dayOfWeek     Int             @db.SmallInt
   period        Int             @db.SmallInt
-  starttime     DateTime        @db.Time
-  endtime       DateTime        @db.Time
+  startTime     DateTime        @db.Time
+  endTime       DateTime        @db.Time
   commonLecture CommonLecture[]
   extraLecture  ExtraLecture[]
 }
@@ -119,11 +127,12 @@ model Room {
   status       String?         @db.VarChar(10)
   subject      CommonLecture[]
   extraLecture ExtraLecture[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }
 
 model CommonLecture {
   id          String     @id @default(uuid()) @db.Uuid
-  name        String     @db.VarChar(20)
   subject     Subject    @relation(fields: [subjectId], references: [id])
   subjectId   String     @db.Uuid
   room        Room?      @relation(fields: [roomNumber], references: [number])
@@ -132,6 +141,8 @@ model CommonLecture {
   timetableId String?    @db.Uuid
   class       Class[]    @relation("ClassCommonLecture")
   teacher     Teacher[]  @relation("TeacherCommonLecture")
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }
 
 model Teacher {
@@ -142,7 +153,7 @@ model Teacher {
   commonLecture CommonLecture[] @relation("TeacherCommonLecture")
   extraLecture  ExtraLecture[]  @relation("TeacherExtraLecture")
   createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 }
 
 model InCharge {
@@ -150,4 +161,6 @@ model InCharge {
   students  User[]
   teacher   Teacher @relation(fields: [teacherId], references: [id])
   teacherId String  @unique @db.Uuid
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }

@@ -6,7 +6,7 @@ import { RequestWithUser, authenticateJWT } from '../jwtAuth';
 const lectureRoute = Router();
 const prisma = new PrismaClient();
 
-// Subject作成
+// Lecture作成
 lectureRoute.post('/common',
   authenticateJWT,
   async (req:RequestWithUser, res) => {
@@ -19,7 +19,6 @@ lectureRoute.post('/common',
       await prisma.$transaction(async (prisma) => {
         const newSubject = await prisma.commonLecture.create({
           data:{
-            name: req.body.name,
             subject:{
               connect: { id: req.body.subjectId }
             },
@@ -30,8 +29,8 @@ lectureRoute.post('/common',
               create: {
                 dayOfWeek: req.body.timetable.dayOfWeek,
                 period: req.body.timetable.period,
-                starttime: req.body.timetable.starttime,
-                endtime: req.body.timetable.endtime,
+                startTime: req.body.timetable.starttime,
+                endTime: req.body.timetable.endtime,
               },
             },
           },
@@ -52,8 +51,6 @@ lectureRoute.post('/common',
       }
    }
 );
-
-
 
 // Subject更新
 lectureRoute.put('/:id', async (req, res) => {

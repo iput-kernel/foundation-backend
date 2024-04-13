@@ -14,7 +14,7 @@ interface ClassCsvData {
   grade: string;
   department: string;
   course: string;
-  className: string;
+  name: string;
   studentsCount: string;
 }
 
@@ -33,7 +33,7 @@ classRoute.post('/',
           grade: req.body.grade,
           department: req.body.department,
           course: req.body.course,
-          className: req.body.className,
+          name: req.body.name,
           studentsCount: req.body.studentsCount,
         },
       });
@@ -105,7 +105,7 @@ classRoute.post('/import/:fileName',
                 grade: parseInt(item.grade, 10),
                 department: item.department,
                 course: item.course,
-                className: item.className,
+                name: item.name,
                 studentsCount: parseInt(item.studentsCount, 10),
               })),
             });
