@@ -17,7 +17,9 @@ interface SubjectCsvData {
 }
 
 // Subject作成
-subjectRoute.post('/', authenticateJWT, async (req: RequestWithUser, res) => {
+subjectRoute.post('/',
+  authenticateJWT, 
+  async (req: RequestWithUser, res) => {
   if (req.user!.credLevel < 3) {
     return res
       .status(httpStatus.FORBIDDEN)
@@ -85,21 +87,16 @@ subjectRoute.post(
         .status(httpStatus.FORBIDDEN)
         .send('データベースへのインポート権限がありません。');
     }
-
     const fileName = req.params.fileName;
-
     if (!fileName) {
       return res.status(400).send('ファイル名が指定されていません。');
     }
-
     // MinIOからファイルをストリームとして読み込む
     minioClient.getObject('subject-data-csv', fileName, (err, objStream) => {
       if (err) {
         return res.status(500).send('ファイルの読み込みに失敗しました。');
       }
-
       const results: SubjectCsvData[] = [];
-
       objStream
         .pipe(csvParser())
         .on('data', (data) => results.push(data))
@@ -123,9 +120,11 @@ subjectRoute.post(
 );
 
 // Subject更新
-subjectRoute.put('/:id', authenticateJWT, async (req: RequestWithUser, res) => {
+subjectRoute.put('/uuid/:id', 
+authenticateJWT, 
+async (req: RequestWithUser, res) => {
   if (req.user!.credLevel < 4) {
-    return res.status(httpStatus.FORBIDDEN).send('内部エラーが発生しました。');
+    return res.status(httpStatus.FORBIDDEN).send('科目を更新する権限がありません。');
   }
   try {
     const subject = await prisma.subject.update({
@@ -147,7 +146,7 @@ subjectRoute.put('/:id', authenticateJWT, async (req: RequestWithUser, res) => {
 });
 
 // Subject削除
-subjectRoute.delete('/:id', async (req: RequestWithUser, res) => {
+subjectRoute.delete('/uuid/:id', async (req: RequestWithUser, res) => {
   try {
     if (req.user!.credLevel < 4) {
       return res
@@ -171,10 +170,41 @@ subjectRoute.get('/', async (req, res) => {
     const subjects = await prisma.subject.findMany({
       include: { teacher: true },
     });
-    return res.status(httpStatus.OK).json(subjects);
+    const subjectsWithLinks = subjects.map(subject => ({
+      ...subject,
+      links: {
+        self: `/v1/subject/uuid/${subject.id}`,
+        update: `/v1/subject/uuid/${subject.id}`,
+        delete: `/v1/subject/uuid/${subject.id}`
+      }
+    }));
+    return res
+      .status(httpStatus.OK)
+      .json(subjectsWithLinks);
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
   }
 });
+
+// 特定のSubject取得
+subjectRoute.get('/uuid/:id', async (req, res) => {
+  try {
+    const subject = await prisma.subject.findUnique({
+      where:{
+        id: req.params.id
+      },
+      include:{
+        teacher: true,
+        commonLecture: true,
+        extraLecture: true,
+      }
+    })
+    return res
+      .status(httpStatus.OK)
+      .json(subject);
+  } catch (err) {
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(err);
+  }
+})
 
 export default subjectRoute;

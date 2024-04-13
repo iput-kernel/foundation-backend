@@ -148,7 +148,7 @@ authRoute.post('/login', async (req, res) => {
     }
     const token = jwt.sign(payload, secret);
 
-    // スプレッド構文でauthを除外
+    // スプレッド構文でauthを除外 ESLINTにnot usedで検出されるので例外にする。
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { auth, ...userResponse } = user;
 

@@ -16,33 +16,50 @@ lectureRoute.post('/common',
         .send('科目を追加する権限がありません。')
     }
     try {
-      await prisma.$transaction(async (prisma) => {
-        const newSubject = await prisma.commonLecture.create({
-          data:{
-            subject:{
-              connect: { id: req.body.subjectId }
-            },
-            room:{
-              connect: { number: req.body.roomNumber },            
-            },
-            timetable: {
-              create: {
-                dayOfWeek: req.body.timetable.dayOfWeek,
-                period: req.body.timetable.period,
-                startTime: req.body.timetable.starttime,
-                endTime: req.body.timetable.endtime,
+      await prisma.$transaction(
+        async (prisma) => {
+          const newLecture = await prisma.commonLecture.create({
+            data:{
+              class: {
+                connect: { id: req.body.classId },
+              },
+              subject:{
+                connect: { id: req.body.subjectId },
+              },
+              room:{
+                connect: { number: req.body.roomNumber },            
+              },
+              timetable: {
+                create: {
+                  dayOfWeek: req.body.timetable.dayOfWeek,
+                  period: req.body.timetable.period,
+                  startTime: req.body.timetable.starttime,
+                  endTime: req.body.timetable.endtime,
+                },
               },
             },
-          },
-          include: {
-            room: true,
-            timetable: true,
-          },
-        })
-        return res
-          .status(httpStatus.OK)
-          .json(newSubject)
-      });
+            include: {
+              class: true,
+              subject: true,
+              room: true,
+              timetable: true,
+            },
+          })
+          await prisma.class.update({
+            where:{
+              id: req.body.classId,
+            },
+            data:{
+              lecture:{
+                connect: { id: req.body.classId },
+              },
+            },
+          })
+          return res
+            .status(httpStatus.OK)
+            .json(newLecture)
+        }
+      );
     } catch (err) {
       console.log(err)
       return res
