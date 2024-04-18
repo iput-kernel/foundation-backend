@@ -46,7 +46,8 @@
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.5",
     "nodemon": "^3.0.1",
-    "punycode": "^2.3.1"
+    "punycode": "^2.3.1",
+    "zod-prisma-types": "^3.1.6"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.2",
