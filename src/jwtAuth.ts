@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 export interface RequestWithUser extends Request {
   user?: {
@@ -17,16 +17,19 @@ export const authenticateJWT = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const token = req.headers.authorization;
+  const bearerHeader = req.headers["authorization"];
+  console.log(req.headers);
 
-  if (!token) {
-    return res.status(403).json({ message: 'トークンが必要です' });
+  if (typeof bearerHeader != "string") {
+    return res.status(403).json({ message: "トークンの形式が不正です" });
   }
 
+  const bearer = bearerHeader.split(" ")[1];
+
   try {
-    const decoded = jwt.decode(token);
-    if (typeof decoded === 'string' || !decoded) {
-      return res.status(403).json({ message: 'トークンの形式が不正です' });
+    const decoded = jwt.decode(bearer);
+    if (typeof decoded === "string" || !decoded) {
+      return res.status(403).json({ message: "トークンの形式が不正です" });
     }
     const user = await prisma.user.findUnique({
       where: {
@@ -35,23 +38,23 @@ export const authenticateJWT = async (
       include: {
         auth: true,
       },
-    })
-      
+    });
+
     if (!user) {
-      return res.status(404).json({ message: 'ユーザーが見つかりません' });
+      return res.status(404).json({ message: "ユーザーが見つかりません" });
     }
 
     const secret = user.auth!.secretKey;
     if (!secret) {
-      throw new Error('No secret key found for the given user.');
+      throw new Error("No secret key found for the given user.");
     }
 
-    jwt.verify(token, secret);
+    jwt.verify(bearer, secret);
 
     req.user = decoded as { id: string; credLevel: number };
     next();
   } catch (err) {
     console.log(err);
-    return res.status(403).json({ message: '無効トークン' });
+    return res.status(403).json({ message: "無効トークン" });
   }
 };

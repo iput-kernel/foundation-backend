@@ -15,6 +15,6 @@
   },
   "plugins": ["@typescript-eslint", "react"],
   "rules": {
-    "quotes": ["error", "single"]
+    "quotes": ["error", "double"]
   }
 }

@@ -126,7 +126,7 @@ model Room {
   name         String          @db.VarChar(30)
   seats        Int?
   status       String?         @db.VarChar(10)
-  subject      CommonLecture[]
+  commonLecture CommonLecture[]
   extraLecture ExtraLecture[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
@@ -138,8 +138,8 @@ model CommonLecture {
   subjectId   String     @db.Uuid
   room        Room?      @relation(fields: [roomNumber], references: [number])
   roomNumber  String?    @unique @db.VarChar(3)
-  timetable   Timetable? @relation(fields: [timetableId], references: [id])
   timetableId String?    @db.Uuid
+  timetable   Timetable? @relation(fields: [timetableId], references: [id])
   class       Class[]    @relation("ClassCommonLecture")
   teacher     Teacher[]  @relation("TeacherCommonLecture")
   createdAt    DateTime       @default(now())
