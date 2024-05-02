@@ -26,16 +26,11 @@ lectureRoute.post(
           subject: {
             connect: { id: req.body.subjectId },
           },
+          timetable: {
+            connect: { id: req.body.timetableId },
+          },
           room: {},
           teacher: {},
-          timetable: {
-            create: {
-              dayOfWeek: req.body.timetable.dayOfWeek,
-              period: req.body.timetable.period,
-              startTime: req.body.timetable.starttime,
-              endTime: req.body.timetable.endtime,
-            },
-          },
         };
 
         if (req.body.roomNumber) {
