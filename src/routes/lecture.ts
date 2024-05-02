@@ -77,6 +77,73 @@ lectureRoute.post(
   },
 );
 
+lectureRoute.post(
+  "/extra",
+  authenticateJWT,
+  async (req: RequestWithUser, res) => {
+    if (req.user!.credLevel < 3) {
+      return res
+        .status(httpStatus.FORBIDDEN)
+        .send("科目を追加する権限がありません。");
+    }
+    try {
+      await prisma.$transaction(async (prisma) => {
+        // dataオブジェクトの基本構造
+        const data = {
+          subject: {
+            connect: { id: req.body.subjectId },
+          },
+          timetable: {
+            connect: { id: req.body.timetableId },
+          },
+          room: {},
+          teacher: {},
+        };
+
+        if (req.body.roomNumber) {
+          data.room = {
+            connect: { number: req.body.roomNumber },
+          };
+
+          await prisma.room.update({
+            where: {
+              number: req.body.roomNumber,
+            },
+            data: {
+              extraLecture: {
+                connect: { id: req.body.roomNumber },
+              },
+            },
+          });
+        }
+
+        if (req.body.teacherId) {
+          data.teacher = {
+            connect: { id: req.body.teacherId },
+          };
+        }
+
+        const newLecture = await prisma.extraLecture.create({
+          data: data,
+          include: {
+            students: true,
+            subject: true,
+            room: true,
+            timetable: true,
+          },
+        });
+
+        return res.status(httpStatus.OK).json(newLecture);
+      });
+    } catch (err) {
+      console.log(err);
+      return res
+        .status(httpStatus.INTERNAL_SERVER_ERROR)
+        .send("内部エラーが発生しました。");
+    }
+  },
+);
+
 // Subject更新
 lectureRoute.put("/:id", async (req, res) => {
   try {
