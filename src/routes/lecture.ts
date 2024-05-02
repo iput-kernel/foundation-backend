@@ -38,7 +38,6 @@ lectureRoute.post(
           },
         };
 
-        // roomNumberが存在する場合のみ、roomフィールドを追加
         if (req.body.roomNumber) {
           data.room = {
             connect: { number: req.body.roomNumber },
